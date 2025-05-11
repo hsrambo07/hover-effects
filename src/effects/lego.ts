@@ -27,10 +27,10 @@ export class LegoHover implements HoverEffect {
     fadeExp?: number;
   } = {}) {
     // Initialize with defaults or provided options
-    this.blockSize = options.blockSize ?? 16;
+    this.blockSize = options.blockSize ?? 20;
     this.gap = options.gap ?? 2;
-    this.studScale = options.studScale ?? 0.33;
-    this.depth = options.depth ?? 0.25;
+    this.studScale = options.studScale ?? 0.4;
+    this.depth = options.depth ?? 0.3;
     this.radius = options.radius ?? 140;
     this.softEdge = options.softEdge ?? 90;
     this.fadeExp = options.fadeExp ?? 1.4;
@@ -117,19 +117,44 @@ export class LegoHover implements HoverEffect {
     this.ctx.fillRect(x, y, s, gx);     // top seam
     this.ctx.fillRect(x, y, gx, s);     // left seam
     
-    // Stud
+    // Draw enhanced stud
     const midX = x + s / 2;
     const midY = y + s / 2;
+    
+    // Enhanced 3D stud with better circles and lighting
+    
+    // Stud base shadow for depth
+    this.ctx.beginPath();
+    this.ctx.arc(midX, midY, studR + 1, 0, Math.PI * 2);
+    this.ctx.closePath();
+    this.ctx.fillStyle = 'rgba(0,0,0,0.2)';
+    this.ctx.fill();
+    
+    // Stud base
     this.ctx.beginPath();
     this.ctx.arc(midX, midY, studR, 0, Math.PI * 2);
     this.ctx.closePath();
     this.ctx.fillStyle = this.shade(rgb, -this.depth * 0.3);
     this.ctx.fill();
     
-    // Stud rim highlight
-    this.ctx.lineWidth = 1;
-    this.ctx.strokeStyle = this.shade(rgb, this.depth * 1.5);
+    // Improve circle rendering with stroke
+    this.ctx.lineWidth = Math.max(1, s / 24);
+    this.ctx.strokeStyle = this.shade(rgb, -this.depth * 0.4);
     this.ctx.stroke();
+    
+    // Stud top highlight (slightly smaller)
+    this.ctx.beginPath();
+    this.ctx.arc(midX, midY, studR * 0.8, 0, Math.PI * 2);
+    this.ctx.closePath();
+    this.ctx.fillStyle = this.shade(rgb, this.depth * 0.5);
+    this.ctx.fill();
+    
+    // Stud highlight dot for 3D appearance
+    this.ctx.beginPath();
+    this.ctx.arc(midX - studR * 0.2, midY - studR * 0.2, studR * 0.25, 0, Math.PI * 2);
+    this.ctx.closePath();
+    this.ctx.fillStyle = this.shade(rgb, this.depth * 2.0);
+    this.ctx.fill();
     
     this.ctx.restore();
   }

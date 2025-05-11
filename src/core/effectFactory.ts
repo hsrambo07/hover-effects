@@ -5,6 +5,7 @@ import { ZoomHover } from '../effects/zoom';
 import { ParticleDust } from '../effects/particleDust';
 import { PixelHover } from '../effects/pixel';
 import { MinecraftHover } from '../effects/minecraft';
+import { LegoHover } from '../effects/lego';
 
 export function createHoverEffect(options: HoverEffectOptions): HoverEffect {
   console.log(`Creating effect: ${options.effect}`);
@@ -14,7 +15,10 @@ export function createHoverEffect(options: HoverEffectOptions): HoverEffect {
       return new AsciiHover({
         radius: options.radius,
         size: options.size,
-        chars: options.chars
+        chars: options.chars,
+        colored: options.colored,
+        glitchIntensity: options.glitchIntensity,
+        glitchSpeed: options.glitchSpeed
       });
     case 'zoom':
       return new ZoomHover({
@@ -36,6 +40,16 @@ export function createHoverEffect(options: HoverEffectOptions): HoverEffect {
       return new MinecraftHover({
         blockSize: options.blockSize,
         radius: options.radius
+      });
+    case 'lego':
+      return new LegoHover({
+        blockSize: options.blockSize,
+        radius: options.radius,
+        gap: options.gap,
+        studScale: options.studScale,
+        depth: options.depth,
+        softEdge: options.softEdge,
+        fadeExp: options.fadeExp
       });
     default:
       throw new Error(`Unsupported effect: ${(options as any).effect}`);

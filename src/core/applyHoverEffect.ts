@@ -4,6 +4,7 @@ import { PixelHover } from '../effects/pixel';
 import { MinecraftHover } from '../effects/minecraft';
 import { AsciiHover } from '../effects/ascii';
 import { ZoomHover } from '../effects/zoom';
+import { LegoHover } from '../effects/lego';
 
 export function applyHoverEffect(element: HTMLElement, options: HoverEffectOptions): HoverEffect {
   let effect: HoverEffect;
@@ -42,6 +43,17 @@ export function applyHoverEffect(element: HTMLElement, options: HoverEffectOptio
       effect = new MinecraftHover({
         blockSize: options.blockSize,
         radius: options.radius
+      });
+      break;
+    case 'lego':
+      effect = new LegoHover({
+        blockSize: options.blockSize,
+        radius: options.radius,
+        gap: options.gap,
+        studScale: options.studScale,
+        depth: options.depth,
+        softEdge: options.softEdge,
+        fadeExp: options.fadeExp
       });
       break;
     default:

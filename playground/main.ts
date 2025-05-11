@@ -396,11 +396,177 @@ async function initializeEffects(): Promise<void> {
       });
     }
   }
+
+  // LEGO Effect
+  const legoDemo = document.getElementById('lego-demo') as HTMLImageElement;
+  if (legoDemo) {
+    await ensureImageLoaded(legoDemo);
+    
+    // Get all control elements
+    const blockSizeControl = document.getElementById('lego-block-size') as HTMLInputElement;
+    const gapControl = document.getElementById('lego-gap') as HTMLInputElement;
+    const studScaleControl = document.getElementById('lego-stud-scale') as HTMLInputElement;
+    const depthControl = document.getElementById('lego-depth') as HTMLInputElement;
+    const radiusControl = document.getElementById('lego-radius') as HTMLInputElement;
+    const softEdgeControl = document.getElementById('lego-soft-edge') as HTMLInputElement;
+    const fadeExpControl = document.getElementById('lego-fade-exp') as HTMLInputElement;
+    const activeToggle = document.getElementById('lego-active') as HTMLInputElement;
+    
+    // Get initial values
+    let blockSize = parseInt(blockSizeControl?.value || '16');
+    let gap = parseInt(gapControl?.value || '2');
+    let studScale = parseInt(studScaleControl?.value || '33') / 100; // Convert to 0-1 range
+    let depth = parseInt(depthControl?.value || '25') / 100; // Convert to 0-1 range
+    let radius = parseInt(radiusControl?.value || '140');
+    let softEdge = parseInt(softEdgeControl?.value || '90');
+    let fadeExp = parseInt(fadeExpControl?.value || '14') / 10; // Convert to decimal
+    const active = activeToggle?.checked !== false;
+    
+    // Update value displays
+    updateValue('lego-block-size', blockSize);
+    updateValue('lego-gap', gap);
+    updateValue('lego-stud-scale', studScale, '');
+    updateValue('lego-depth', depth, '');
+    updateValue('lego-radius', radius);
+    updateValue('lego-soft-edge', softEdge);
+    updateValue('lego-fade-exp', fadeExp, '');
+    
+    // Extended interface for LEGO effect options
+    interface LegoOptions {
+      effect: 'lego';
+      blockSize?: number;
+      gap?: number;
+      studScale?: number;
+      depth?: number;
+      radius?: number;
+      softEdge?: number;
+      fadeExp?: number;
+    }
+    
+    // Function to apply or update the LEGO effect
+    const applyLegoEffect = () => {
+      // If there's an existing instance, destroy it
+      if (effectInstances.lego) {
+        effectInstances.lego.destroy();
+      }
+      
+      // Create a new instance with current settings
+      const options: LegoOptions = {
+        effect: 'lego',
+        blockSize: blockSize,
+        gap: gap,
+        studScale: studScale,
+        depth: depth,
+        radius: radius,
+        softEdge: softEdge,
+        fadeExp: fadeExp
+      };
+      
+      effectInstances.lego = applyHoverEffect(legoDemo, options);
+    };
+    
+    // Initially apply the effect
+    if (active) {
+      applyLegoEffect();
+    }
+    
+    // Block size control handler
+    blockSizeControl.addEventListener('input', () => {
+      blockSize = parseInt(blockSizeControl.value);
+      updateValue('lego-block-size', blockSize);
+      
+      if (effectInstances.lego && effectInstances.lego.setBlockSize) {
+        effectInstances.lego.setBlockSize(blockSize);
+      } else {
+        applyLegoEffect();
+      }
+    });
+    
+    // Gap control handler
+    gapControl.addEventListener('input', () => {
+      gap = parseInt(gapControl.value);
+      updateValue('lego-gap', gap);
+      applyLegoEffect();
+    });
+    
+    // Stud scale control handler
+    studScaleControl.addEventListener('input', () => {
+      studScale = parseInt(studScaleControl.value) / 100;
+      updateValue('lego-stud-scale', studScale, '');
+      applyLegoEffect();
+    });
+    
+    // Depth control handler
+    depthControl.addEventListener('input', () => {
+      depth = parseInt(depthControl.value) / 100;
+      updateValue('lego-depth', depth, '');
+      applyLegoEffect();
+    });
+    
+    // Radius control handler
+    radiusControl.addEventListener('input', () => {
+      radius = parseInt(radiusControl.value);
+      updateValue('lego-radius', radius);
+      
+      if (effectInstances.lego && effectInstances.lego.setRadius) {
+        effectInstances.lego.setRadius(radius);
+      } else {
+        applyLegoEffect();
+      }
+    });
+    
+    // Soft edge control handler
+    softEdgeControl.addEventListener('input', () => {
+      softEdge = parseInt(softEdgeControl.value);
+      updateValue('lego-soft-edge', softEdge);
+      applyLegoEffect();
+    });
+    
+    // Fade exponent control handler
+    fadeExpControl.addEventListener('input', () => {
+      fadeExp = parseInt(fadeExpControl.value) / 10;
+      updateValue('lego-fade-exp', fadeExp, '');
+      applyLegoEffect();
+    });
+    
+    // Toggle effect active state
+    activeToggle.addEventListener('change', () => {
+      if (activeToggle.checked) {
+        applyLegoEffect();
+      } else if (effectInstances.lego) {
+        effectInstances.lego.destroy();
+        effectInstances.lego = null;
+      }
+    });
+  }
 }
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
   console.log('Initializing hover effects demo...');
+  
+  // Set up tab switching
+  const navItems = document.querySelectorAll('.nav-item');
+  const tabContents = document.querySelectorAll('.tab-content');
+  
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      // Remove active class from all nav items and tab contents
+      navItems.forEach(navItem => navItem.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Add active class to clicked nav item and corresponding tab content
+      item.classList.add('active');
+      const tabId = item.getAttribute('data-tab');
+      if (tabId) {
+        const tabContent = document.getElementById(tabId);
+        if (tabContent) {
+          tabContent.classList.add('active');
+        }
+      }
+    });
+  });
+  
   initializeEffects().catch(error => {
     console.error('Failed to initialize effects:', error);
   });

@@ -92,41 +92,206 @@
     }
 
     .main-content {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: var(--spacing-md);
       height: calc(100vh - 150px);
-    }
-
-    .effect-preview {
+      min-height: 700px;
       position: relative;
       overflow: hidden;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      position: relative;
+      height: 100%;
+    }
+
+    /* Apply consistent styling to all effect previews */
+    .effect-preview {
+      position: relative;
       width: 100%;
       height: 100%;
-      background: var(--card-bg);
-      border-radius: var(--radius);
+      border-radius: 16px;
+      overflow: hidden;
       box-shadow: var(--shadow);
     }
 
+    /* Ensure all previews have consistent image handling */
     .effect-preview img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      display: block;
+      background-color: var(--bg-color);
+      border-radius: 16px;
+    }
+
+    /* Fixed dimensions container for consistent image display */
+    .image-container {
+      position: relative;
+      width: 100%;
+      height: 800px;
+      overflow: hidden !important;
+      border-radius: 16px;
+      /* Image position reference */
+      transform: translateZ(0);
+      backface-visibility: hidden;
+    }
+
+    /* Override for all tabs to ensure consistent behavior */
+    .tab-content .effect-preview {
+      overflow: hidden !important;
+    }
+
+    .tab-content .image-container {
+      overflow: hidden !important;
     }
 
     .effect-controls {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      width: 280px;
       padding: var(--spacing-md);
-      background-color: var(--card-bg);
+      background-color: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
+      box-shadow: var(--shadow-lg);
+      z-index: 100;
+      max-height: calc(100% - 40px);
+      overflow-y: auto;
+      transform: translateX(0);
+      transition: transform 0.3s ease;
     }
 
+    /* Collapsible controls */
+    .toggle-controls {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 30px;
+      height: 30px;
+      background: var(--primary-color);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 18px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 101;
+      box-shadow: var(--shadow);
+    }
+
+    .effect-controls.collapsed {
+      transform: translateX(calc(100% + 20px));
+    }
+
+    /* More compact controls */
     .control-group {
-      margin-bottom: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+
+    .switch-wrapper {
+      margin-bottom: var(--spacing-sm);
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 992px) {
+      .app-container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+      }
+      
+      .sidebar {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: var(--spacing-sm);
+      }
+      
+      .nav-item {
+        flex: 0 0 auto;
+        min-width: 100px;
+        text-align: center;
+      }
+      
+      .main-content {
+        height: 80vh;
+      }
+      
+      .effect-controls {
+        bottom: 20px;
+        top: auto;
+        left: 20px;
+        right: 20px;
+        width: auto;
+        max-height: 60vh;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: var(--spacing-sm);
+      }
+    }
+
+    /* Additional styles for ASCII render */
+    .ascii-render {
+      font-family: 'Courier New', monospace;
+      letter-spacing: var(--ascii-spacing, 0.1em);
+      line-height: var(--ascii-line-height, 0.8em);
+      white-space: pre;
+      color: #00ff00;
+      font-weight: bold;
+      text-shadow: 0 0 2px rgba(0, 255, 0, 0.5);
+      overflow: hidden;
+    }
+    
+    /* Fix for ASCII wrapper to ensure strict containment */
+    .ascii-wrapper {
+      position: relative !important;
+      display: inline-block !important;
+      overflow: hidden !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      border-radius: 16px !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+    
+    /* Ensuring the canvas has a transparent background */
+    canvas[data-ascii-id] {
+      background-color: transparent !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+      clip-path: inset(0) !important; /* Clip content to its box */
+      z-index: 50 !important; /* Ensure proper layering */
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* Fix for making sure the original image remains at proper dimensions */
+    .ascii-wrapper img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block !important;
+    }
+
+    /* Override for the ASCII effect tab to ensure tight containment */
+    #ascii .effect-preview {
+      overflow: hidden;
+    }
+
+    #ascii .image-container {
+      overflow: hidden;
     }
 
     .control-header {
@@ -247,65 +412,39 @@
       transform: translateX(16px);
     }
 
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: grid;
-      grid-template-columns: 1fr 320px;
-      gap: var(--spacing-md);
-    }
-
-    @media (max-width: 992px) {
-      .app-container {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-md);
-      }
-      
-      .sidebar {
-        flex-direction: row;
-        overflow-x: auto;
-        padding-bottom: var(--spacing-sm);
-      }
-      
-      .nav-item {
-        flex: 0 0 auto;
-        min-width: 100px;
-        text-align: center;
-      }
-      
-      .main-content,
-      .tab-content.active {
-        grid-template-columns: 1fr;
-        height: auto;
-      }
-      
-      .effect-preview {
-        height: 400px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      body {
-        padding: var(--spacing-sm);
-      }
-    }
-
-    /* Additional styles for ASCII render */
-    .ascii-render {
-      font-family: 'Courier New', monospace;
-      letter-spacing: var(--ascii-spacing, 0.1em);
-      line-height: var(--ascii-line-height, 0.8em);
-      white-space: pre;
-      color: #00ff00;
-      font-weight: bold;
-      text-shadow: 0 0 2px rgba(0, 255, 0, 0.5);
+    /* Apply consistent styling to all effect wrappers */
+    .effect-wrapper {
+      position: relative !important;
+      display: inline-block !important;
+      overflow: hidden !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      border-radius: 16px !important;
+      width: 100% !important;
+      height: 100% !important;
     }
     
-    /* Ensuring the canvas has a transparent background */
-    canvas[data-ascii-id] {
+    /* Consistent styling for all effect canvases */
+    canvas[data-effect-id] {
       background-color: transparent !important;
+      max-width: 100% !important;
+      max-height: 100% !important;
+      overflow: hidden !important;
+      clip-path: inset(0) !important; /* Clip content to its box */
+      z-index: 50 !important; /* Ensure proper layering */
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    /* Ensure all images in effect wrappers have consistent styling */
+    .effect-wrapper img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block !important;
     }
   </style>
 </head>
@@ -321,13 +460,17 @@
       <div class="nav-item" data-tab="particle">Particle</div>
       <div class="nav-item" data-tab="pixel">Pixel</div>
       <div class="nav-item" data-tab="minecraft">Minecraft</div>
+      <div class="nav-item" data-tab="lego">LEGO</div>
     </div>
     
     <div class="main-content">
       <div id="ascii" class="tab-content active">
         <div class="effect-preview">
-          <img src="images/image7.jpg" alt="Demo 1" id="ascii-demo">
+          <div class="image-container">
+            <img src="images/image7.jpg" alt="Demo 1" id="ascii-demo">
+          </div>
         </div>
+        <button class="toggle-controls" title="Toggle Controls">≡</button>
         <div class="effect-controls">
           <div class="switch-wrapper">
             <span>Effect Active</span>
@@ -383,8 +526,11 @@
 
       <div id="zoom" class="tab-content">
         <div class="effect-preview">
-          <img src="images/image2.jpg" alt="Demo 2" id="zoom-demo">
+          <div class="image-container">
+            <img src="images/image2.jpg" alt="Demo 2" id="zoom-demo">
+          </div>
         </div>
+        <button class="toggle-controls" title="Toggle Controls">≡</button>
         <div class="effect-controls">
           <div class="switch-wrapper">
             <span>Effect Active</span>
@@ -412,8 +558,11 @@
 
       <div id="particle" class="tab-content">
         <div class="effect-preview">
-          <img src="images/image1.jpg" alt="Demo 3" id="particle-demo">
+          <div class="image-container">
+            <img src="images/image1.jpg" alt="Demo 3" id="particle-demo">
+          </div>
         </div>
+        <button class="toggle-controls" title="Toggle Controls">≡</button>
         <div class="effect-controls">
           <div class="switch-wrapper">
             <span>Effect Active</span>
@@ -441,8 +590,11 @@
 
       <div id="pixel" class="tab-content">
         <div class="effect-preview">
-          <img src="images/image5.jpg" alt="Demo 4" id="pixel-demo">
+          <div class="image-container">
+            <img src="images/image5.jpg" alt="Demo 4" id="pixel-demo">
+          </div>
         </div>
+        <button class="toggle-controls" title="Toggle Controls">≡</button>
         <div class="effect-controls">
           <div class="switch-wrapper">
             <span>Effect Active</span>
@@ -470,8 +622,11 @@
 
       <div id="minecraft" class="tab-content">
         <div class="effect-preview">
-          <img src="images/image4.jpg" alt="Demo 5" id="minecraft-demo">
+          <div class="image-container">
+            <img src="images/image9.jpg" alt="Demo 5" id="minecraft-demo">
+          </div>
         </div>
+        <button class="toggle-controls" title="Toggle Controls">≡</button>
         <div class="effect-controls">
           <div class="switch-wrapper">
             <span>Effect Active</span>
@@ -485,7 +640,7 @@
               <label for="minecraft-size">Block Size</label>
               <span class="value" id="minecraft-size-value">6px</span>
             </div>
-            <input type="range" min="4" max="12" value="6" id="minecraft-size">
+            <input type="range" min="4" max="50" value="6" id="minecraft-size">
           </div>
           <div class="control-group">
             <div class="control-header">
@@ -493,6 +648,73 @@
               <span class="value" id="minecraft-radius-value">130px</span>
             </div>
             <input type="range" min="50" max="150" value="130" id="minecraft-radius">
+          </div>
+        </div>
+      </div>
+
+      <div id="lego" class="tab-content">
+        <div class="effect-preview">
+          <div class="image-container">
+            <img src="images/image3.jpg" alt="LEGO Demo" id="lego-demo">
+          </div>
+        </div>
+        <button class="toggle-controls" title="Toggle Controls">≡</button>
+        <div class="effect-controls">
+          <div class="switch-wrapper">
+            <span>Effect Active</span>
+            <label class="switch">
+              <input type="checkbox" checked id="lego-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="lego-block-size">Block Size</label>
+              <span class="value" id="lego-block-size-value">16px</span>
+            </div>
+            <input type="range" min="8" max="40" value="16" id="lego-block-size">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="lego-gap">Gap Size</label>
+              <span class="value" id="lego-gap-value">2px</span>
+            </div>
+            <input type="range" min="1" max="5" value="2" id="lego-gap">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="lego-stud-scale">Stud Size</label>
+              <span class="value" id="lego-stud-scale-value">0.33</span>
+            </div>
+            <input type="range" min="20" max="70" value="33" id="lego-stud-scale">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="lego-depth">3D Depth</label>
+              <span class="value" id="lego-depth-value">0.25</span>
+            </div>
+            <input type="range" min="10" max="40" value="25" id="lego-depth">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="lego-radius">Radius</label>
+              <span class="value" id="lego-radius-value">140px</span>
+            </div>
+            <input type="range" min="80" max="200" value="140" id="lego-radius">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="lego-soft-edge">Edge Softness</label>
+              <span class="value" id="lego-soft-edge-value">90px</span>
+            </div>
+            <input type="range" min="30" max="150" value="90" id="lego-soft-edge">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="lego-fade-exp">Fade Exponent</label>
+              <span class="value" id="lego-fade-exp-value">1.4</span>
+            </div>
+            <input type="range" min="10" max="30" value="14" id="lego-fade-exp">
           </div>
         </div>
       </div>
@@ -511,6 +733,71 @@
         const tabId = item.getAttribute('data-tab');
         document.getElementById(tabId).classList.add('active');
       });
+    });
+
+    // Toggle control panels
+    document.querySelectorAll('.toggle-controls').forEach(button => {
+      button.addEventListener('click', () => {
+        const controlPanel = button.nextElementSibling;
+        controlPanel.classList.toggle('collapsed');
+        
+        // Change the toggle button text
+        if (controlPanel.classList.contains('collapsed')) {
+          button.textContent = '◀';  // Show controls
+        } else {
+          button.textContent = '≡';  // Hide controls
+        }
+      });
+    });
+    
+    // Helper to ensure consistent layout and cursor sync for all effects
+    window.addEventListener('load', function() {
+      setTimeout(function() {
+        // Handle ASCII effect wrappers
+        document.querySelectorAll('.ascii-wrapper').forEach(wrapper => {
+          wrapper.classList.add('effect-wrapper');
+          wrapper.style.width = '100%';
+          wrapper.style.height = '100%';
+        });
+        
+        // Apply consistent styling to all image containers
+        document.querySelectorAll('.image-container').forEach(container => {
+          container.style.overflow = 'hidden';
+        });
+        
+        // Apply similar wrapper handling for all other effects
+        document.querySelectorAll('.image-container img').forEach(img => {
+          const effectId = img.id.split('-')[0]; // Extract effect name from id (e.g., "zoom" from "zoom-demo")
+          
+          // Skip if already properly wrapped
+          if (effectId && !img.closest('.effect-wrapper') && !img.closest('.ascii-wrapper')) {
+            let wrapper = img.closest(`.${effectId}-wrapper`);
+            
+            // Create wrapper if it doesn't exist
+            if (!wrapper) {
+              wrapper = document.createElement('div');
+              wrapper.className = `effect-wrapper ${effectId}-wrapper`;
+              wrapper.style.position = 'relative';
+              wrapper.style.display = 'inline-block';
+              wrapper.style.width = '100%';
+              wrapper.style.height = '100%';
+              wrapper.style.overflow = 'hidden';
+              
+              // Insert the wrapper before the image and move the image inside
+              img.parentNode.insertBefore(wrapper, img);
+              wrapper.appendChild(img);
+            }
+            
+            // Ensure any canvas has proper attributes
+            const canvases = wrapper.querySelectorAll('canvas');
+            canvases.forEach(canvas => {
+              if (!canvas.dataset.effectId) {
+                canvas.dataset.effectId = effectId;
+              }
+            });
+          }
+        });
+      }, 500);
     });
   </script>
 

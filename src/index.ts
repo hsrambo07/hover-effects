@@ -10,4 +10,5 @@ export { ZoomHover } from './effects/zoom';
 export { ParticleDust } from './effects/particleDust';
 export { PixelHover } from './effects/pixel';
 export { MinecraftHover } from './effects/minecraft';
+export { LegoHover } from './effects/lego';
  
