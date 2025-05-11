@@ -22,9 +22,6 @@ function ensureImageLoaded(img: HTMLImageElement): Promise<void> {
 // Store effect instances to enable toggling
 const effectInstances: Record<string, any> = {};
 
-// Expose effect instances to window for full mode script
-(window as any).effectInstances = effectInstances;
-
 // Initialize all effects
 async function initializeEffects(): Promise<void> {
   // ASCII Effect
