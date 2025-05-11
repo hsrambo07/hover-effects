@@ -14,18 +14,120 @@ export class AsciiHover implements HoverEffect {
   private lastRenderTime = 0;
   private readonly FPS = 30;
   private readonly frameInterval = 1000 / 30; // 30 FPS
+  private frameCount = 0;
+  private glitchOffsets: Array<{x: number, y: number}> = [];
+  
+  // Fixed color palette - blues and greens with some highlights
+  private colorPalette = [
+    '#033F63', // dark blue
+    '#28666E', // teal
+    '#7C9885', // sage green
+    '#B5B682', // light olive
+    '#FEDC97', // light yellow
+    '#00A9A5', // turquoise
+    '#4A6D7C', // slate blue
+    '#90C2E7', // light blue
+    '#CDE7B0', // light green
+    '#BCD39C'  // pale green
+  ];
+  
+  // Character sets for different modes
+  private coloredChars: string[] = ['@', 'r', 'A', '8', '*'];
+  private nonColoredChars: string[] = ['█', '@', '%', '#', '*', '+', '=', '^', ' '];
   
   private radius: number;
   private size: number;
   private chars: string[];
   private scale: number;
+  private colored: boolean;
+  private glitchIntensity: number;
+  private glitchSpeed: number;
 
-  constructor(options: { radius?: number; size?: number; chars?: string[] } = {}) {
+  private get cellW() { return this.size * 0.6; }  // monospace width ≈ 0.6×font size
+  private get cellH() { return this.size * 1.2; }  // leave a bit of leading
+
+  constructor(options: { 
+    radius?: number; 
+    size?: number; 
+    colored?: boolean;
+    glitchIntensity?: number;
+    glitchSpeed?: number;
+    chars?: string[];
+  } = {}) {
     this.id = Math.random().toString(36).substring(2, 9);
     this.radius = options.radius ?? 70;
-    this.size = options.size ?? 12;
-    this.chars = options.chars ?? ['█', '@', '%', '#', '*', '+', '=', '-', ':', '.', ' '];
+    this.size = options.size ?? 14;
+    
+    // Default to non-colored chars initially
+    this.chars = this.nonColoredChars;
+    
     this.scale = 0.2;
+    this.colored = options.colored ?? false;
+    this.glitchIntensity = options.glitchIntensity ?? 3;
+    this.glitchSpeed = options.glitchSpeed ?? 0.5;
+    
+    // Update character set based on mode or custom chars
+    if (options.chars) {
+      this.chars = options.chars;
+    } else if (this.colored) {
+      this.chars = this.coloredChars;
+    } else {
+      this.chars = this.nonColoredChars;
+    }
+  }
+
+  // Helper to convert hex colors to rgba
+  private hexToRgba(hex: string, alpha: number): string {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  
+  // Helper to convert RGB to HSL
+  private rgbToHsl(r: number, g: number, b: number) {
+    r /= 255; g /= 255; b /= 255;
+    const max = Math.max(r, g, b), min = Math.min(r, g, b);
+    let h = 0, s = 0, l = (max + min) / 2;
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+        case g: h = (b - r) / d + 2; break;
+        case b: h = (r - g) / d + 4; break;
+      }
+      h /= 6;
+    }
+    return { h, s, l };
+  }
+  
+  // Helper to convert HSL to CSS color string
+  private hslToCss({ h, s, l }: { h: number; s: number; l: number }) {
+    return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+  }
+
+  private initGlitchOffsets(width: number, height: number, stepX: number, stepY: number): void {
+    this.glitchOffsets = [];
+    
+    for (let y = 0; y < height; y += stepY) {
+      for (let x = 0; x < width; x += stepX) {
+        this.glitchOffsets.push({
+          x: 0,
+          y: 0
+        });
+      }
+    }
+  }
+
+  private updateGlitchOffsets(): void {
+    const intensity = this.glitchIntensity;
+    this.glitchOffsets.forEach(offset => {
+      if (Math.random() < 0.1) { // Only update some offsets each frame
+        offset.x = (Math.random() * 2 - 1) * intensity;
+        offset.y = (Math.random() * 2 - 1) * intensity;
+      }
+    });
   }
 
   private onMouseEnter = (e: MouseEvent): void => {
@@ -33,6 +135,7 @@ export class AsciiHover implements HoverEffect {
     
     this.isHovering = true;
     
+    // Get accurate cursor position relative to the image
     const rect = this.element.getBoundingClientRect();
     this.mousePos = {
       x: e.clientX - rect.left,
@@ -65,6 +168,7 @@ export class AsciiHover implements HoverEffect {
   private onMouseMove = (e: MouseEvent): void => {
     if (!this.element) return;
     
+    // Get accurate cursor position relative to the image
     const rect = this.element.getBoundingClientRect();
     this.mousePos = {
       x: e.clientX - rect.left,
@@ -75,6 +179,7 @@ export class AsciiHover implements HoverEffect {
   private updateImageData(): void {
     if (!this.element || !this.tempCanvas || !this.tempCtx) return;
     
+    // Important: Use the actual display dimensions for proper synchronization
     const sw = Math.floor(this.element.width * this.scale);
     const sh = Math.floor(this.element.height * this.scale);
     
@@ -95,49 +200,176 @@ export class AsciiHover implements HoverEffect {
     }
     
     this.lastRenderTime = timestamp;
+    this.frameCount++;
     
+    // Use displayed dimensions for everything to ensure proper synchronization
     const width = this.canvas.width;
     const height = this.canvas.height;
     const sw = Math.floor(width * this.scale);
     const sh = Math.floor(height * this.scale);
     
+    // Clear the canvas with each frame
     this.ctx.clearRect(0, 0, width, height);
-    this.ctx.font = `${this.size}px monospace`;
+    
+    // Set composite operation to ensure transparency works correctly
+    this.ctx.globalCompositeOperation = 'source-over';
+    
+    // Set font with monospace for consistent character width
+    this.ctx.font = `bold ${this.size}px monospace`;
     this.ctx.textAlign = 'center';
     this.ctx.textBaseline = 'middle';
     
     const data = this.imageData.data;
     
-    for (let y = 0; y < sh; y++) {
-      for (let x = 0; x < sw; x++) {
-        const dx = (x / this.scale);
-        const dy = (y / this.scale);
-        
-        const dist = Math.hypot(dx - this.mousePos.x, dy - this.mousePos.y);
-        
-        if (dist < this.radius) {
-          const index = (y * sw + x) * 4;
-          const brightness = (data[index] + data[index + 1] + data[index + 2]) / 3;
+    if (this.colored) {
+      // ----- crisp coloured ASCII loop with ultra-soft edges -------------
+      const stepX = Math.round(this.cellW * this.scale);
+      const stepY = Math.round(this.cellH * this.scale);
+
+      // Create an extremely soft mask
+      const fullRadius = this.radius * 3.0; // Very large radius for ultra-soft edges
+      
+      // First pass: Draw blurred background for depth
+      this.ctx.save();
+      this.ctx.filter = 'blur(3px) brightness(0.6) contrast(1.2)';
+      for (let y = 0, py = 0; y < sh; y += stepY, py += this.cellH) {
+        for (let x = 0, px = 0; x < sw; x += stepX, px += this.cellW) {
+          const displayX = x / this.scale;
+          const displayY = y / this.scale;
+          const dist = Math.hypot(displayX - this.mousePos.x, displayY - this.mousePos.y);
           
-          const time = Date.now() / 150;
-          const glitch = Math.sin(time + (x * y) / 1000) * 5;
-          const avg = 255 - brightness + glitch;
+          if (dist > fullRadius) continue;
           
-          const charIndex = Math.min(
-            Math.max(
-              Math.floor((avg / 255) * (this.chars.length - 1)), 
-              0
-            ), 
-            this.chars.length - 1
-          );
+          const falloff = Math.max(0, 1 - (dist / fullRadius));
+          let alpha = falloff * falloff * falloff * (falloff * (falloff * 6 - 15) + 10);
           
-          const alpha = 1 - dist / this.radius;
+          if (alpha < 0.005) continue;
+
+          const time = Date.now() / (250 / this.glitchSpeed);
+          const glitchX = Math.sin(time / 500 + y / 40) * (this.glitchIntensity / 2);
+          const glitchY = Math.cos(time / 500 + x / 40) * (this.glitchIntensity / 2);
           
-          this.ctx.fillStyle = `rgba(0,0,0,${alpha * 0.8})`;
-          this.ctx.fillRect(dx - this.size/2, dy - this.size/2, this.size, this.size);
+          const glitchedX = displayX + Math.round(glitchX);
+          const glitchedY = displayY + Math.round(glitchY);
           
-          this.ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-          this.ctx.fillText(this.chars[charIndex], dx, dy);
+          const cx = Math.min(sw - 1, x + (stepX >> 1));
+          const cy = Math.min(sh - 1, y + (stepY >> 1));
+          const idx = (cy * sw + cx) * 4;
+          const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+
+          // Draw dark base layer for more contrast
+          this.ctx.globalAlpha = alpha * 0.7;
+          this.ctx.fillStyle = 'rgba(0,0,0,0.7)';
+          this.ctx.fillRect(glitchedX - this.cellW/2 - 1, glitchedY - this.cellH/2 - 1, this.cellW + 2, this.cellH + 2);
+
+          // Draw background with enhanced depth
+          this.ctx.globalAlpha = alpha * 0.6;
+          this.ctx.fillStyle = `rgb(${Math.floor(r*0.7)},${Math.floor(g*0.7)},${Math.floor(b*0.7)})`;
+          this.ctx.fillRect(glitchedX - this.cellW/2, glitchedY - this.cellH/2, this.cellW, this.cellH);
+        }
+      }
+      this.ctx.restore();
+
+      // Second pass: Draw ASCII characters with enhanced shadows and depth
+      for (let y = 0, py = 0; y < sh; y += stepY, py += this.cellH) {
+        for (let x = 0, px = 0; x < sw; x += stepX, px += this.cellW) {
+          const displayX = x / this.scale;
+          const displayY = y / this.scale;
+          const dist = Math.hypot(displayX - this.mousePos.x, displayY - this.mousePos.y);
+          
+          if (dist > fullRadius) continue;
+          
+          const falloff = Math.max(0, 1 - (dist / fullRadius));
+          let alpha = falloff * falloff * falloff * (falloff * (falloff * 6 - 15) + 10);
+          
+          if (alpha < 0.005) continue;
+
+          const time = Date.now() / (250 / this.glitchSpeed);
+          const glitchX = Math.sin(time / 500 + y / 40) * (this.glitchIntensity / 2);
+          const glitchY = Math.cos(time / 500 + x / 40) * (this.glitchIntensity / 2);
+          
+          const glitchedX = displayX + Math.round(glitchX);
+          const glitchedY = displayY + Math.round(glitchY);
+          
+          const cx = Math.min(sw - 1, x + (stepX >> 1));
+          const cy = Math.min(sh - 1, y + (stepY >> 1));
+          const idx = (cy * sw + cx) * 4;
+          const r = data[idx], g = data[idx + 1], b = data[idx + 2];
+
+          const glitchEffect = Math.sin(time + (x * y) / 800) * (this.glitchIntensity * 1.5);
+          const brightness = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+          const adjustedBrightness = Math.max(0, Math.min(1, brightness + (glitchEffect / 255)));
+          
+          const charIndex = Math.floor((1 - adjustedBrightness) * (this.chars.length - 1));
+          const char = this.chars[charIndex];
+
+          // Draw multiple shadow layers for enhanced depth
+          this.ctx.save();
+          
+          // First shadow layer (distant)
+          this.ctx.shadowColor = 'rgba(0,0,0,0.6)';
+          this.ctx.shadowBlur = 8;
+          this.ctx.shadowOffsetX = 3;
+          this.ctx.shadowOffsetY = 3;
+          this.ctx.globalAlpha = alpha * 0.7;
+          this.ctx.fillStyle = `rgb(${r},${g},${b})`;
+          this.ctx.fillText(char, glitchedX, glitchedY);
+          
+          // Second shadow layer (closer)
+          this.ctx.shadowColor = 'rgba(0,0,0,0.5)';
+          this.ctx.shadowBlur = 4;
+          this.ctx.shadowOffsetX = 2;
+          this.ctx.shadowOffsetY = 2;
+          this.ctx.globalAlpha = alpha * 0.9;
+          this.ctx.fillText(char, glitchedX, glitchedY);
+          
+          this.ctx.restore();
+
+          // Draw character with highlight
+          this.ctx.save();
+          this.ctx.globalAlpha = alpha;
+          // Add a stronger highlight for better contrast
+          this.ctx.fillStyle = `rgba(255,255,255,0.2)`;
+          this.ctx.fillText(char, glitchedX - 1, glitchedY - 1);
+          // Draw main character with enhanced brightness
+          this.ctx.fillStyle = `rgb(${Math.min(255, Math.floor(r*1.2))},${Math.min(255, Math.floor(g*1.2))},${Math.min(255, Math.floor(b*1.2))})`;
+          this.ctx.fillText(char, glitchedX, glitchedY);
+          this.ctx.restore();
+        }
+      }
+    } else {
+      // Original non-colored approach with natural animation
+      for (let y = 0; y < sh; y++) {
+        for (let x = 0; x < sw; x++) {
+          const dx = (x / this.scale);
+          const dy = (y / this.scale);
+          
+          const dist = Math.hypot(dx - this.mousePos.x, dy - this.mousePos.y);
+          
+          if (dist < this.radius) {
+            const index = (y * sw + x) * 4;
+            const brightness = (data[index] + data[index + 1] + data[index + 2]) / 3;
+            
+            const time = Date.now() / (300 / this.glitchSpeed);
+            const glitch = Math.sin(time + (x * y) / 1000) * this.glitchIntensity;
+            const avg = 255 - brightness + glitch;
+            
+            const charIndex = Math.min(
+              Math.max(
+                Math.floor((avg / 255) * (this.chars.length - 1)), 
+                0
+              ), 
+              this.chars.length - 1
+            );
+            
+            const alpha = 1 - dist / this.radius;
+            
+            this.ctx.fillStyle = `rgba(0,0,0,${alpha * 0.8})`;
+            this.ctx.fillRect(dx - this.size/2, dy - this.size/2, this.size, this.size);
+            
+            this.ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+            this.ctx.fillText(this.chars[charIndex], dx, dy);
+          }
         }
       }
     }
@@ -166,13 +398,26 @@ export class AsciiHover implements HoverEffect {
       canvas.style.opacity = '0';
       canvas.style.transition = 'opacity 0.3s ease';
       canvas.style.pointerEvents = 'none';
+      canvas.style.backgroundColor = 'transparent'; // Ensure transparent background
       canvas.dataset.asciiId = this.id;
       this.canvas = canvas;
-      this.ctx = canvas.getContext('2d');
       
-      // Create temp canvas
+      // Create context with alpha transparency enabled
+      this.ctx = canvas.getContext('2d', { 
+        alpha: true,
+        willReadFrequently: true
+      });
+      
+      if (this.ctx) {
+        // Ensure proper configuration for transparency
+        this.ctx.globalCompositeOperation = 'source-over';
+        // Disable canvas resampling
+        (this.ctx as CanvasRenderingContext2D).imageSmoothingEnabled = false;
+      }
+      
+      // Create temp canvas with transparency
       this.tempCanvas = document.createElement('canvas');
-      this.tempCtx = this.tempCanvas.getContext('2d');
+      this.tempCtx = this.tempCanvas.getContext('2d', { alpha: true });
       
       // Update image data
       this.updateImageData();
@@ -227,6 +472,45 @@ export class AsciiHover implements HoverEffect {
     this.tempCanvas = null;
     this.tempCtx = null;
     this.imageData = null;
+    this.glitchOffsets = [];
+  }
+  
+  public setColored(colored: boolean): void {
+    this.colored = colored;
+    
+    // If we have custom chars, don't change them when toggling colored mode
+    if (this.chars !== this.coloredChars && this.chars !== this.nonColoredChars) {
+      return;
+    }
+    
+    // Update the character set based on colored mode
+    if (this.colored) {
+      this.chars = this.coloredChars;
+    } else {
+      this.chars = this.nonColoredChars;
+    }
+  }
+  
+  public setGlitchIntensity(intensity: number): void {
+    this.glitchIntensity = intensity;
+  }
+  
+  public setGlitchSpeed(speed: number): void {
+    this.glitchSpeed = speed;
+  }
+  
+  public setRadius(radius: number): void {
+    this.radius = radius;
+  }
+  
+  public setSize(size: number): void {
+    this.size = size;
+  }
+  
+  public setChars(chars: string[]): void {
+    if (chars && chars.length > 0) {
+      this.chars = chars;
+    }
   }
 }
  

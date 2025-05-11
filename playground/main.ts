@@ -19,50 +19,157 @@ function ensureImageLoaded(img: HTMLImageElement): Promise<void> {
   });
 }
 
+// Store effect instances to enable toggling
+const effectInstances: Record<string, any> = {};
+
 // Initialize all effects
 async function initializeEffects(): Promise<void> {
   // ASCII Effect
   const asciiDemo = document.getElementById('ascii-demo') as HTMLImageElement;
   if (asciiDemo) {
     await ensureImageLoaded(asciiDemo);
-    let effect = applyHoverEffect(asciiDemo, {
-      effect: 'ascii',
-      size: 12,
-      radius: 70
-    });
 
-    // Set up controls
+    // Get all control elements
     const sizeControl = document.getElementById('ascii-size') as HTMLInputElement;
     const radiusControl = document.getElementById('ascii-radius') as HTMLInputElement;
-
-    if (sizeControl && radiusControl) {
-      sizeControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(asciiDemo, {
-          effect: 'ascii',
-          size: parseInt(sizeControl.value),
-          radius: parseInt(radiusControl.value)
-        });
-        updateValue('ascii-size', parseInt(sizeControl.value));
-      });
-
-      radiusControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(asciiDemo, {
-          effect: 'ascii',
-          size: parseInt(sizeControl.value),
-          radius: parseInt(radiusControl.value)
-        });
-        updateValue('ascii-radius', parseInt(radiusControl.value));
-      });
+    const activeToggle = document.getElementById('ascii-active') as HTMLInputElement;
+    const spacingControl = document.getElementById('ascii-spacing') as HTMLInputElement;
+    const colorToggle = document.getElementById('ascii-color') as HTMLInputElement;
+    const glitchIntensityControl = document.getElementById('ascii-glitch-intensity') as HTMLInputElement;
+    const glitchSpeedControl = document.getElementById('ascii-glitch-speed') as HTMLInputElement;
+    
+    // Get values (using let instead of const to allow updates)
+    let size = parseInt(sizeControl?.value || '16');
+    let radius = parseInt(radiusControl?.value || '100');
+    const active = activeToggle?.checked !== false;
+    let letterSpacing = parseInt(spacingControl?.value || '50') / 100; // Convert to 0-1 range
+    let colored = colorToggle?.checked !== false;
+    let glitchIntensity = parseInt(glitchIntensityControl?.value || '3');
+    let glitchSpeed = parseInt(glitchSpeedControl?.value || '5') / 10; // Convert to a reasonable range
+    
+    // Apply initial CSS variable for letter spacing
+    document.documentElement.style.setProperty('--ascii-spacing', `${letterSpacing}em`);
+    
+    // Update value displays
+    const updateValue = (id: string, value: number, suffix = 'px') => {
+      const element = document.getElementById(`${id}-value`);
+      if (element) {
+        element.textContent = `${value}${suffix}`;
+      }
+    };
+    
+    updateValue('ascii-size', size);
+    updateValue('ascii-radius', radius);
+    updateValue('ascii-spacing', letterSpacing, '');
+    updateValue('ascii-glitch-intensity', glitchIntensity, '');
+    updateValue('ascii-glitch-speed', glitchSpeed, '');
+    
+    // Extended interface for ASCII effect options
+    interface AsciiOptions {
+      effect: 'ascii';
+      size?: number;
+      radius?: number;
+      colored?: boolean;
+      glitchIntensity?: number;
+      glitchSpeed?: number;
     }
+    
+    // Function to apply or update the ASCII effect
+    const applyAsciiEffect = () => {
+      // If there's an existing instance, destroy it
+      if (effectInstances.ascii) {
+        effectInstances.ascii.destroy();
+      }
+      
+      // Create a new instance with current settings
+      const options: AsciiOptions = {
+          effect: 'ascii',
+        size: size,
+        radius: radius,
+        colored: colored,
+        glitchIntensity: glitchIntensity,
+        glitchSpeed: glitchSpeed
+      };
+      
+      effectInstances.ascii = applyHoverEffect(asciiDemo, options);
+    };
+    
+    // Initially apply the effect
+    if (active) {
+      applyAsciiEffect();
+    }
+    
+    // Size control handler
+    sizeControl.addEventListener('input', (e) => {
+      size = parseInt(sizeControl.value);
+      updateValue('ascii-size', size);
+      applyAsciiEffect();
+    });
+    
+    // Radius control handler
+    radiusControl.addEventListener('input', (e) => {
+      radius = parseInt(radiusControl.value);
+      updateValue('ascii-radius', radius);
+      applyAsciiEffect();
+    });
+    
+    // Glitch intensity handler
+    glitchIntensityControl.addEventListener('input', (e) => {
+      glitchIntensity = parseFloat(glitchIntensityControl.value);
+      updateValue('ascii-glitch-intensity', glitchIntensity, '');
+      
+      if (effectInstances.ascii && effectInstances.ascii.setGlitchIntensity) {
+        effectInstances.ascii.setGlitchIntensity(glitchIntensity);
+      } else {
+        applyAsciiEffect();
+      }
+    });
+    
+    // Glitch speed handler
+    glitchSpeedControl.addEventListener('input', (e) => {
+      glitchSpeed = parseFloat(glitchSpeedControl.value) / 10;
+      updateValue('ascii-glitch-speed', glitchSpeed, '');
+      
+      if (effectInstances.ascii && effectInstances.ascii.setGlitchSpeed) {
+        effectInstances.ascii.setGlitchSpeed(glitchSpeed);
+      } else {
+        applyAsciiEffect();
+      }
+    });
+    
+    // Toggle effect active state
+    activeToggle.addEventListener('change', () => {
+      if (activeToggle.checked) {
+        applyAsciiEffect();
+      } else if (effectInstances.ascii) {
+        effectInstances.ascii.destroy();
+        effectInstances.ascii = null;
+      }
+    });
+    
+    // Toggle colored mode
+    colorToggle.addEventListener('change', () => {
+      colored = colorToggle.checked;
+      if (effectInstances.ascii && effectInstances.ascii.setColored) {
+        effectInstances.ascii.setColored(colored);
+      } else {
+        applyAsciiEffect();
+      }
+    });
+    
+    // Letter spacing control
+    spacingControl.addEventListener('input', () => {
+      letterSpacing = parseInt(spacingControl.value) / 100;
+      document.documentElement.style.setProperty('--ascii-spacing', `${letterSpacing}em`);
+      updateValue('ascii-spacing', letterSpacing, '');
+      });
   }
 
   // Zoom Effect
   const zoomDemo = document.getElementById('zoom-demo') as HTMLImageElement;
   if (zoomDemo) {
     await ensureImageLoaded(zoomDemo);
-    let effect = applyHoverEffect(zoomDemo, {
+    effectInstances.zoom = applyHoverEffect(zoomDemo, {
       effect: 'zoom',
       scale: 1.2,
       radius: 100
@@ -71,11 +178,14 @@ async function initializeEffects(): Promise<void> {
     // Set up controls
     const scaleControl = document.getElementById('zoom-scale') as HTMLInputElement;
     const radiusControl = document.getElementById('zoom-radius') as HTMLInputElement;
+    const activeToggle = document.getElementById('zoom-active') as HTMLInputElement;
 
     if (scaleControl && radiusControl) {
       scaleControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(zoomDemo, {
+        if (effectInstances.zoom) {
+          effectInstances.zoom.destroy();
+        }
+        effectInstances.zoom = applyHoverEffect(zoomDemo, {
           effect: 'zoom',
           scale: parseInt(scaleControl.value) / 10,
           radius: parseInt(radiusControl.value)
@@ -84,13 +194,30 @@ async function initializeEffects(): Promise<void> {
       });
 
       radiusControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(zoomDemo, {
+        if (effectInstances.zoom) {
+          effectInstances.zoom.destroy();
+        }
+        effectInstances.zoom = applyHoverEffect(zoomDemo, {
           effect: 'zoom',
           scale: parseInt(scaleControl.value) / 10,
           radius: parseInt(radiusControl.value)
         });
         updateValue('zoom-radius', parseInt(radiusControl.value));
+      });
+      
+      activeToggle.addEventListener('change', () => {
+        if (activeToggle.checked) {
+          if (!effectInstances.zoom) {
+            effectInstances.zoom = applyHoverEffect(zoomDemo, {
+              effect: 'zoom',
+              scale: parseInt(scaleControl.value) / 10,
+              radius: parseInt(radiusControl.value)
+            });
+          }
+        } else if (effectInstances.zoom) {
+          effectInstances.zoom.destroy();
+          effectInstances.zoom = null;
+        }
       });
     }
   }
@@ -99,7 +226,7 @@ async function initializeEffects(): Promise<void> {
   const particleDemo = document.getElementById('particle-demo') as HTMLImageElement;
   if (particleDemo) {
     await ensureImageLoaded(particleDemo);
-    let effect = applyHoverEffect(particleDemo, {
+    effectInstances.particle = applyHoverEffect(particleDemo, {
       effect: 'particle-dust',
       spacing: 4,
       maxDrift: 28,
@@ -109,11 +236,14 @@ async function initializeEffects(): Promise<void> {
     // Set up controls
     const spacingControl = document.getElementById('particle-spacing') as HTMLInputElement;
     const driftControl = document.getElementById('particle-drift') as HTMLInputElement;
+    const activeToggle = document.getElementById('particle-active') as HTMLInputElement;
 
     if (spacingControl && driftControl) {
       spacingControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(particleDemo, {
+        if (effectInstances.particle) {
+          effectInstances.particle.destroy();
+        }
+        effectInstances.particle = applyHoverEffect(particleDemo, {
           effect: 'particle-dust',
           spacing: parseInt(spacingControl.value),
           maxDrift: parseInt(driftControl.value),
@@ -123,14 +253,32 @@ async function initializeEffects(): Promise<void> {
       });
 
       driftControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(particleDemo, {
+        if (effectInstances.particle) {
+          effectInstances.particle.destroy();
+        }
+        effectInstances.particle = applyHoverEffect(particleDemo, {
           effect: 'particle-dust',
           spacing: parseInt(spacingControl.value),
           maxDrift: parseInt(driftControl.value),
           radius: 110
         });
         updateValue('particle-drift', parseInt(driftControl.value));
+      });
+      
+      activeToggle.addEventListener('change', () => {
+        if (activeToggle.checked) {
+          if (!effectInstances.particle) {
+            effectInstances.particle = applyHoverEffect(particleDemo, {
+              effect: 'particle-dust',
+              spacing: parseInt(spacingControl.value),
+              maxDrift: parseInt(driftControl.value),
+              radius: 110
+            });
+          }
+        } else if (effectInstances.particle) {
+          effectInstances.particle.destroy();
+          effectInstances.particle = null;
+        }
       });
     }
   }
@@ -139,7 +287,7 @@ async function initializeEffects(): Promise<void> {
   const pixelDemo = document.getElementById('pixel-demo') as HTMLImageElement;
   if (pixelDemo) {
     await ensureImageLoaded(pixelDemo);
-    let effect = applyHoverEffect(pixelDemo, {
+    effectInstances.pixel = applyHoverEffect(pixelDemo, {
       effect: 'pixel',
       blockSize: 6,
       radius: 130
@@ -148,11 +296,14 @@ async function initializeEffects(): Promise<void> {
     // Set up controls
     const sizeControl = document.getElementById('pixel-size') as HTMLInputElement;
     const radiusControl = document.getElementById('pixel-radius') as HTMLInputElement;
+    const activeToggle = document.getElementById('pixel-active') as HTMLInputElement;
 
     if (sizeControl && radiusControl) {
       sizeControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(pixelDemo, {
+        if (effectInstances.pixel) {
+          effectInstances.pixel.destroy();
+        }
+        effectInstances.pixel = applyHoverEffect(pixelDemo, {
           effect: 'pixel',
           blockSize: parseInt(sizeControl.value),
           radius: parseInt(radiusControl.value)
@@ -161,13 +312,30 @@ async function initializeEffects(): Promise<void> {
       });
 
       radiusControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(pixelDemo, {
+        if (effectInstances.pixel) {
+          effectInstances.pixel.destroy();
+        }
+        effectInstances.pixel = applyHoverEffect(pixelDemo, {
           effect: 'pixel',
           blockSize: parseInt(sizeControl.value),
           radius: parseInt(radiusControl.value)
         });
         updateValue('pixel-radius', parseInt(radiusControl.value));
+      });
+      
+      activeToggle.addEventListener('change', () => {
+        if (activeToggle.checked) {
+          if (!effectInstances.pixel) {
+            effectInstances.pixel = applyHoverEffect(pixelDemo, {
+              effect: 'pixel',
+              blockSize: parseInt(sizeControl.value),
+              radius: parseInt(radiusControl.value)
+            });
+          }
+        } else if (effectInstances.pixel) {
+          effectInstances.pixel.destroy();
+          effectInstances.pixel = null;
+        }
       });
     }
   }
@@ -176,7 +344,7 @@ async function initializeEffects(): Promise<void> {
   const minecraftDemo = document.getElementById('minecraft-demo') as HTMLImageElement;
   if (minecraftDemo) {
     await ensureImageLoaded(minecraftDemo);
-    let effect = applyHoverEffect(minecraftDemo, {
+    effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
       effect: 'minecraft',
       blockSize: 6,
       radius: 130
@@ -185,11 +353,14 @@ async function initializeEffects(): Promise<void> {
     // Set up controls
     const sizeControl = document.getElementById('minecraft-size') as HTMLInputElement;
     const radiusControl = document.getElementById('minecraft-radius') as HTMLInputElement;
+    const activeToggle = document.getElementById('minecraft-active') as HTMLInputElement;
 
     if (sizeControl && radiusControl) {
       sizeControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(minecraftDemo, {
+        if (effectInstances.minecraft) {
+          effectInstances.minecraft.destroy();
+        }
+        effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
           effect: 'minecraft',
           blockSize: parseInt(sizeControl.value),
           radius: parseInt(radiusControl.value)
@@ -198,13 +369,30 @@ async function initializeEffects(): Promise<void> {
       });
 
       radiusControl.addEventListener('input', () => {
-        effect.destroy();
-        effect = applyHoverEffect(minecraftDemo, {
+        if (effectInstances.minecraft) {
+          effectInstances.minecraft.destroy();
+        }
+        effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
           effect: 'minecraft',
           blockSize: parseInt(sizeControl.value),
           radius: parseInt(radiusControl.value)
         });
         updateValue('minecraft-radius', parseInt(radiusControl.value));
+      });
+      
+      activeToggle.addEventListener('change', () => {
+        if (activeToggle.checked) {
+          if (!effectInstances.minecraft) {
+            effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
+              effect: 'minecraft',
+              blockSize: parseInt(sizeControl.value),
+              radius: parseInt(radiusControl.value)
+            });
+          }
+        } else if (effectInstances.minecraft) {
+          effectInstances.minecraft.destroy();
+          effectInstances.minecraft = null;
+        }
       });
     }
   }

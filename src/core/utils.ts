@@ -70,3 +70,4 @@ export function createCanvas(width: number, height: number): HTMLCanvasElement {
   canvas.style.transition = 'opacity 0.25s ease';
   return canvas;
 }
+ 

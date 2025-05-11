@@ -13,7 +13,10 @@ export function applyHoverEffect(element: HTMLElement, options: HoverEffectOptio
       effect = new AsciiHover({
         size: options.size,
         chars: options.chars,
-        radius: options.radius
+        radius: options.radius,
+        colored: options.colored,
+        glitchIntensity: options.glitchIntensity,
+        glitchSpeed: options.glitchSpeed
       });
       break;
     case 'zoom':

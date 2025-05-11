@@ -4,165 +4,515 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hover Effects Demo</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
   <style>
+    :root {
+      --primary-color: #7158e2;
+      --primary-light: rgba(113, 88, 226, 0.08);
+      --text-color: #2d3748;
+      --text-light: #718096;
+      --border-color: #e2e8f0;
+      --bg-color: #f7fafc;
+      --card-bg: #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow: 0 4px 12px rgba(0,0,0,0.05);
+      --shadow-lg: 0 12px 24px rgba(0,0,0,0.05);
+      --transition: all 0.2s ease;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --spacing-sm: 0.75rem;
+      --spacing-md: 1.25rem;
+      --spacing-lg: 2rem;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: system-ui, -apple-system, sans-serif;
-      max-width: 1200px;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text-color);
+      background-color: var(--bg-color);
+      line-height: 1.6;
+      padding: var(--spacing-lg);
+      max-width: 1440px;
       margin: 0 auto;
-      padding: 20px;
-      background: #f5f5f5;
     }
 
-    h1 {
-      text-align: center;
-      color: #333;
+    .header {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--spacing-lg);
     }
 
-    .grid {
+    .greeting {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .app-container {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 30px;
-      margin-top: 30px;
+      grid-template-columns: 240px 1fr;
+      gap: var(--spacing-lg);
     }
 
-    .effect-container {
-      background: white;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
     }
 
-    h2 {
-      margin-top: 0;
-      color: #444;
-      font-size: 1.4em;
+    .nav-item {
+      padding: var(--spacing-sm);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text-light);
+      font-weight: 500;
+      background-color: var(--card-bg);
+      box-shadow: var(--shadow-sm);
     }
 
-    img {
+    .nav-item:hover {
+      background-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .nav-item.active {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      font-weight: 600;
+      border-left: 3px solid var(--primary-color);
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: var(--spacing-md);
+      height: calc(100vh - 150px);
+    }
+
+    .effect-preview {
+      position: relative;
+      overflow: hidden;
       width: 100%;
-      height: auto;
-      border-radius: 5px;
+      height: 100%;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .effect-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
       display: block;
     }
 
-    .controls {
-      margin-top: 15px;
+    .effect-controls {
+      padding: var(--spacing-md);
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .control-group {
+      margin-bottom: var(--spacing-md);
+    }
+
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-sm);
     }
 
     label {
-      display: block;
-      margin: 10px 0;
-      color: #666;
-      font-size: 0.9em;
-    }
-
-    input[type="range"] {
-      width: 100%;
-      margin: 5px 0;
+      font-weight: 500;
+      font-size: 0.85rem;
+      color: var(--text-light);
     }
 
     .value {
-      display: inline-block;
-      min-width: 40px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-color);
+      min-width: 3rem;
       text-align: right;
-      color: #888;
+    }
+
+    /* Modern slider */
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--border-color);
+      border-radius: 2px;
+      margin: 8px 0;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover,
+    input[type="range"]::-moz-range-thumb:hover {
+      box-shadow: 0 0 0 5px var(--primary-light);
+      transform: scale(1.05);
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track,
+    input[type="range"]::-moz-range-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+    }
+
+    /* Toggle switch */
+    .switch-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--border-color);
+      transition: var(--transition);
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 16px;
+      width: 16px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: var(--transition);
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary-color);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(16px);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: var(--spacing-md);
+    }
+
+    @media (max-width: 992px) {
+      .app-container {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-md);
+      }
+      
+      .sidebar {
+        flex-direction: row;
+        overflow-x: auto;
+        padding-bottom: var(--spacing-sm);
+      }
+      
+      .nav-item {
+        flex: 0 0 auto;
+        min-width: 100px;
+        text-align: center;
+      }
+      
+      .main-content,
+      .tab-content.active {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      
+      .effect-preview {
+        height: 400px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: var(--spacing-sm);
+      }
+    }
+
+    /* Additional styles for ASCII render */
+    .ascii-render {
+      font-family: 'Courier New', monospace;
+      letter-spacing: var(--ascii-spacing, 0.1em);
+      line-height: var(--ascii-line-height, 0.8em);
+      white-space: pre;
+      color: #00ff00;
+      font-weight: bold;
+      text-shadow: 0 0 2px rgba(0, 255, 0, 0.5);
+    }
+    
+    /* Ensuring the canvas has a transparent background */
+    canvas[data-ascii-id] {
+      background-color: transparent !important;
     }
   </style>
 </head>
 <body>
-  <h1>Hover Effects Demo</h1>
+  <div class="header">
+    <h1 class="greeting">Hover Effects 👋</h1>
+  </div>
   
-  <div class="grid">
-    <!-- ASCII Effect -->
-    <div class="effect-container">
-      <h2>ASCII Effect</h2>
-      <img src="images/demo1.jpg" alt="Demo 1" id="ascii-demo">
-      <div class="controls">
-        <label>
-          Size
-          <input type="range" min="8" max="16" value="12" id="ascii-size">
-          <span class="value" id="ascii-size-value">12px</span>
-        </label>
-        <label>
-          Radius
-          <input type="range" min="50" max="150" value="70" id="ascii-radius">
-          <span class="value" id="ascii-radius-value">70px</span>
-        </label>
-      </div>
+  <div class="app-container">
+    <div class="sidebar">
+      <div class="nav-item active" data-tab="ascii">ASCII</div>
+      <div class="nav-item" data-tab="zoom">Zoom</div>
+      <div class="nav-item" data-tab="particle">Particle</div>
+      <div class="nav-item" data-tab="pixel">Pixel</div>
+      <div class="nav-item" data-tab="minecraft">Minecraft</div>
     </div>
-
-    <!-- Zoom Effect -->
-    <div class="effect-container">
-      <h2>Zoom Effect</h2>
-      <img src="images/demo2.jpg" alt="Demo 2" id="zoom-demo">
-      <div class="controls">
-        <label>
-          Scale
-          <input type="range" min="11" max="20" value="12" id="zoom-scale">
-          <span class="value" id="zoom-scale-value">1.2x</span>
-        </label>
-        <label>
-          Radius
-          <input type="range" min="50" max="150" value="100" id="zoom-radius">
-          <span class="value" id="zoom-radius-value">100px</span>
-        </label>
+    
+    <div class="main-content">
+      <div id="ascii" class="tab-content active">
+        <div class="effect-preview">
+          <img src="images/image7.jpg" alt="Demo 1" id="ascii-demo">
+        </div>
+        <div class="effect-controls">
+          <div class="switch-wrapper">
+            <span>Effect Active</span>
+            <label class="switch">
+              <input type="checkbox" checked id="ascii-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-wrapper">
+            <span>Colorize</span>
+            <label class="switch">
+              <input type="checkbox" checked id="ascii-color">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="ascii-size">Character Size</label>
+              <span class="value" id="ascii-size-value">16px</span>
+            </div>
+            <input type="range" min="6" max="30" value="16" id="ascii-size">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="ascii-spacing">Character Spacing</label>
+              <span class="value" id="ascii-spacing-value">0.5</span>
+            </div>
+            <input type="range" min="0" max="100" value="50" id="ascii-spacing">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="ascii-radius">Radius</label>
+              <span class="value" id="ascii-radius-value">100px</span>
+            </div>
+            <input type="range" min="30" max="300" value="100" id="ascii-radius">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="ascii-glitch-intensity">Glitch Intensity</label>
+              <span class="value" id="ascii-glitch-intensity-value">3</span>
+            </div>
+            <input type="range" min="0" max="20" value="3" id="ascii-glitch-intensity">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="ascii-glitch-speed">Glitch Speed</label>
+              <span class="value" id="ascii-glitch-speed-value">0.5</span>
+            </div>
+            <input type="range" min="0.1" max="20" value="5" id="ascii-glitch-speed">
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Particle Dust Effect -->
-    <div class="effect-container">
-      <h2>Particle Dust Effect</h2>
-      <img src="images/demo3.jpg" alt="Demo 3" id="particle-demo">
-      <div class="controls">
-        <label>
-          Spacing
-          <input type="range" min="2" max="8" value="4" id="particle-spacing">
-          <span class="value" id="particle-spacing-value">4px</span>
-        </label>
-        <label>
-          Drift
-          <input type="range" min="10" max="50" value="28" id="particle-drift">
-          <span class="value" id="particle-drift-value">28px</span>
-        </label>
+      <div id="zoom" class="tab-content">
+        <div class="effect-preview">
+          <img src="images/image2.jpg" alt="Demo 2" id="zoom-demo">
+        </div>
+        <div class="effect-controls">
+          <div class="switch-wrapper">
+            <span>Effect Active</span>
+            <label class="switch">
+              <input type="checkbox" checked id="zoom-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="zoom-scale">Scale</label>
+              <span class="value" id="zoom-scale-value">1.2x</span>
+            </div>
+            <input type="range" min="11" max="20" value="12" id="zoom-scale">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="zoom-radius">Radius</label>
+              <span class="value" id="zoom-radius-value">100px</span>
+            </div>
+            <input type="range" min="50" max="150" value="100" id="zoom-radius">
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Pixel Effect -->
-    <div class="effect-container">
-      <h2>Pixel Effect</h2>
-      <img src="images/demo4.jpg" alt="Demo 4" id="pixel-demo">
-      <div class="controls">
-        <label>
-          Block Size
-          <input type="range" min="4" max="12" value="6" id="pixel-size">
-          <span class="value" id="pixel-size-value">6px</span>
-        </label>
-        <label>
-          Radius
-          <input type="range" min="50" max="150" value="130" id="pixel-radius">
-          <span class="value" id="pixel-radius-value">130px</span>
-        </label>
+      <div id="particle" class="tab-content">
+        <div class="effect-preview">
+          <img src="images/image1.jpg" alt="Demo 3" id="particle-demo">
+        </div>
+        <div class="effect-controls">
+          <div class="switch-wrapper">
+            <span>Effect Active</span>
+            <label class="switch">
+              <input type="checkbox" checked id="particle-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="particle-spacing">Spacing</label>
+              <span class="value" id="particle-spacing-value">4px</span>
+            </div>
+            <input type="range" min="2" max="8" value="4" id="particle-spacing">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="particle-drift">Drift</label>
+              <span class="value" id="particle-drift-value">28px</span>
+            </div>
+            <input type="range" min="10" max="50" value="28" id="particle-drift">
+          </div>
+        </div>
       </div>
-    </div>
 
-    <!-- Minecraft Effect -->
-    <div class="effect-container">
-      <h2>Minecraft Effect</h2>
-      <img src="images/demo5.jpg" alt="Demo 5" id="minecraft-demo">
-      <div class="controls">
-        <label>
-          Block Size
-          <input type="range" min="4" max="12" value="6" id="minecraft-size">
-          <span class="value" id="minecraft-size-value">6px</span>
-        </label>
-        <label>
-          Radius
-          <input type="range" min="50" max="150" value="130" id="minecraft-radius">
-          <span class="value" id="minecraft-radius-value">130px</span>
-        </label>
+      <div id="pixel" class="tab-content">
+        <div class="effect-preview">
+          <img src="images/image5.jpg" alt="Demo 4" id="pixel-demo">
+        </div>
+        <div class="effect-controls">
+          <div class="switch-wrapper">
+            <span>Effect Active</span>
+            <label class="switch">
+              <input type="checkbox" checked id="pixel-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="pixel-size">Block Size</label>
+              <span class="value" id="pixel-size-value">6px</span>
+            </div>
+            <input type="range" min="4" max="12" value="6" id="pixel-size">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="pixel-radius">Radius</label>
+              <span class="value" id="pixel-radius-value">130px</span>
+            </div>
+            <input type="range" min="50" max="150" value="130" id="pixel-radius">
+          </div>
+        </div>
+      </div>
+
+      <div id="minecraft" class="tab-content">
+        <div class="effect-preview">
+          <img src="images/image4.jpg" alt="Demo 5" id="minecraft-demo">
+        </div>
+        <div class="effect-controls">
+          <div class="switch-wrapper">
+            <span>Effect Active</span>
+            <label class="switch">
+              <input type="checkbox" checked id="minecraft-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="minecraft-size">Block Size</label>
+              <span class="value" id="minecraft-size-value">6px</span>
+            </div>
+            <input type="range" min="4" max="12" value="6" id="minecraft-size">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="minecraft-radius">Radius</label>
+              <span class="value" id="minecraft-radius-value">130px</span>
+            </div>
+            <input type="range" min="50" max="150" value="130" id="minecraft-radius">
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
+  <script>
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        // Update active navigation
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        
+        // Update active content
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        const tabId = item.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+  </script>
 
   <script type="module" src="main.ts"></script>
 </body>
