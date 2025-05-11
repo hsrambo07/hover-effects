@@ -139,6 +139,14 @@
       backface-visibility: hidden;
     }
 
+    /* Style for images inside image containers */
+    .image-container img {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
     /* Override for all tabs to ensure consistent behavior */
     .tab-content .effect-preview {
       overflow: hidden !important;
@@ -146,6 +154,11 @@
 
     .tab-content .image-container {
       overflow: hidden !important;
+    }
+    
+    /* Enhanced shadow effects for all tabs */
+    .tab-content canvas {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
     }
 
     .effect-controls {
@@ -446,6 +459,46 @@
       object-fit: cover !important;
       display: block !important;
     }
+
+    /* Styling for full effect mode labels */
+    .switch-wrapper span.full-effect-label {
+      position: relative;
+      padding-left: 14px;
+    }
+    
+    .switch-wrapper span.full-effect-label::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+    
+    /* Add highlight to active full effect mode */
+    input:checked + .slider {
+      background-color: var(--primary-color);
+    }
+    
+    #ascii-full:checked + .slider,
+    #zoom-full:checked + .slider,
+    #particle-full:checked + .slider,
+    #pixel-full:checked + .slider,
+    #minecraft-full:checked + .slider,
+    #lego-full:checked + .slider {
+      background-color: #22cc88;
+      box-shadow: 0 0 8px rgba(34, 204, 136, 0.8);
+    }
   </style>
 </head>
 <body>
@@ -476,6 +529,13 @@
             <span>Effect Active</span>
             <label class="switch">
               <input type="checkbox" checked id="ascii-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-wrapper">
+            <span class="full-effect-label">Full Effect Mode</span>
+            <label class="switch">
+              <input type="checkbox" id="ascii-full">
               <span class="slider"></span>
             </label>
           </div>
@@ -527,7 +587,7 @@
       <div id="zoom" class="tab-content">
         <div class="effect-preview">
           <div class="image-container">
-            <img src="images/image2.jpg" alt="Demo 2" id="zoom-demo">
+            <img src="images/image-zoom.jpg" alt="Demo 2" id="zoom-demo">
           </div>
         </div>
         <button class="toggle-controls" title="Toggle Controls">≡</button>
@@ -536,6 +596,13 @@
             <span>Effect Active</span>
             <label class="switch">
               <input type="checkbox" checked id="zoom-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-wrapper">
+            <span class="full-effect-label">Full Effect Mode</span>
+            <label class="switch">
+              <input type="checkbox" id="zoom-full">
               <span class="slider"></span>
             </label>
           </div>
@@ -571,6 +638,13 @@
               <span class="slider"></span>
             </label>
           </div>
+          <div class="switch-wrapper">
+            <span class="full-effect-label">Full Effect Mode</span>
+            <label class="switch">
+              <input type="checkbox" id="particle-full">
+              <span class="slider"></span>
+            </label>
+          </div>
           <div class="control-group">
             <div class="control-header">
               <label for="particle-spacing">Spacing</label>
@@ -600,6 +674,13 @@
             <span>Effect Active</span>
             <label class="switch">
               <input type="checkbox" checked id="pixel-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-wrapper">
+            <span class="full-effect-label">Full Effect Mode</span>
+            <label class="switch">
+              <input type="checkbox" id="pixel-full">
               <span class="slider"></span>
             </label>
           </div>
@@ -635,6 +716,13 @@
               <span class="slider"></span>
             </label>
           </div>
+          <div class="switch-wrapper">
+            <span class="full-effect-label">Full Effect Mode</span>
+            <label class="switch">
+              <input type="checkbox" id="minecraft-full">
+              <span class="slider"></span>
+            </label>
+          </div>
           <div class="control-group">
             <div class="control-header">
               <label for="minecraft-size">Block Size</label>
@@ -664,6 +752,13 @@
             <span>Effect Active</span>
             <label class="switch">
               <input type="checkbox" checked id="lego-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="switch-wrapper">
+            <span class="full-effect-label">Full Effect Mode</span>
+            <label class="switch">
+              <input type="checkbox" id="lego-full">
               <span class="slider"></span>
             </label>
           </div>
@@ -763,6 +858,27 @@
         // Apply consistent styling to all image containers
         document.querySelectorAll('.image-container').forEach(container => {
           container.style.overflow = 'hidden';
+          
+          // Ensure all canvases in this container have consistent styling
+          const canvases = container.querySelectorAll('canvas');
+          canvases.forEach(canvas => {
+            // Set basic styling for all canvases
+            canvas.style.position = 'absolute';
+            canvas.style.top = '0';
+            canvas.style.left = '0';
+            canvas.style.width = '100%';
+            canvas.style.height = '100%';
+            canvas.style.overflow = 'hidden';
+            
+            // Get effect id from parent container or img
+            const tab = canvas.closest('.tab-content');
+            if (tab) {
+              const effectId = tab.id;
+              if (!canvas.dataset.effectId) {
+                canvas.dataset.effectId = effectId;
+              }
+            }
+          });
         });
         
         // Apply similar wrapper handling for all other effects
@@ -802,5 +918,6 @@
   </script>
 
   <script type="module" src="main.ts"></script>
+  <script src="fullmode.js"></script>
 </body>
 </html> 
