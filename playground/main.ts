@@ -1,133 +1,219 @@
-import { applyHoverEffect } from "./debug";
+import { applyHoverEffect } from '../src';
 
-console.log("Initializing hover effects...");
-
-// Utility function to create effect with controls
-function createEffectWithControls(
-  selector: string,
-  options: any,
-  radiusControlId: string,
-  radiusValueId: string
-) {
-  const effect = applyHoverEffect(selector, options);
-  const radiusControl = document.getElementById(radiusControlId) as HTMLInputElement;
-  const radiusValue = document.getElementById(radiusValueId) as HTMLSpanElement;
-
-  if (radiusControl && radiusValue) {
-    radiusControl.addEventListener('input', () => {
-      const newRadius = parseInt(radiusControl.value);
-      radiusValue.textContent = newRadius.toString();
-      
-      // Remove old effect and create new one with updated radius
-      effect.destroy();
-      applyHoverEffect(selector, { ...options, radius: newRadius });
-    });
+// Helper function to update value displays
+function updateValue(id: string, value: number, suffix = 'px'): void {
+  const element = document.getElementById(`${id}-value`);
+  if (element) {
+    element.textContent = `${value}${suffix}`;
   }
-
-  return effect;
 }
 
-// Utility function to create effect with multiple controls
-function createEffectWithMultipleControls(
-  selector: string,
-  options: any,
-  controls: Array<{
-    controlId: string,
-    valueId: string,
-    optionKey: string
-  }>
-) {
-  let effect = applyHoverEffect(selector, options);
-
-  controls.forEach(({ controlId, valueId, optionKey }) => {
-    const control = document.getElementById(controlId) as HTMLInputElement;
-    const value = document.getElementById(valueId) as HTMLSpanElement;
-
-    if (control && value) {
-      control.addEventListener('input', () => {
-        const newValue = parseInt(control.value);
-        value.textContent = newValue.toString();
-        
-        // Update options with new value
-        options[optionKey] = newValue;
-        
-        // Remove old effect and create new one with updated options
-        effect.destroy();
-        effect = applyHoverEffect(selector, options);
-      });
+// Helper function to ensure image is loaded
+function ensureImageLoaded(img: HTMLImageElement): Promise<void> {
+  return new Promise((resolve) => {
+    if (img.complete) {
+      resolve();
+    } else {
+      img.onload = () => resolve();
     }
   });
-
-  return effect;
 }
 
-// Apply ASCII effect to images with data-hover="ascii" attribute
-const asciiElements = document.querySelectorAll("img[data-hover='ascii']");
-console.log(`Found ${asciiElements.length} ASCII elements`);
-createEffectWithControls("img[data-hover='ascii']", { 
-  effect: "ascii", 
-  radius: 80, 
-  size: 14 
-}, "asciiRadius", "asciiRadiusValue");
-console.log("ASCII effect applied");
+// Initialize all effects
+async function initializeEffects(): Promise<void> {
+  // ASCII Effect
+  const asciiDemo = document.getElementById('ascii-demo') as HTMLImageElement;
+  if (asciiDemo) {
+    await ensureImageLoaded(asciiDemo);
+    let effect = applyHoverEffect(asciiDemo, {
+      effect: 'ascii',
+      size: 12,
+      radius: 70
+    });
 
-// Apply zoom effect to hero section
-createEffectWithControls("#hero", { 
-  effect: "zoom", 
-  radius: 120, 
-  scale: 1.15 
-}, "zoomRadius", "zoomRadiusValue");
-console.log("Zoom effect applied");
+    // Set up controls
+    const sizeControl = document.getElementById('ascii-size') as HTMLInputElement;
+    const radiusControl = document.getElementById('ascii-radius') as HTMLInputElement;
 
-// Apply particle dust effect to images with data-hover="particle" attribute
-const particleElements = document.querySelectorAll("img[data-hover='particle']");
-console.log(`Found ${particleElements.length} particle elements`);
-createEffectWithControls("img[data-hover='particle']", {
-  effect: "particle-dust",
-  radius: 110,
-  spacing: 4,
-  maxDrift: 28
-}, "particleRadius", "particleRadiusValue");
-console.log("Particle dust effect applied");
+    if (sizeControl && radiusControl) {
+      sizeControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(asciiDemo, {
+          effect: 'ascii',
+          size: parseInt(sizeControl.value),
+          radius: parseInt(radiusControl.value)
+        });
+        updateValue('ascii-size', parseInt(sizeControl.value));
+      });
 
-// Apply minecraft effect to images with data-hover="minecraft" attribute
-const minecraftElements = document.querySelectorAll("img[data-hover='minecraft']");
-console.log(`Found ${minecraftElements.length} minecraft elements`);
-createEffectWithMultipleControls("img[data-hover='minecraft']", {
-  effect: "minecraft",
-  radius: 130,
-  blockSize: 6
-}, [
-  {
-    controlId: "minecraftRadius",
-    valueId: "minecraftRadiusValue",
-    optionKey: "radius"
-  },
-  {
-    controlId: "minecraftBlock",
-    valueId: "minecraftBlockValue",
-    optionKey: "blockSize"
+      radiusControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(asciiDemo, {
+          effect: 'ascii',
+          size: parseInt(sizeControl.value),
+          radius: parseInt(radiusControl.value)
+        });
+        updateValue('ascii-radius', parseInt(radiusControl.value));
+      });
+    }
   }
-]);
-console.log("Minecraft effect applied");
 
-// Apply pixel effect to images with data-hover="pixel" attribute
-const pixelElements = document.querySelectorAll("img[data-hover='pixel']");
-console.log(`Found ${pixelElements.length} pixel elements`);
-createEffectWithMultipleControls("img[data-hover='pixel']", {
-  effect: "pixel",
-  radius: 130,
-  blockSize: 6
-}, [
-  {
-    controlId: "pixelRadius",
-    valueId: "pixelRadiusValue",
-    optionKey: "radius"
-  },
-  {
-    controlId: "pixelBlock",
-    valueId: "pixelBlockValue",
-    optionKey: "blockSize"
+  // Zoom Effect
+  const zoomDemo = document.getElementById('zoom-demo') as HTMLImageElement;
+  if (zoomDemo) {
+    await ensureImageLoaded(zoomDemo);
+    let effect = applyHoverEffect(zoomDemo, {
+      effect: 'zoom',
+      scale: 1.2,
+      radius: 100
+    });
+
+    // Set up controls
+    const scaleControl = document.getElementById('zoom-scale') as HTMLInputElement;
+    const radiusControl = document.getElementById('zoom-radius') as HTMLInputElement;
+
+    if (scaleControl && radiusControl) {
+      scaleControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(zoomDemo, {
+          effect: 'zoom',
+          scale: parseInt(scaleControl.value) / 10,
+          radius: parseInt(radiusControl.value)
+        });
+        updateValue('zoom-scale', parseInt(scaleControl.value) / 10, 'x');
+      });
+
+      radiusControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(zoomDemo, {
+          effect: 'zoom',
+          scale: parseInt(scaleControl.value) / 10,
+          radius: parseInt(radiusControl.value)
+        });
+        updateValue('zoom-radius', parseInt(radiusControl.value));
+      });
+    }
   }
-]);
-console.log("Pixel effect applied"); 
+
+  // Particle Dust Effect
+  const particleDemo = document.getElementById('particle-demo') as HTMLImageElement;
+  if (particleDemo) {
+    await ensureImageLoaded(particleDemo);
+    let effect = applyHoverEffect(particleDemo, {
+      effect: 'particle-dust',
+      spacing: 4,
+      maxDrift: 28,
+      radius: 110
+    });
+
+    // Set up controls
+    const spacingControl = document.getElementById('particle-spacing') as HTMLInputElement;
+    const driftControl = document.getElementById('particle-drift') as HTMLInputElement;
+
+    if (spacingControl && driftControl) {
+      spacingControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(particleDemo, {
+          effect: 'particle-dust',
+          spacing: parseInt(spacingControl.value),
+          maxDrift: parseInt(driftControl.value),
+          radius: 110
+        });
+        updateValue('particle-spacing', parseInt(spacingControl.value));
+      });
+
+      driftControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(particleDemo, {
+          effect: 'particle-dust',
+          spacing: parseInt(spacingControl.value),
+          maxDrift: parseInt(driftControl.value),
+          radius: 110
+        });
+        updateValue('particle-drift', parseInt(driftControl.value));
+      });
+    }
+  }
+
+  // Pixel Effect
+  const pixelDemo = document.getElementById('pixel-demo') as HTMLImageElement;
+  if (pixelDemo) {
+    await ensureImageLoaded(pixelDemo);
+    let effect = applyHoverEffect(pixelDemo, {
+      effect: 'pixel',
+      blockSize: 6,
+      radius: 130
+    });
+
+    // Set up controls
+    const sizeControl = document.getElementById('pixel-size') as HTMLInputElement;
+    const radiusControl = document.getElementById('pixel-radius') as HTMLInputElement;
+
+    if (sizeControl && radiusControl) {
+      sizeControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(pixelDemo, {
+          effect: 'pixel',
+          blockSize: parseInt(sizeControl.value),
+          radius: parseInt(radiusControl.value)
+        });
+        updateValue('pixel-size', parseInt(sizeControl.value));
+      });
+
+      radiusControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(pixelDemo, {
+          effect: 'pixel',
+          blockSize: parseInt(sizeControl.value),
+          radius: parseInt(radiusControl.value)
+        });
+        updateValue('pixel-radius', parseInt(radiusControl.value));
+      });
+    }
+  }
+
+  // Minecraft Effect
+  const minecraftDemo = document.getElementById('minecraft-demo') as HTMLImageElement;
+  if (minecraftDemo) {
+    await ensureImageLoaded(minecraftDemo);
+    let effect = applyHoverEffect(minecraftDemo, {
+      effect: 'minecraft',
+      blockSize: 6,
+      radius: 130
+    });
+
+    // Set up controls
+    const sizeControl = document.getElementById('minecraft-size') as HTMLInputElement;
+    const radiusControl = document.getElementById('minecraft-radius') as HTMLInputElement;
+
+    if (sizeControl && radiusControl) {
+      sizeControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(minecraftDemo, {
+          effect: 'minecraft',
+          blockSize: parseInt(sizeControl.value),
+          radius: parseInt(radiusControl.value)
+        });
+        updateValue('minecraft-size', parseInt(sizeControl.value));
+      });
+
+      radiusControl.addEventListener('input', () => {
+        effect.destroy();
+        effect = applyHoverEffect(minecraftDemo, {
+          effect: 'minecraft',
+          blockSize: parseInt(sizeControl.value),
+          radius: parseInt(radiusControl.value)
+        });
+        updateValue('minecraft-radius', parseInt(radiusControl.value));
+      });
+    }
+  }
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('Initializing hover effects demo...');
+  initializeEffects().catch(error => {
+    console.error('Failed to initialize effects:', error);
+  });
+}); 

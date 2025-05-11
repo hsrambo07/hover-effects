@@ -1,47 +1,43 @@
 {
-  "name": "hover-effects",
-  "version": "1.0.0",
-  "description": "A library for applying hover effects to DOM elements",
-  "main": "dist/index.js",
-  "module": "dist/index.js",
+  "name": "hover-effects-ts",
+  "version": "1.1.0",
+  "description": "A collection of beautiful hover effects for images using canvas",
+  "main": "dist/hover-effects.umd.js",
   "types": "dist/index.d.ts",
-  "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
-    "dev": "vite --open --host",
-    "build": "tsup src/index.ts --dts --format esm,cjs --clean",
-    "test": "vitest",
-    "lint": "eslint src --ext .ts",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "prepare": "husky"
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "dev": "vite",
+    "test": "jest",
+    "lint": "eslint src/**/*.ts",
+    "prepare": "pnpm run build"
   },
-  "keywords": [
-    "hover",
-    "effects",
-    "animation",
-    "typescript"
-  ],
-  "author": "",
+  "keywords": "[\"hover\", \"effects\", \"image\", \"animation\", \"canvas\", \"typescript\", \"ascii\", \"zoom\", \"particle\", \"pixel\", \"minecraft\"]",
+  "author": "Harsh Singhal",
   "license": "MIT",
-  "packageManager": "pnpm@10.10.0",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "8.32.0",
-    "@typescript-eslint/parser": "8.32.0",
-    "eslint": "9.26.0",
-    "husky": "9.1.7",
-    "lint-staged": "16.0.0",
-    "prettier": "3.5.3",
-    "tsup": "8.4.0",
-    "typescript": "5.8.3",
-    "vite": "6.3.5",
-    "vitest": "3.1.3"
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.0",
+    "@typescript-eslint/parser": "^5.59.0",
+    "eslint": "^8.38.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.4",
+    "vite": "^4.3.0"
   },
-  "lint-staged": {
-    "*.ts": [
-      "eslint --fix",
-      "prettier --write"
-    ]
-  }
-} 
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hsrambo07/hover-effects"
+  },
+  "bugs": {
+    "url": "https://github.com/hsrambo07/hover-effects/issues"
+  },
+  "homepage": "https://github.com/hsrambo07/hover-effects#readme",
+  "directories": {
+    "test": "tests"
+  },
+  "module": "dist/hover-effects.es.js"
+}

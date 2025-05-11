@@ -1,16 +1,1 @@
-import { defineConfig } from 'vite';
-import { resolve } from 'path';
-
-export default defineConfig({
-  root: 'playground',
-  publicDir: 'public',
-  build: {
-    outDir: resolve(__dirname, 'dist-playground'),
-    emptyOutDir: true,
-  },
-  resolve: {
-    alias: {
-      'hover-effects': resolve(__dirname, 'src/index.ts')
-    }
-  }
-}); 
+import { defineConfig } from "vite"; import { resolve } from "path"; export default defineConfig({ build: { lib: { entry: resolve(__dirname, "src/index.ts"), name: "HoverEffects", formats: ["es", "umd"], fileName: (format) => `hover-effects.${format}.js` }, outDir: "dist", emptyOutDir: true, sourcemap: true }, resolve: { alias: { "@": resolve(__dirname, "src") } } });

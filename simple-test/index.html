@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hover Effects Demo</title>
+    <style>
+        body{font-family:system-ui,-apple-system,sans-serif;max-width:900px;margin:0 auto;padding:20px;background:#f8f9fa}h1{text-align:center;margin-bottom:30px;color:#333}.effect-grid{display:grid;grid-template-columns:1fr;gap:40px}.effect-container{background:white;border-radius:8px;padding:25px;box-shadow:0 4px 12px rgba(0,0,0,0.08)}.effect-container h2{margin-top:0;margin-bottom:15px;color:#444}.effect-description{margin-bottom:15px;color:#666}img{width:100%;max-width:100%;display:block;border-radius:4px}.code-example{background:#f1f3f5;padding:15px;border-radius:4px;margin-top:15px;font-family:monospace;font-size:14px;color:#333}
+    </style>
+</head>
+
+<body>
+    <h1>Hover Effects TS Demo</h1>
+    <div class="effect-grid">
+        <div class="effect-container">
+            <h2>Zoom Effect</h2>
+            <p class="effect-description">Hover over the image to see a magnification effect that follows your cursor.</p><img src="demo1.jpg" id="zoom-demo" alt="Zoom Effect Demo">
+            <div class="code-example">applyHoverEffect(element, {
+                <br>&nbsp;&nbsp;effect: "zoom",
+                <br>&nbsp;&nbsp;scale: 1.5,
+                <br>&nbsp;&nbsp;radius: 120
+                <br>});</div>
+        </div>
+        <div class="effect-container">
+            <h2>ASCII Effect</h2>
+            <p class="effect-description">Hover over the image to see it transform into ASCII characters.</p><img src="demo1.jpg" id="ascii-demo" alt="ASCII Effect Demo">
+            <div class="code-example">applyHoverEffect(element, {
+                <br>&nbsp;&nbsp;effect: "ascii",
+                <br>&nbsp;&nbsp;size: 12,
+                <br>&nbsp;&nbsp;radius: 80
+                <br>});</div>
+        </div>
+        <div class="effect-container">
+            <h2>Particle Dust Effect</h2>
+            <p class="effect-description">Hover over the image to see particles disperse around your cursor.</p><img src="demo1.jpg" id="particle-demo" alt="Particle Effect Demo">
+            <div class="code-example">applyHoverEffect(element, {
+                <br>&nbsp;&nbsp;effect: "particle-dust",
+                <br>&nbsp;&nbsp;spacing: 4,
+                <br>&nbsp;&nbsp;maxDrift: 30,
+                <br>&nbsp;&nbsp;radius: 100
+                <br>});</div>
+        </div>
+        <div class="effect-container">
+            <h2>Pixel Effect</h2>
+            <p class="effect-description">Hover over the image to see pixels appear around your cursor.</p><img src="demo1.jpg" id="pixel-demo" alt="Pixel Effect Demo">
+            <div class="code-example">applyHoverEffect(element, {
+                <br>&nbsp;&nbsp;effect: "pixel",
+                <br>&nbsp;&nbsp;blockSize: 6,
+                <br>&nbsp;&nbsp;radius: 120
+                <br>});</div>
+        </div>
+        <div class="effect-container">
+            <h2>Minecraft Effect</h2>
+            <p class="effect-description">Hover over the image to see 3D blocks appear around your cursor.</p><img src="demo1.jpg" id="minecraft-demo" alt="Minecraft Effect Demo">
+            <div class="code-example">applyHoverEffect(element, {
+                <br>&nbsp;&nbsp;effect: "minecraft",
+                <br>&nbsp;&nbsp;blockSize: 8,
+                <br>&nbsp;&nbsp;radius: 120
+                <br>});</div>
+        </div>
+    </div>
+    <script src="node_modules/hover-effects-ts/dist/hover-effects.umd.js"></script>
+    <script>
+        function ensureImageLoaded(img){return new Promise((resolve)=>{if(img.complete){resolve();}else{img.onload=()=>resolve();}});}window.onload=async function(){console.log("HoverEffects library loaded:",!!window.HoverEffects);try{const zoomDemo=document.getElementById("zoom-demo");await ensureImageLoaded(zoomDemo);HoverEffects.applyHoverEffect(zoomDemo,{effect:"zoom",scale:1.5,radius:120});const asciiDemo=document.getElementById("ascii-demo");await ensureImageLoaded(asciiDemo);HoverEffects.applyHoverEffect(asciiDemo,{effect:"ascii",size:12,radius:80});const particleDemo=document.getElementById("particle-demo");await ensureImageLoaded(particleDemo);HoverEffects.applyHoverEffect(particleDemo,{effect:"particle-dust",spacing:4,maxDrift:30,radius:100});const pixelDemo=document.getElementById("pixel-demo");await ensureImageLoaded(pixelDemo);HoverEffects.applyHoverEffect(pixelDemo,{effect:"pixel",blockSize:6,radius:120});const minecraftDemo=document.getElementById("minecraft-demo");await ensureImageLoaded(minecraftDemo);HoverEffects.applyHoverEffect(minecraftDemo,{effect:"minecraft",blockSize:8,radius:120});console.log("All effects applied successfully!");}catch(error){console.error("Error applying effects:",error);}};
+    </script>
+</body>
+
+</html>

@@ -31,7 +31,9 @@ export function getTargets(
 
 // Zoom effect
 class ZoomHover implements HoverEffect {
-  private element: HTMLElement | null = null;
+  private element: HTMLImageElement | null = null;
+  private canvas: HTMLCanvasElement | null = null;
+  private ctx: CanvasRenderingContext2D | null = null;
   private isHovering = false;
   private mousePos = { x: 0, y: 0 };
   private animationFrame: number | null = null;
@@ -48,31 +50,30 @@ class ZoomHover implements HoverEffect {
   private onMouseEnter = (): void => {
     console.log("ZoomHover: mouse entered");
     this.isHovering = true;
-    
-    if (this.element) {
-      this.element.style.overflow = 'hidden';
-      this.updateEffect();
+    if (this.canvas) {
+      this.canvas.style.opacity = '1';
     }
+    this.render();
   };
 
   private onMouseLeave = (): void => {
     console.log("ZoomHover: mouse left");
     this.isHovering = false;
     
-    if (this.element) {
-      this.element.style.transform = '';
-      this.element.style.clipPath = '';
-      if (this.animationFrame) {
-        cancelAnimationFrame(this.animationFrame);
-        this.animationFrame = null;
-      }
+    if (this.canvas) {
+      this.canvas.style.opacity = '0';
+    }
+    
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = null;
     }
   };
 
   private onMouseMove = (e: MouseEvent): void => {
-    if (!this.element) return;
+    if (!this.element || !this.canvas) return;
     
-    const rect = this.element.getBoundingClientRect();
+    const rect = this.canvas.getBoundingClientRect();
     this.mousePos = {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
@@ -80,79 +81,128 @@ class ZoomHover implements HoverEffect {
     
     if (this.isHovering && !this.animationFrame) {
       this.animationFrame = requestAnimationFrame(() => {
-        this.updateEffect();
+        this.render();
         this.animationFrame = null;
       });
     }
   };
 
-  private updateEffect(): void {
-    if (!this.element) return;
-    
-    // Apply zoom effect only within the radius
-    const clipCircle = `circle(${this.radius}px at ${this.mousePos.x}px ${this.mousePos.y}px)`;
-    
-    // Create a wrapper div for the zoom effect if it doesn't exist
-    let wrapper = this.element.querySelector('.zoom-wrapper') as HTMLElement;
-    if (!wrapper) {
-      wrapper = document.createElement('div');
-      wrapper.className = 'zoom-wrapper';
-      wrapper.style.position = 'absolute';
-      wrapper.style.top = '0';
-      wrapper.style.left = '0';
-      wrapper.style.width = '100%';
-      wrapper.style.height = '100%';
-      wrapper.style.pointerEvents = 'none';
-      wrapper.style.overflow = 'hidden';
-      
-      // Clone the background image if it's a div with background-image
-      if (window.getComputedStyle(this.element).backgroundImage !== 'none') {
-        wrapper.style.backgroundImage = window.getComputedStyle(this.element).backgroundImage;
-        wrapper.style.backgroundSize = window.getComputedStyle(this.element).backgroundSize;
-        wrapper.style.backgroundPosition = window.getComputedStyle(this.element).backgroundPosition;
-      }
-      
-      this.element.appendChild(wrapper);
-    }
-    
-    // Apply transform and clip path to the wrapper
-    wrapper.style.transform = `scale(${this.scale})`;
-    wrapper.style.transformOrigin = `${this.mousePos.x}px ${this.mousePos.y}px`;
-    wrapper.style.clipPath = clipCircle;
+  private render(): void {
+    if (!this.element || !this.canvas || !this.ctx) return;
+
+    // Clear the canvas
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Draw the original image
+    this.ctx.drawImage(this.element, 0, 0, this.canvas.width, this.canvas.height);
+
+    // Create a circular mask
+    this.ctx.save();
+    this.ctx.beginPath();
+    this.ctx.arc(this.mousePos.x, this.mousePos.y, this.radius, 0, Math.PI * 2);
+    this.ctx.closePath();
+    this.ctx.clip();
+
+    // Clear the zoomed area
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    // Calculate zoom transform
+    const zoomX = this.mousePos.x - (this.mousePos.x * this.scale);
+    const zoomY = this.mousePos.y - (this.mousePos.y * this.scale);
+
+    // Draw zoomed image
+    this.ctx.translate(zoomX, zoomY);
+    this.ctx.scale(this.scale, this.scale);
+    this.ctx.drawImage(this.element, 0, 0, this.canvas.width, this.canvas.height);
+
+    // Restore context
+    this.ctx.restore();
+
+    // Draw circle border
+    this.ctx.beginPath();
+    this.ctx.arc(this.mousePos.x, this.mousePos.y, this.radius, 0, Math.PI * 2);
+    this.ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    this.ctx.lineWidth = 2;
+    this.ctx.stroke();
   }
 
   public attach(element: HTMLElement): void {
+    if (!(element instanceof HTMLImageElement)) {
+      console.error('ZoomHover effect can only be applied to img elements');
+      return;
+    }
+
     console.log(`Attaching zoom effect to element: ${element.tagName}${element.id ? '#'+element.id : ''}`);
     this.element = element;
-    
-    // Store original position value if needed
-    const position = window.getComputedStyle(element).position;
-    if (position === 'static') {
-      element.style.position = 'relative';
+
+    const setupEffect = () => {
+      // Create canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = this.element!.width;
+      canvas.height = this.element!.height;
+      canvas.style.position = 'absolute';
+      canvas.style.top = '0';
+      canvas.style.left = '0';
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      canvas.style.pointerEvents = 'none';
+      canvas.style.opacity = '0';
+      canvas.style.transition = 'opacity 0.3s ease';
+      this.canvas = canvas;
+      this.ctx = canvas.getContext('2d');
+
+      // Create wrapper if needed
+      let wrapper = this.element!.parentElement;
+      if (!wrapper || !wrapper.classList.contains('zoom-wrapper')) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'zoom-wrapper';
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block';
+        wrapper.style.overflow = 'hidden';
+        this.element!.replaceWith(wrapper);
+        wrapper.appendChild(this.element!);
+      }
+
+      // Add canvas to wrapper
+      wrapper.appendChild(canvas);
+
+      // Add event listeners
+      wrapper.addEventListener('mouseenter', this.onMouseEnter);
+      wrapper.addEventListener('mouseleave', this.onMouseLeave);
+      wrapper.addEventListener('mousemove', this.onMouseMove);
+
+      console.log('Zoom effect setup complete');
+    };
+
+    if (element.complete) {
+      setupEffect();
+    } else {
+      element.onload = setupEffect;
     }
-    
-    // Add event listeners
-    this.element.addEventListener('mouseenter', this.onMouseEnter);
-    this.element.addEventListener('mouseleave', this.onMouseLeave);
-    this.element.addEventListener('mousemove', this.onMouseMove);
   }
 
   public detach(): void {
     if (!this.element) return;
     
     // Remove event listeners
-    this.element.removeEventListener('mouseenter', this.onMouseEnter);
-    this.element.removeEventListener('mouseleave', this.onMouseLeave);
-    this.element.removeEventListener('mousemove', this.onMouseMove);
-    
-    // Remove wrapper div
-    const wrapper = this.element.querySelector('.zoom-wrapper');
+    const wrapper = this.element.parentElement;
     if (wrapper) {
-      wrapper.remove();
+      wrapper.removeEventListener('mouseenter', this.onMouseEnter);
+      wrapper.removeEventListener('mouseleave', this.onMouseLeave);
+      wrapper.removeEventListener('mousemove', this.onMouseMove);
+
+      // Unwrap the element
+      if (wrapper.classList.contains('zoom-wrapper')) {
+        wrapper.replaceWith(this.element);
+      }
     }
     
-    // Reset styles
-    this.element.style.overflow = '';
+    // Remove canvas
+    this.canvas?.remove();
+    
+    // Reset state
+    this.canvas = null;
+    this.ctx = null;
   }
 
   public destroy(): void {

@@ -1,22 +1,51 @@
 module.exports = {
+  root: true,
   parser: '@typescript-eslint/parser',
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended'
-  ],
-  plugins: ['@typescript-eslint'],
-  env: {
-    browser: true,
-    node: true,
-    es6: true
-  },
   parserOptions: {
     ecmaVersion: 2020,
-    sourceType: 'module'
+    sourceType: 'module',
+    project: './tsconfig.json',
+  },
+  plugins: ['@typescript-eslint'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+  ],
+  env: {
+    browser: true,
+    es2020: true,
   },
   rules: {
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-explicit-any': 'off',
-    '@typescript-eslint/no-unused-vars': ['error', { 'argsIgnorePattern': '^_' }]
-  }
+    // TypeScript specific rules
+    '@typescript-eslint/explicit-function-return-type': ['error', {
+      allowExpressions: true,
+      allowTypedFunctionExpressions: true,
+    }],
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-unused-vars': ['error', {
+      argsIgnorePattern: '^_',
+      varsIgnorePattern: '^_',
+    }],
+    '@typescript-eslint/no-non-null-assertion': 'warn',
+    '@typescript-eslint/consistent-type-imports': 'error',
+
+    // General rules
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'no-debugger': 'warn',
+    'no-alert': 'error',
+    'no-var': 'error',
+    'prefer-const': 'error',
+    'prefer-template': 'error',
+    'template-curly-spacing': ['error', 'never'],
+    'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
+    'quotes': ['error', 'single', { avoidEscape: true }],
+    'semi': ['error', 'always'],
+  },
+  ignorePatterns: [
+    'dist',
+    'node_modules',
+    '*.js',
+    'playground',
+  ],
 }; 

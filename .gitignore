@@ -1,10 +1,49 @@
+# Dependencies
 node_modules/
+.pnpm-store/
+
+# Build output
 dist/
-dist-playground/
-.DS_Store
-*.log
-.env
-coverage/
+build/
+*.tsbuildinfo
+
+# IDE and editor files
 .vscode/
 .idea/
-*.tsbuildinfo 
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Cache
+.cache/
+.temp/
+.eslintcache
+.stylelintcache
+.parcel-cache/
+.rollup.cache/
+.vite/
+
+# Misc
+*.bak
+*.tmp
+*.temp
+
+dist-playground/
+*.env
+*.log 
