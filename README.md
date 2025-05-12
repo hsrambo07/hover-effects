@@ -98,6 +98,37 @@ applyHoverEffect('.gallery-image', {
 });
 ```
 
+## 📚 Example Usage Guide
+
+For a comprehensive guide on using hover effects correctly, check out the `examples` directory, which includes:
+
+1. **Interactive Usage Guide** - A complete example showing proper initialization and configuration:
+   - `examples/usage-guide.html` - Interactive demo with UI controls
+   - `examples/usage-guide.js` - Implementation with best practices
+
+2. **Key Implementation Patterns**:
+   - Waiting for images to load before applying effects
+   - Using UI control values for initialization
+   - Properly updating effects with setter methods
+   - Debugging and troubleshooting techniques
+
+Run the examples locally after installing:
+
+```bash
+# Clone the repository
+git clone https://github.com/hsrambo07/hover-effects
+cd hover-effects
+
+# Install dependencies
+npm install
+
+# Build the library
+npm run build
+
+# Open the example in your browser
+open examples/usage-guide.html
+```
+
 ## 📦 Import Only What You Need
 
 To reduce your bundle size, you can import only the specific effects you need:
