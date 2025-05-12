@@ -59,5 +59,15 @@ export interface HoverEffect {
   setDepth?(depth: number): void;
   setSoftEdge?(edge: number): void;
   setFadeExp?(exp: number): void;
+  
+  // Debug getters
+  getRadius?(): number;
+  getBlockSize?(): number;
+  getSize?(): number;
+  getScale?(): number;
+  getSpacing?(): number;
+  getMaxDrift?(): number;
+  getSamplesCount?(): number;
+  getDebugInfo?(): object;
 }
  

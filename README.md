@@ -222,13 +222,13 @@ Creates a pixelated effect when hovering.
 ```javascript
 applyHoverEffect('#my-image', {
   effect: 'pixel',
-  blockSize: 6,   // Pixel size in pixels (range: 4-20, default: 6)
+  blockSize: 16,   // Pixel size in pixels (range: 4-32, default: 16)
   radius: 130     // Effect radius in pixels (range: 50-200, default: 130)
 });
 ```
 
 **Available controls:**
-- `setBlockSize(blockSize)` - Changes the pixel size (4-20px)
+- `setBlockSize(blockSize)` - Changes the pixel size (4-32px)
 - `setRadius(radius)` - Changes the effect radius (50-200px)
 
 ### Minecraft Effect
@@ -240,13 +240,13 @@ Creates a 3D voxel-like effect similar to Minecraft blocks.
 ```javascript
 applyHoverEffect('#my-image', {
   effect: 'minecraft',
-  blockSize: 6,   // Block size in pixels (range: 4-20, default: 6)
+  blockSize: 28,   // Block size in pixels (range: 4-32, default: 28)
   radius: 130     // Effect radius in pixels (range: 50-200, default: 130)
 });
 ```
 
 **Available controls:**
-- `setBlockSize(blockSize)` - Changes the block size (4-20px)
+- `setBlockSize(blockSize)` - Changes the block size (4-32px)
 - `setRadius(radius)` - Changes the effect radius (50-200px)
 
 ### Lego Effect
@@ -288,6 +288,58 @@ To keep your hover effects running smoothly:
    - For Pixel/Minecraft effects, larger block sizes improve performance
 3. **Radius**: Smaller effect radii generally perform better
 4. **Clean Up**: Always call `destroy()` when removing effects to prevent memory leaks
+
+## 🔧 Best Practices
+
+### Initialization
+
+For best results when initializing effects:
+
+1. **Load Images First**: Ensure images are fully loaded before applying effects
+   ```javascript
+   const img = document.getElementById('my-image');
+   img.onload = () => {
+     const effect = applyHoverEffect(img, { effect: 'minecraft', blockSize: 28 });
+   };
+   ```
+
+2. **Get UI Controls Values**: If using sliders or other UI controls, initialize with their actual values
+   ```javascript
+   const sizeSlider = document.getElementById('size-slider');
+   const radiusSlider = document.getElementById('radius-slider');
+   
+   const effect = applyHoverEffect('#my-image', {
+     effect: 'pixel',
+     blockSize: parseInt(sizeSlider.value),
+     radius: parseInt(radiusSlider.value)
+   });
+   ```
+
+3. **Safely Update Effects**: Use setter methods for real-time updates without re-initialization
+   ```javascript
+   // Better than destroying and recreating the effect
+   sizeSlider.addEventListener('input', (e) => {
+     effect.setBlockSize(parseInt(e.target.value));
+   });
+   ```
+
+### Debugging Tips
+
+If you encounter issues with effects:
+
+1. **Check Browser Console**: Enable console logging for detailed initialization info
+2. **Monitor Effect State**: Create a debug button to log the internal state
+   ```javascript
+   const debugBtn = document.getElementById('debug-btn');
+   debugBtn.addEventListener('click', () => {
+     console.log('Effect state:', {
+       blockSize: effect.getBlockSize?.() || 'N/A',
+       radius: effect.getRadius?.() || 'N/A',
+       samples: effect._getSamples?.()?.length || 'N/A'
+     });
+   });
+   ```
+3. **Canvas Inspection**: Use browser dev tools to examine the canvas element and its properties
 
 ## 🌐 Browser Support
 
@@ -403,6 +455,14 @@ npm run demo
 MIT License - feel free to use this in your projects!
 
 ## 📝 Changelog
+
+### Version 2.2.0
+- Fixed Minecraft effect not respecting the provided blockSize parameter
+- Fixed Pixel effect initialization with custom blockSize values
+- Improved setBlockSize method implementation for both effects
+- Added better error handling and safety checks for array bounds
+- Enhanced debugging support to monitor effect states
+- Ensured consistent behavior between Pixel and Minecraft effects
 
 ### Version 2.1.0
 - Added real-time control ranges for all effects

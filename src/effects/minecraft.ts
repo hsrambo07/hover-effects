@@ -16,8 +16,11 @@ export class MinecraftHover implements HoverEffect {
   private readonly fadeExp: number;
 
   constructor(options: { blockSize?: number; radius?: number } = {}) {
-    this.blockSize = options.blockSize ?? 6;
-    this.radius = options.radius ?? 130;
+    console.log('Initializing MinecraftHover with explicit options:', options);
+    // Use the provided blockSize or 28 as default (not 6)
+    this.blockSize = options.blockSize !== undefined ? options.blockSize : 28;
+    this.radius = options.radius !== undefined ? options.radius : 130;
+    console.log(`Constructor set blockSize=${this.blockSize}, radius=${this.radius}`);
     this.softEdge = Math.min(70, this.radius / 2);
     this.fadeExp = 1.4;
   }
@@ -57,11 +60,13 @@ export class MinecraftHover implements HoverEffect {
     // Clear existing samples
     this.samples = [];
 
+    console.log(`Sampling image with block size: ${this.blockSize}, canvas size: ${off.width}x${off.height}`);
+    
     // Sample pixels at block intervals
     for (let y = 0; y < off.height; y += this.blockSize) {
       for (let x = 0; x < off.width; x += this.blockSize) {
         const i = (y * off.width + x) * 4;
-        if (data[i + 3] < 120) continue; // Skip transparent pixels
+        if (i >= data.length || data[i + 3] < 120) continue; // Skip transparent pixels or out of bounds
         
         this.samples.push({
           x,
@@ -77,6 +82,7 @@ export class MinecraftHover implements HoverEffect {
   private drawVoxel(sample: { x: number; y: number; color: string }, elevation: number): void {
     if (!this.ctx) return;
 
+    // Use current block size for drawing
     const size = this.blockSize;
     const half = size / 2;
     const elev = elevation * size * 0.7;
@@ -110,9 +116,14 @@ export class MinecraftHover implements HoverEffect {
   private render = (): void => {
     if (!this.canvas || !this.ctx || !this.isSetup) return;
 
+    // Clear the canvas for a fresh frame
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     if (this.cursor.active) {
+      // Use current block size for drawing
+      const currentBlockSize = this.blockSize;
+      
+      // Draw samples that are within the effect radius
       this.samples.forEach(sample => {
         const dist = Math.hypot(sample.x - this.cursor.x, sample.y - this.cursor.y);
         if (dist < this.radius + this.softEdge) {
@@ -162,8 +173,12 @@ export class MinecraftHover implements HoverEffect {
     const setupEffect = () => {
       // Create canvas
       const canvas = document.createElement('canvas');
-      canvas.width = this.element!.width;
-      canvas.height = this.element!.height;
+      canvas.width = this.element!.naturalWidth || this.element!.width;
+      canvas.height = this.element!.naturalHeight || this.element!.height;
+      
+      console.log(`Canvas dimensions: ${canvas.width}x${canvas.height}`);
+      console.log(`Using block size: ${this.blockSize}`);
+      
       canvas.style.position = 'absolute';
       canvas.style.top = '0';
       canvas.style.left = '0';
@@ -189,7 +204,7 @@ export class MinecraftHover implements HoverEffect {
       // Add canvas to wrapper
       wrapper.appendChild(canvas);
 
-      // Sample image
+      // Sample image with current block size
       this.sampleImage();
       this.isSetup = true;
 
@@ -244,13 +259,72 @@ export class MinecraftHover implements HoverEffect {
   }
 
   public setBlockSize(blockSize: number): void {
-    this.blockSize = blockSize;
-    if (this.isSetup) {
-      this.sampleImage(); // Recreate samples with new block size
+    console.log(`Setting block size from ${this.blockSize} to: ${blockSize}`);
+    
+    // Only update if the value actually changed
+    if (this.blockSize !== blockSize) {
+      this.blockSize = blockSize;
+      
+      if (this.isSetup) {
+        // Force canvas clear
+        if (this.ctx && this.canvas) {
+          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        }
+        
+        // Store cursor state
+        const cursorWasActive = this.cursor.active;
+        
+        // Temporarily deactivate cursor to prevent rendering during sampling
+        this.cursor.active = false;
+        
+        // Recreate samples with new block size
+        this.sampleImage();
+        
+        // Restore cursor state
+        this.cursor.active = cursorWasActive;
+        
+        // Force immediate render with new samples
+        if (this.cursor.active) {
+          this.render();
+        }
+        
+        console.log(`Block size updated to ${blockSize}, created ${this.samples.length} samples`);
+      } else {
+        console.log('Block size updated but effect not yet set up, will apply on setup');
+      }
+    } else {
+      console.log('Block size unchanged, skipping update');
     }
   }
   
   public setRadius(radius: number): void {
     this.radius = radius;
+  }
+
+  // Getter methods for debugging
+  public getBlockSize(): number {
+    return this.blockSize;
+  }
+
+  public getRadius(): number {
+    return this.radius;
+  }
+
+  public getSamplesCount(): number {
+    return this.samples.length;
+  }
+
+  public getDebugInfo(): object {
+    return {
+      blockSize: this.blockSize,
+      radius: this.radius,
+      samplesCount: this.samples.length,
+      isSetup: this.isSetup,
+      cursorActive: this.cursor.active,
+      canvasSize: this.canvas ? { 
+        width: this.canvas.width, 
+        height: this.canvas.height
+      } : null
+    };
   }
 } 

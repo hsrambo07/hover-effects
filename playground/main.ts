@@ -320,7 +320,7 @@ async function initializeEffects(): Promise<void> {
     await ensureImageLoaded(pixelDemo);
     effectInstances.pixel = applyHoverEffect(pixelDemo, {
       effect: 'pixel',
-      blockSize: 6,
+      blockSize: 16,
       radius: 130
     }) as HoverEffect;
 
@@ -387,31 +387,49 @@ async function initializeEffects(): Promise<void> {
   const minecraftDemo = document.getElementById('minecraft-demo') as HTMLImageElement;
   if (minecraftDemo) {
     await ensureImageLoaded(minecraftDemo);
+    
+    // Get initial values from the controls
+    const sizeInput = document.getElementById('minecraft-size') as HTMLInputElement;
+    const radiusInput = document.getElementById('minecraft-radius') as HTMLInputElement;
+    
+    const initialBlockSize = sizeInput ? parseInt(sizeInput.value) : 28;
+    const initialRadius = radiusInput ? parseInt(radiusInput.value) : 130;
+
+    console.log('Initializing Minecraft effect with:', { initialBlockSize, initialRadius });
+
     effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
       effect: 'minecraft',
-      blockSize: 6,
-      radius: 130
+      blockSize: initialBlockSize,
+      radius: initialRadius
     }) as HoverEffect;
 
     // Set up controls
-    const sizeControl = document.getElementById('minecraft-size') as HTMLInputElement;
-    const radiusControl = document.getElementById('minecraft-radius') as HTMLInputElement;
+    const sizeControl = sizeInput;
+    const radiusControl = radiusInput;
     const activeToggle = document.getElementById('minecraft-active') as HTMLInputElement;
 
     if (sizeControl && radiusControl) {
+      // Update initial display values
+      const sizeDisplay = document.getElementById('minecraft-size-value');
+      const radiusDisplay = document.getElementById('minecraft-radius-value');
+      if (sizeDisplay) sizeDisplay.textContent = `${initialBlockSize}px`;
+      if (radiusDisplay) radiusDisplay.textContent = `${initialRadius}px`;
+
       sizeControl.addEventListener('input', () => {
         const blockSize = parseInt(sizeControl.value);
         updateValue('minecraft-size', blockSize);
         
         if (effectInstances.minecraft) {
           if (effectInstances.minecraft.setBlockSize) {
+            console.log('Using setBlockSize method with value:', blockSize);
             effectInstances.minecraft.setBlockSize(blockSize);
           } else {
+            console.log('No setBlockSize method available, recreating effect');
             effectInstances.minecraft.destroy();
             effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
-          effect: 'minecraft',
+              effect: 'minecraft',
               blockSize: blockSize,
-          radius: parseInt(radiusControl.value)
+              radius: parseInt(radiusControl.value)
             }) as HoverEffect;
           }
         }
@@ -439,9 +457,9 @@ async function initializeEffects(): Promise<void> {
         if (activeToggle.checked) {
           if (!effectInstances.minecraft) {
             effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
-          effect: 'minecraft',
-          blockSize: parseInt(sizeControl.value),
-          radius: parseInt(radiusControl.value)
+              effect: 'minecraft',
+              blockSize: parseInt(sizeControl.value),
+              radius: parseInt(radiusControl.value)
             }) as HoverEffect;
           }
         } else if (effectInstances.minecraft) {
@@ -605,6 +623,74 @@ async function initializeEffects(): Promise<void> {
       }
     });
   }
+
+  // Add debug key listener to toggle canvas visibility (press 'd' key)
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'd') {
+      const canvases = document.querySelectorAll('canvas');
+      canvases.forEach((canvas) => {
+        if (canvas.style.opacity === '1') {
+          canvas.style.opacity = '0.5';
+          console.log('Canvas debug mode: ON (50% opacity)');
+        } else if (canvas.style.opacity === '0.5') {
+          canvas.style.opacity = '0';
+          console.log('Canvas debug mode: OFF');
+        } else {
+          canvas.style.opacity = '1';
+          console.log('Canvas debug mode: ON (100% opacity)');
+        }
+      });
+    }
+  });
+}
+
+// Add a debug controller button for Minecraft effect
+function createDebugController() {
+  const container = document.querySelector('#minecraft .effect-controls');
+  if (!container) return;
+  
+  const debugDiv = document.createElement('div');
+  debugDiv.className = 'control-group';
+  debugDiv.innerHTML = `
+    <button id="minecraft-debug" class="debug-button">Debug Mode</button>
+    <div class="debug-info" id="minecraft-debug-info" style="display:none; margin-top: 10px; font-size: 12px;"></div>
+  `;
+  
+  container.appendChild(debugDiv);
+  
+  const debugButton = document.getElementById('minecraft-debug');
+  const debugInfo = document.getElementById('minecraft-debug-info');
+  
+  if (debugButton && debugInfo) {
+    debugButton.addEventListener('click', () => {
+      if (debugInfo.style.display === 'none') {
+        debugInfo.style.display = 'block';
+        updateDebugInfo();
+      } else {
+        debugInfo.style.display = 'none';
+      }
+    });
+  }
+  
+  function updateDebugInfo() {
+    if (debugInfo && debugInfo.style.display !== 'none' && effectInstances.minecraft) {
+      const canvas = document.querySelector('#minecraft .minecraft-wrapper canvas') as HTMLCanvasElement;
+      const instance = effectInstances.minecraft as any; // Cast to any to access private properties
+      
+      const info = `
+        <div>Block Size: ${instance.blockSize}</div>
+        <div>Radius: ${instance.radius}</div>
+        <div>Samples: ${instance.samples?.length || 'N/A'}</div>
+        <div>Canvas Size: ${canvas?.width || 'N/A'} x ${canvas?.height || 'N/A'}</div>
+        <div>Is Setup: ${instance.isSetup || 'N/A'}</div>
+      `;
+      
+      debugInfo.innerHTML = info;
+      
+      // Update every second
+      setTimeout(updateDebugInfo, 1000);
+    }
+  }
 }
 
 // Initialize when DOM is ready
@@ -633,7 +719,19 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
   
-  initializeEffects().catch(error => {
+  // Toggle controls visibility
+  document.querySelectorAll('.toggle-controls').forEach(button => {
+    button.addEventListener('click', () => {
+      const controls = button.nextElementSibling;
+      if (controls && controls.classList.contains('effect-controls')) {
+        controls.classList.toggle('visible');
+      }
+    });
+  });
+  
+  initializeEffects().then(() => {
+    createDebugController();
+  }).catch(error => {
     console.error('Failed to initialize effects:', error);
   });
 }); 

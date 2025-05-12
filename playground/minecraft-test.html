@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Effect Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .image-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      margin-bottom: 20px;
+    }
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .controls {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .control-header {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <h1>Minecraft Effect Test</h1>
+  
+  <div class="image-container">
+    <img src="images/image9.jpg" alt="Test Image" id="minecraft-demo">
+  </div>
+  
+  <div class="controls">
+    <div class="control-group">
+      <div class="control-header">
+        <label for="minecraft-size">Block Size</label>
+        <span id="minecraft-size-value">28px</span>
+      </div>
+      <input type="range" id="minecraft-size" min="8" max="64" value="28">
+    </div>
+    
+    <div class="control-group">
+      <div class="control-header">
+        <label for="minecraft-radius">Radius</label>
+        <span id="minecraft-radius-value">130px</span>
+      </div>
+      <input type="range" id="minecraft-radius" min="50" max="150" value="130">
+    </div>
+    
+    <div>
+      <button id="debug-toggle">Toggle Debug Mode</button>
+      <div id="debug-info" style="margin-top: 10px; font-family: monospace; background: #f5f5f5; padding: 10px; display: none;"></div>
+    </div>
+  </div>
+  
+  <script type="module">
+    // Import the applyHoverEffect function
+    import { applyHoverEffect } from '/src/index.ts';
+    
+    // Wait for image to load
+    const img = document.getElementById('minecraft-demo');
+    const loadPromise = new Promise(resolve => {
+      if (img.complete) {
+        resolve();
+      } else {
+        img.onload = resolve;
+      }
+    });
+    
+    // Initialize effect
+    loadPromise.then(() => {
+      // Get controls
+      const sizeControl = document.getElementById('minecraft-size');
+      const radiusControl = document.getElementById('minecraft-radius');
+      
+      // Get initial values
+      const initialBlockSize = sizeControl ? parseInt(sizeControl.value) : 28;
+      const initialRadius = radiusControl ? parseInt(radiusControl.value) : 130;
+      
+      // Apply effect
+      console.log('Initializing with:', { initialBlockSize, initialRadius });
+      const effect = applyHoverEffect(img, {
+        effect: 'minecraft',
+        blockSize: initialBlockSize,
+        radius: initialRadius
+      });
+      
+      // Set up size control
+      sizeControl.addEventListener('input', () => {
+        const blockSize = parseInt(sizeControl.value);
+        document.getElementById('minecraft-size-value').textContent = `${blockSize}px`;
+        console.log('Setting block size to:', blockSize);
+        
+        if (effect.setBlockSize) {
+          effect.setBlockSize(blockSize);
+        }
+      });
+      
+      // Set up radius control
+      radiusControl.addEventListener('input', () => {
+        const radius = parseInt(radiusControl.value);
+        document.getElementById('minecraft-radius-value').textContent = `${radius}px`;
+        
+        if (effect.setRadius) {
+          effect.setRadius(radius);
+        }
+      });
+      
+      // Debug toggle
+      document.getElementById('debug-toggle').addEventListener('click', () => {
+        const debugInfo = document.getElementById('debug-info');
+        if (debugInfo.style.display === 'none') {
+          debugInfo.style.display = 'block';
+          updateDebugInfo();
+        } else {
+          debugInfo.style.display = 'none';
+        }
+      });
+      
+      // Toggle canvas visibility with 'd' key
+      document.addEventListener('keydown', e => {
+        if (e.key === 'd') {
+          const canvas = document.querySelector('.minecraft-wrapper canvas');
+          if (canvas) {
+            if (canvas.style.opacity === '1') {
+              canvas.style.opacity = '0.5';
+              console.log('Canvas debug: 50% opacity');
+            } else if (canvas.style.opacity === '0.5') {
+              canvas.style.opacity = '0';
+              console.log('Canvas debug: hidden');
+            } else {
+              canvas.style.opacity = '1';
+              console.log('Canvas debug: 100% opacity');
+            }
+          }
+        }
+      });
+      
+      // Debug info updater
+      function updateDebugInfo() {
+        const debugInfo = document.getElementById('debug-info');
+        if (debugInfo && debugInfo.style.display !== 'none') {
+          const canvas = document.querySelector('.minecraft-wrapper canvas');
+          const effectAny = effect; // Access fields directly
+          
+          debugInfo.innerHTML = `
+            <div>Block Size: ${effectAny.blockSize || 'N/A'}</div>
+            <div>Radius: ${effectAny.radius || 'N/A'}</div>
+            <div>Canvas Size: ${canvas?.width || 'N/A'} x ${canvas?.height || 'N/A'}</div>
+            <div>Samples: ${effectAny.samples?.length || 'N/A'}</div>
+            <div>Cursor Active: ${effectAny.cursor?.active || 'N/A'}</div>
+          `;
+          
+          setTimeout(updateDebugInfo, 500);
+        }
+      }
+    });
+  </script>
+</body>
+</html> 
