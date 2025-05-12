@@ -36,7 +36,6 @@ Check out our live demo to see all the effects in action:
 <blockquote class="twitter-tweet" data-dnt="true" data-theme="dark">
   <a href="https://x.com/harsh_logs/status/1921567721076183543"></a>
 </blockquote>
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 ## 📥 Installation
 
@@ -494,7 +493,7 @@ MIT License - feel free to use this in your projects!
 
 ## 📝 Changelog
 
-### Version 2.2.2
+### Version 2.2.5
 - Fixed Minecraft effect not respecting the provided blockSize parameter
 - Fixed Pixel effect initialization with custom blockSize values
 - Improved setBlockSize method implementation for both effects

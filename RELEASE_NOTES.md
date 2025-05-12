@@ -1,4 +1,4 @@
-# Release Notes - v2.2.2
+# Release Notes - v2.2.5
 
 ## Bug Fixes
 
@@ -69,6 +69,6 @@ No breaking changes were introduced, but developers should:
 1. npm login
 2. npm run build
 3. npm publish
-4. git tag v2.2.2
-5. git push origin v2.2.2
+4. git tag v2.2.5
+5. git push origin v2.2.5
 
