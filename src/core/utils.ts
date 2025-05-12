@@ -8,7 +8,6 @@ export function getTargets(
 ): HTMLElement[] {
   if (typeof target === 'string') {
     const elements = document.querySelectorAll(target);
-    console.log(`Query selector "${target}" found ${elements.length} elements`);
     return Array.from(elements) as HTMLElement[];
   } else if (target instanceof HTMLElement) {
     return [target];

@@ -197,4 +197,15 @@ export class PixelHover implements HoverEffect {
     this.canvas = null;
     this.ctx = null;
   }
+
+  public setBlockSize(blockSize: number): void {
+    this.blockSize = blockSize;
+    if (this.isSetup) {
+      this.sampleImage(); // Recreate samples with new block size
+    }
+  }
+  
+  public setRadius(radius: number): void {
+    this.radius = radius;
+  }
 } 

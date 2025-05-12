@@ -336,4 +336,25 @@ export class LegoHover implements HoverEffect {
   public setRadius(radius: number): void {
     this.radius = radius;
   }
+  
+  public setGap(gap: number): void {
+    this.gap = gap;
+    this.sample();
+  }
+  
+  public setStudScale(scale: number): void {
+    this.studScale = scale;
+  }
+  
+  public setDepth(depth: number): void {
+    this.depth = depth;
+  }
+  
+  public setSoftEdge(edge: number): void {
+    this.softEdge = edge;
+  }
+  
+  public setFadeExp(exp: number): void {
+    this.fadeExp = exp;
+  }
 } 

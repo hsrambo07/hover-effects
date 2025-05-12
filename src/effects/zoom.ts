@@ -246,5 +246,13 @@ export class ZoomHover implements HoverEffect {
     this.detach();
     this.element = null;
   }
+  
+  public setRadius(radius: number): void {
+    this.radius = radius;
+  }
+  
+  public setScale(scale: number): void {
+    this.scale = scale;
+  }
 }
  

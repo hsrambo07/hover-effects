@@ -130,13 +130,12 @@
     /* Fixed dimensions container for consistent image display */
     .image-container {
       position: relative;
+      aspect-ratio: 16 / 10;
       width: 100%;
-      height: 800px;
       overflow: hidden !important;
       border-radius: 16px;
-      /* Image position reference */
-      transform: translateZ(0);
-      backface-visibility: hidden;
+      box-sizing: border-box !important;
+      background-color: #f3f3f3;
     }
 
     /* Style for images inside image containers */
@@ -145,6 +144,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      display: block;
     }
 
     /* Override for all tabs to ensure consistent behavior */
@@ -254,7 +254,6 @@
     /* Additional styles for ASCII render */
     .ascii-render {
       font-family: 'Courier New', monospace;
-      letter-spacing: var(--ascii-spacing, 0.1em);
       line-height: var(--ascii-line-height, 0.8em);
       white-space: pre;
       color: #00ff00;
@@ -265,29 +264,28 @@
     
     /* Fix for ASCII wrapper to ensure strict containment */
     .ascii-wrapper {
-      position: relative !important;
-      display: inline-block !important;
-      overflow: hidden !important;
-      max-width: 100% !important;
-      max-height: 100% !important;
+      display: block !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
       border-radius: 16px !important;
       width: 100% !important;
       height: 100% !important;
+      overflow: hidden !important;
+      z-index: 10;
     }
     
     /* Ensuring the canvas has a transparent background */
     canvas[data-ascii-id] {
       background-color: transparent !important;
-      max-width: 100% !important;
-      max-height: 100% !important;
       overflow: hidden !important;
-      clip-path: inset(0) !important; /* Clip content to its box */
-      z-index: 50 !important; /* Ensure proper layering */
       position: absolute !important;
+      z-index: 20 !important; /* Ensure proper layering */
       top: 0 !important;
       left: 0 !important;
       width: 100% !important;
       height: 100% !important;
+      display: block !important;
     }
 
     /* Fix for making sure the original image remains at proper dimensions */
@@ -296,6 +294,9 @@
       height: 100% !important;
       object-fit: cover !important;
       display: block !important;
+      z-index: 5 !important; /* Low but still visible */
+      visibility: visible !important;
+      opacity: 1 !important;
     }
 
     /* Override for the ASCII effect tab to ensure tight containment */
@@ -427,25 +428,22 @@
 
     /* Apply consistent styling to all effect wrappers */
     .effect-wrapper {
-      position: relative !important;
-      display: inline-block !important;
-      overflow: hidden !important;
-      max-width: 100% !important;
-      max-height: 100% !important;
+      display: block !important;
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
       border-radius: 16px !important;
       width: 100% !important;
       height: 100% !important;
+      overflow: hidden !important;
     }
     
     /* Consistent styling for all effect canvases */
     canvas[data-effect-id] {
       background-color: transparent !important;
-      max-width: 100% !important;
-      max-height: 100% !important;
       overflow: hidden !important;
-      clip-path: inset(0) !important; /* Clip content to its box */
-      z-index: 50 !important; /* Ensure proper layering */
       position: absolute !important;
+      z-index: 50 !important; /* Ensure proper layering */
       top: 0 !important;
       left: 0 !important;
       width: 100% !important;
@@ -458,6 +456,24 @@
       height: 100% !important;
       object-fit: cover !important;
       display: block !important;
+    }
+
+    /* Ensure consistent sizing across all tabs */
+    .tab-content {
+      height: 100%;
+    }
+    
+    .tab-content .effect-preview {
+      height: 100%;
+    }
+    
+    #ascii .effect-preview,
+    #zoom .effect-preview,
+    #particle .effect-preview,
+    #pixel .effect-preview,
+    #minecraft .effect-preview,
+    #lego .effect-preview {
+      height: 600px;
     }
   </style>
 </head>
@@ -478,61 +494,58 @@
     
     <div class="main-content">
       <div id="ascii" class="tab-content active">
-        <div class="effect-preview">
-          <div class="image-container">
-            <img src="images/image7.jpg" alt="Demo 1" id="ascii-demo">
+        <!-- Completely rebuilt ASCII tab with simple structure -->
+        <div style="display: flex; width: 100%; height: 600px; position: relative; border-radius: 16px; overflow: hidden;">
+          <!-- Left side: image fixed at 70% width -->
+          <div style="width: 70%; height: 100%; position: relative; overflow: hidden; background: #f3f3f3;">
+            <img src="images/image.png" alt="ASCII Demo" id="ascii-demo" 
+                 style="width: 100%; height: 100%; display: block; object-fit: cover;">
           </div>
-        </div>
-        <button class="toggle-controls" title="Toggle Controls">≡</button>
-        <div class="effect-controls">
-          <div class="switch-wrapper">
-            <span>Effect Active</span>
-            <label class="switch">
-              <input type="checkbox" checked id="ascii-active">
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="switch-wrapper">
-            <span>Colorize</span>
-            <label class="switch">
-              <input type="checkbox" checked id="ascii-color">
-              <span class="slider"></span>
-            </label>
-          </div>
-          <div class="control-group">
-            <div class="control-header">
-              <label for="ascii-size">Character Size</label>
-              <span class="value" id="ascii-size-value">16px</span>
+          
+          <!-- Right side: controls fixed at 30% width -->
+          <div style="width: 30%; height: 100%; padding: 20px; box-sizing: border-box; background: rgba(255,255,255,0.9);">
+            <div class="switch-wrapper">
+              <span>Effect Active</span>
+              <label class="switch">
+                <input type="checkbox" checked id="ascii-active">
+                <span class="slider"></span>
+              </label>
             </div>
-            <input type="range" min="6" max="30" value="16" id="ascii-size">
-          </div>
-          <div class="control-group">
-            <div class="control-header">
-              <label for="ascii-spacing">Character Spacing</label>
-              <span class="value" id="ascii-spacing-value">0.5</span>
+            <div class="switch-wrapper">
+              <span>Colorize</span>
+              <label class="switch">
+                <input type="checkbox" checked id="ascii-color">
+                <span class="slider"></span>
+              </label>
             </div>
-            <input type="range" min="0" max="100" value="50" id="ascii-spacing">
-          </div>
-          <div class="control-group">
-            <div class="control-header">
-              <label for="ascii-radius">Radius</label>
-              <span class="value" id="ascii-radius-value">100px</span>
+            <div class="control-group">
+              <div class="control-header">
+                <label for="ascii-size">Character Size</label>
+                <span class="value" id="ascii-size-value">16px</span>
+              </div>
+              <input type="range" min="6" max="30" value="16" id="ascii-size">
             </div>
-            <input type="range" min="30" max="300" value="100" id="ascii-radius">
-          </div>
-          <div class="control-group">
-            <div class="control-header">
-              <label for="ascii-glitch-intensity">Glitch Intensity</label>
-              <span class="value" id="ascii-glitch-intensity-value">3</span>
+            <div class="control-group">
+              <div class="control-header">
+                <label for="ascii-radius">Radius</label>
+                <span class="value" id="ascii-radius-value">100px</span>
+              </div>
+              <input type="range" min="30" max="800" value="100" id="ascii-radius">
             </div>
-            <input type="range" min="0" max="20" value="3" id="ascii-glitch-intensity">
-          </div>
-          <div class="control-group">
-            <div class="control-header">
-              <label for="ascii-glitch-speed">Glitch Speed</label>
-              <span class="value" id="ascii-glitch-speed-value">0.5</span>
+            <div class="control-group">
+              <div class="control-header">
+                <label for="ascii-glitch-intensity">Glitch Intensity</label>
+                <span class="value" id="ascii-glitch-intensity-value">3</span>
+              </div>
+              <input type="range" min="0" max="20" value="3" id="ascii-glitch-intensity">
             </div>
-            <input type="range" min="0.1" max="20" value="5" id="ascii-glitch-speed">
+            <div class="control-group">
+              <div class="control-header">
+                <label for="ascii-glitch-speed">Glitch Speed</label>
+                <span class="value" id="ascii-glitch-speed-value">0.5</span>
+              </div>
+              <input type="range" min="0.1" max="20" value="5" id="ascii-glitch-speed">
+            </div>
           </div>
         </div>
       </div>
@@ -540,7 +553,7 @@
       <div id="zoom" class="tab-content">
         <div class="effect-preview">
           <div class="image-container">
-            <img src="images/image2.jpg" alt="Demo 2" id="zoom-demo">
+            <img src="images/image1.jpg" alt="Demo 2" id="zoom-demo" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
         </div>
         <button class="toggle-controls" title="Toggle Controls">≡</button>
@@ -572,7 +585,7 @@
       <div id="particle" class="tab-content">
         <div class="effect-preview">
           <div class="image-container">
-            <img src="images/image1.jpg" alt="Demo 3" id="particle-demo">
+            <img src="images/image8.jpg" alt="Demo 3" id="particle-demo" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
         </div>
         <button class="toggle-controls" title="Toggle Controls">≡</button>
@@ -604,7 +617,7 @@
       <div id="pixel" class="tab-content">
         <div class="effect-preview">
           <div class="image-container">
-            <img src="images/image5.jpg" alt="Demo 4" id="pixel-demo">
+            <img src="images/image5.jpg" alt="Demo 4" id="pixel-demo" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
         </div>
         <button class="toggle-controls" title="Toggle Controls">≡</button>
@@ -636,7 +649,7 @@
       <div id="minecraft" class="tab-content">
         <div class="effect-preview">
           <div class="image-container">
-            <img src="images/image9.jpg" alt="Demo 5" id="minecraft-demo">
+            <img src="images/image9.jpg" alt="Demo 5" id="minecraft-demo" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
         </div>
         <button class="toggle-controls" title="Toggle Controls">≡</button>
@@ -668,7 +681,7 @@
       <div id="lego" class="tab-content">
         <div class="effect-preview">
           <div class="image-container">
-            <img src="images/image3.jpg" alt="LEGO Demo" id="lego-demo">
+            <img src="images/image3.jpg" alt="LEGO Demo" id="lego-demo" style="width: 100%; height: 100%; object-fit: cover;">
           </div>
         </div>
         <button class="toggle-controls" title="Toggle Controls">≡</button>
@@ -734,107 +747,222 @@
     </div>
   </div>
 
-  <script>
-    document.querySelectorAll('.nav-item').forEach(item => {
-      item.addEventListener('click', () => {
-        // Update active navigation
-        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
+  <script type="module">
+    import { applyHoverEffect } from '../src/index.ts';
+
+    // Store effect instances
+    const effectInstances = {
+      ascii: null,
+      zoom: null,
+      particle: null,
+      pixel: null,
+      minecraft: null,
+      lego: null
+    };
+
+    // Tab switching logic
+    document.querySelectorAll('.nav-item').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
         
-        // Update active content
+        // Update active tab
+        document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        // Show corresponding content
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        const tabId = item.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
+        document.getElementById(tabId)?.classList.add('active');
       });
     });
 
-    // Toggle control panels
-    document.querySelectorAll('.toggle-controls').forEach(button => {
-      button.addEventListener('click', () => {
-        const controlPanel = button.nextElementSibling;
-        controlPanel.classList.toggle('collapsed');
-        
-        // Change the toggle button text
-        if (controlPanel.classList.contains('collapsed')) {
-          button.textContent = '◀';  // Show controls
-        } else {
-          button.textContent = '≡';  // Hide controls
-        }
-      });
-    });
-    
-    // Helper to ensure consistent layout and cursor sync for all effects
-    window.addEventListener('load', function() {
-      setTimeout(function() {
-        // Handle ASCII effect wrappers
-        document.querySelectorAll('.ascii-wrapper').forEach(wrapper => {
-          wrapper.classList.add('effect-wrapper');
-          wrapper.style.width = '100%';
-          wrapper.style.height = '100%';
+    // Initialize effects
+    async function initializeEffects() {
+      // Helper function to ensure images are loaded
+      const ensureImageLoaded = (img) => {
+        return new Promise((resolve) => {
+          if (img.complete) resolve();
+          else img.onload = () => resolve();
         });
-        
-        // Apply consistent styling to all image containers
-        document.querySelectorAll('.image-container').forEach(container => {
-          container.style.overflow = 'hidden';
-          
-          // Ensure all canvases in this container have consistent styling
-          const canvases = container.querySelectorAll('canvas');
-          canvases.forEach(canvas => {
-            // Set basic styling for all canvases
-            canvas.style.position = 'absolute';
-            canvas.style.top = '0';
-            canvas.style.left = '0';
-            canvas.style.width = '100%';
-            canvas.style.height = '100%';
-            canvas.style.overflow = 'hidden';
-            
-            // Get effect id from parent container or img
-            const tab = canvas.closest('.tab-content');
-            if (tab) {
-              const effectId = tab.id;
-              if (!canvas.dataset.effectId) {
-                canvas.dataset.effectId = effectId;
-              }
-            }
-          });
+      };
+
+      // Initialize each effect
+      // ASCII Effect
+      const asciiDemo = document.getElementById('ascii-demo');
+      if (asciiDemo) {
+        await ensureImageLoaded(asciiDemo);
+        effectInstances.ascii = applyHoverEffect(asciiDemo, {
+          effect: 'ascii',
+          size: 16,
+          radius: 100,
+          colored: true,
+          glitchIntensity: 3,
+          glitchSpeed: 5
         });
-        
-        // Apply similar wrapper handling for all other effects
-        document.querySelectorAll('.image-container img').forEach(img => {
-          const effectId = img.id.split('-')[0]; // Extract effect name from id (e.g., "zoom" from "zoom-demo")
-          
-          // Skip if already properly wrapped
-          if (effectId && !img.closest('.effect-wrapper') && !img.closest('.ascii-wrapper')) {
-            let wrapper = img.closest(`.${effectId}-wrapper`);
-            
-            // Create wrapper if it doesn't exist
-            if (!wrapper) {
-              wrapper = document.createElement('div');
-              wrapper.className = `effect-wrapper ${effectId}-wrapper`;
-              wrapper.style.position = 'relative';
-              wrapper.style.display = 'inline-block';
-              wrapper.style.width = '100%';
-              wrapper.style.height = '100%';
-              wrapper.style.overflow = 'hidden';
-              
-              // Insert the wrapper before the image and move the image inside
-              img.parentNode.insertBefore(wrapper, img);
-              wrapper.appendChild(img);
+
+        // Set up controls
+        const sizeControl = document.getElementById('ascii-size');
+        const radiusControl = document.getElementById('ascii-radius');
+        const colorControl = document.getElementById('ascii-color');
+        const glitchIntensityControl = document.getElementById('ascii-glitch-intensity');
+        const glitchSpeedControl = document.getElementById('ascii-glitch-speed');
+        const activeToggle = document.getElementById('ascii-active');
+
+        sizeControl?.addEventListener('input', () => {
+          const size = parseInt(sizeControl.value);
+          document.getElementById('ascii-size-value').textContent = `${size}px`;
+          effectInstances.ascii?.setSize?.(size);
+        });
+
+        radiusControl?.addEventListener('input', () => {
+          const radius = parseInt(radiusControl.value);
+          document.getElementById('ascii-radius-value').textContent = `${radius}px`;
+          effectInstances.ascii?.setRadius?.(radius);
+        });
+
+        colorControl?.addEventListener('change', () => {
+          effectInstances.ascii?.setColored?.(colorControl.checked);
+        });
+
+        glitchIntensityControl?.addEventListener('input', () => {
+          const intensity = parseInt(glitchIntensityControl.value);
+          document.getElementById('ascii-glitch-intensity-value').textContent = intensity;
+          effectInstances.ascii?.setGlitchIntensity?.(intensity);
+        });
+
+        glitchSpeedControl?.addEventListener('input', () => {
+          const speed = parseFloat(glitchSpeedControl.value);
+          document.getElementById('ascii-glitch-speed-value').textContent = speed.toFixed(1);
+          effectInstances.ascii?.setGlitchSpeed?.(speed);
+        });
+
+        activeToggle?.addEventListener('change', () => {
+          if (activeToggle.checked) {
+            if (!effectInstances.ascii) {
+              effectInstances.ascii = applyHoverEffect(asciiDemo, {
+                effect: 'ascii',
+                size: parseInt(sizeControl?.value || '16'),
+                radius: parseInt(radiusControl?.value || '100'),
+                colored: colorControl?.checked ?? true,
+                glitchIntensity: parseInt(glitchIntensityControl?.value || '3'),
+                glitchSpeed: parseFloat(glitchSpeedControl?.value || '5')
+              });
             }
-            
-            // Ensure any canvas has proper attributes
-            const canvases = wrapper.querySelectorAll('canvas');
-            canvases.forEach(canvas => {
-              if (!canvas.dataset.effectId) {
-                canvas.dataset.effectId = effectId;
-              }
-            });
+          } else if (effectInstances.ascii) {
+            effectInstances.ascii.destroy();
+            effectInstances.ascii = null;
           }
         });
-      }, 500);
-    });
-  </script>
+      }
 
-  <script type="module" src="main.ts"></script>
+      // Other effects
+      const effects = [
+        {
+          id: 'zoom',
+          options: { effect: 'zoom', scale: 1.2, radius: 100 },
+          controls: {
+            scale: { min: 11, max: 20, default: 12, transform: v => v / 10 },
+            radius: { min: 50, max: 200, default: 100 }
+          }
+        },
+        {
+          id: 'particle',
+          options: { effect: 'particle-dust', spacing: 4, maxDrift: 28, radius: 110 },
+          controls: {
+            spacing: { min: 2, max: 10, default: 4 },
+            maxDrift: { min: 10, max: 50, default: 28 },
+            radius: { min: 50, max: 200, default: 110 }
+          }
+        },
+        {
+          id: 'pixel',
+          options: { effect: 'pixel', blockSize: 6, radius: 130 },
+          controls: {
+            blockSize: { min: 4, max: 20, default: 6 },
+            radius: { min: 50, max: 200, default: 130 }
+          }
+        },
+        {
+          id: 'minecraft',
+          options: { effect: 'minecraft', blockSize: 6, radius: 130 },
+          controls: {
+            blockSize: { min: 4, max: 20, default: 6 },
+            radius: { min: 50, max: 200, default: 130 }
+          }
+        },
+        {
+          id: 'lego',
+          options: { 
+            effect: 'lego', 
+            blockSize: 16, 
+            radius: 140,
+            gap: 2,
+            studScale: 0.33,
+            depth: 0.25,
+            softEdge: 90,
+            fadeExp: 1.4
+          },
+          controls: {
+            blockSize: { min: 8, max: 40, default: 16 },
+            gap: { min: 1, max: 5, default: 2 },
+            studScale: { min: 20, max: 70, default: 33, transform: v => v / 100 },
+            depth: { min: 10, max: 40, default: 25, transform: v => v / 100 },
+            radius: { min: 80, max: 200, default: 140 },
+            softEdge: { min: 30, max: 150, default: 90 },
+            fadeExp: { min: 10, max: 30, default: 14, transform: v => v / 10 }
+          }
+        }
+      ];
+
+      for (const effect of effects) {
+        const demo = document.getElementById(`${effect.id}-demo`);
+        if (demo) {
+          await ensureImageLoaded(demo);
+          effectInstances[effect.id] = applyHoverEffect(demo, effect.options);
+          
+          // Set up controls
+          const activeToggle = document.getElementById(`${effect.id}-active`);
+          activeToggle?.addEventListener('change', () => {
+            if (activeToggle.checked) {
+              if (!effectInstances[effect.id]) {
+                effectInstances[effect.id] = applyHoverEffect(demo, effect.options);
+              }
+            } else if (effectInstances[effect.id]) {
+              effectInstances[effect.id].destroy();
+              effectInstances[effect.id] = null;
+            }
+          });
+
+          // Set up sliders
+          if (effect.controls) {
+            for (const [param, config] of Object.entries(effect.controls)) {
+              const control = document.getElementById(`${effect.id}-${param.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}`);
+              const valueDisplay = document.getElementById(`${effect.id}-${param.replace(/[A-Z]/g, m => '-' + m.toLowerCase())}-value`);
+              
+              if (control) {
+                control.addEventListener('input', () => {
+                  const rawValue = parseInt(control.value);
+                  const value = config.transform ? config.transform(rawValue) : rawValue;
+                  
+                  if (valueDisplay) {
+                    let displayValue = value;
+                    if (param === 'scale') displayValue = value.toFixed(1) + 'x';
+                    else if (['studScale', 'depth', 'fadeExp'].includes(param)) displayValue = value.toFixed(2);
+                    else displayValue = value + 'px';
+                    valueDisplay.textContent = displayValue;
+                  }
+                  
+                  const setter = `set${param.charAt(0).toUpperCase() + param.slice(1)}`;
+                  effectInstances[effect.id]?.[setter]?.(value);
+                });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Initialize all effects when the page loads
+    document.addEventListener('DOMContentLoaded', initializeEffects);
+  </script>
 </body>
 </html> 

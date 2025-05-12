@@ -8,8 +8,6 @@ import { MinecraftHover } from '../effects/minecraft';
 import { LegoHover } from '../effects/lego';
 
 export function createHoverEffect(options: HoverEffectOptions): HoverEffect {
-  console.log(`Creating effect: ${options.effect}`);
-  
   switch (options.effect) {
     case 'ascii':
       return new AsciiHover({
@@ -60,16 +58,13 @@ export function createHoverEffect(options: HoverEffectOptions): HoverEffect {
  * Apply a hover effect to one or more DOM elements
  * @param target - A CSS selector, HTMLElement, or NodeList of HTMLElements
  * @param options - Configuration options for the hover effect
- * @returns An object with a destroy method to remove the effect
+ * @returns An array of HoverEffect instances, or a single HoverEffect if only one element was targeted
  */
 export function applyHoverEffect(
   target: string | HTMLElement | NodeListOf<HTMLElement>,
   options: HoverEffectOptions
-): { destroy: () => void } {
-  console.log(`Applying ${options.effect} effect to ${typeof target === 'string' ? target : 'element'}`);
-  
+): HoverEffect | HoverEffect[] {
   const targets = getTargets(target);
-  console.log(`Found ${targets.length} target elements`);
   
   const effects: HoverEffect[] = [];
 
@@ -80,11 +75,7 @@ export function applyHoverEffect(
     effects.push(effect);
   });
 
-  // Return an object with a destroy method
-  return {
-    destroy: () => {
-      effects.forEach(effect => effect.destroy());
-    }
-  };
+  // Return either the array of effects or just the first one
+  return targets.length === 1 ? effects[0] : effects;
 }
  

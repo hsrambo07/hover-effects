@@ -22,11 +22,22 @@ export class MinecraftHover implements HoverEffect {
     this.fadeExp = 1.4;
   }
 
-  private shadeColor(rgb: string, pct: number): string {
-    const colors = rgb.match(/\d+/g)?.map(Number) || [0, 0, 0];
-    return `rgb(${colors.map(v => 
-      Math.min(255, Math.max(0, v * (1 + pct))) | 0
-    ).join(',')})`;
+  private shadeColor(color: string, percent: number): string {
+    // Parse RGB components from the color string
+    const rgbValues = color.slice(4, color.length - 1).split(',');
+    const r = parseInt(rgbValues[0], 10);
+    const g = parseInt(rgbValues[1], 10);
+    const b = parseInt(rgbValues[2], 10);
+    
+    // Apply shading to each component individually
+    const t = percent < 0 ? 0 : 255;
+    const p = percent < 0 ? percent * -1 : percent;
+    
+    const R = r + Math.round((t - r) * p);
+    const G = g + Math.round((t - g) * p);
+    const B = b + Math.round((t - b) * p);
+    
+    return `rgb(${R}, ${G}, ${B})`;
   }
 
   private sampleImage(): void {
@@ -230,5 +241,16 @@ export class MinecraftHover implements HoverEffect {
     this.element = null;
     this.canvas = null;
     this.ctx = null;
+  }
+
+  public setBlockSize(blockSize: number): void {
+    this.blockSize = blockSize;
+    if (this.isSetup) {
+      this.sampleImage(); // Recreate samples with new block size
+    }
+  }
+  
+  public setRadius(radius: number): void {
+    this.radius = radius;
   }
 } 

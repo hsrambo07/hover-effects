@@ -1,8 +1,8 @@
 // Export types
-export type { HoverEffect, HoverEffectOptions } from './core/types';
+export type { HoverEffect, HoverEffectOptions } from './types';
 
 // Export core functionality
-export { applyHoverEffect } from './core/applyHoverEffect';
+export { applyHoverEffect } from './core/effectFactory';
 
 // Export effects
 export { AsciiHover } from './effects/ascii';

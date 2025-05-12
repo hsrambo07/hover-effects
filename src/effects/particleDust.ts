@@ -23,7 +23,7 @@ export class ParticleDust implements HoverEffect {
   private radius: number;
   private maxDrift: number;
   private readonly homeJitter: number;
-  private readonly softEdge: number;
+  private softEdge: number;
   private readonly fadeExp: number;
   private readonly wobbleAmpMin: number;
   private readonly wobbleAmpMax: number;
@@ -247,5 +247,21 @@ export class ParticleDust implements HoverEffect {
     this.element = null;
     this.canvas = null;
     this.ctx = null;
+  }
+
+  public setSpacing(spacing: number): void {
+    this.spacing = spacing;
+    if (this.isSetup) {
+      this.createParticles(); // Recreate particles with new spacing
+    }
+  }
+  
+  public setMaxDrift(maxDrift: number): void {
+    this.maxDrift = maxDrift;
+  }
+  
+  public setRadius(radius: number): void {
+    this.radius = radius;
+    this.softEdge = Math.min(20, this.radius / 2); // Update dependent parameter
   }
 } 

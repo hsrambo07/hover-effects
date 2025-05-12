@@ -1,0 +1,32 @@
+# Development files
+.git
+.github
+.vscode
+*.log
+.DS_Store
+.editorconfig
+.eslintrc.js
+.eslintrc.json
+.gitignore
+.husky
+.prettierrc
+tsconfig.json
+vite.config.ts
+vitest.config.ts
+
+# Source files (already compiled)
+src/
+tests/
+
+# Development and demo folders
+playground/
+simple-test/
+public/
+
+# Package files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Node modules
+node_modules/ 

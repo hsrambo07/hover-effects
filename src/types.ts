@@ -2,11 +2,46 @@
  * Configuration options for different hover effects
  */
 export type HoverEffectOptions =
-  | ({ effect: "ascii"; size?: number; chars?: string[]; radius?: number })
-  | ({ effect: "zoom"; scale?: number; radius?: number })
-  | ({ effect: "particle-dust"; spacing?: number; maxDrift?: number; radius?: number })
-  | ({ effect: "pixel"; blockSize?: number; radius?: number })
-  | ({ effect: "minecraft"; blockSize?: number; radius?: number });
+  | ({ 
+      effect: "ascii"; 
+      size?: number; 
+      chars?: string[]; 
+      radius?: number; 
+      colored?: boolean; 
+      glitchIntensity?: number; 
+      glitchSpeed?: number;
+    })
+  | ({ 
+      effect: "zoom"; 
+      scale?: number; 
+      radius?: number 
+    })
+  | ({ 
+      effect: "particle-dust"; 
+      spacing?: number; 
+      maxDrift?: number; 
+      radius?: number 
+    })
+  | ({ 
+      effect: "pixel"; 
+      blockSize?: number; 
+      radius?: number 
+    })
+  | ({ 
+      effect: "minecraft"; 
+      blockSize?: number; 
+      radius?: number 
+    })
+  | ({ 
+      effect: "lego"; 
+      blockSize?: number; 
+      radius?: number; 
+      depth?: number; 
+      studScale?: number; 
+      gap?: number; 
+      softEdge?: number; 
+      fadeExp?: number 
+    });
 
 /**
  * Interface that all hover effects must implement
@@ -27,24 +62,39 @@ export interface HoverEffect {
    * Clean up all resources used by the effect
    */
   destroy(): void;
+  
+  /**
+   * Optional setter methods that may be implemented by specific effects
+   */
+  // Common setters
+  setRadius?(radius: number): void;
+  
+  // ASCII effect setters
+  setSize?(size: number): void;
+  setColored?(colored: boolean): void;
+  setGlitchIntensity?(intensity: number): void;
+  setGlitchSpeed?(speed: number): void;
+  setChars?(chars: string[]): void;
+  
+  // Zoom effect setters
+  setScale?(scale: number): void;
+  
+  // Particle effect setters
+  setSpacing?(spacing: number): void;
+  setMaxDrift?(maxDrift: number): void;
+  
+  // Pixel and Minecraft effect setters
+  setBlockSize?(size: number): void;
+  
+  // LEGO effect setters
+  setGap?(gap: number): void;
+  setStudScale?(scale: number): void;
+  setDepth?(depth: number): void;
+  setSoftEdge?(edge: number): void;
+  setFadeExp?(exp: number): void;
 }
 
-export interface ParticleDustOptions {
-  particleCount?: number;
-  particleSize?: number;
-  particleSpeed?: number;
-  colors?: string[];
-}
-
-export interface PixelOptions {
-  pixelSize?: number;
-  radius?: number;
-}
-
-export interface MinecraftOptions {
-  breakSpeed?: number;
-  blockSize?: number;
-  crackStages?: number;
-}
-
-export type EffectType = 'particleDust' | 'pixel' | 'minecraft'; 
+/**
+ * Valid effect types that can be applied
+ */
+export type EffectType = 'ascii' | 'zoom' | 'particle-dust' | 'pixel' | 'minecraft' | 'lego'; 

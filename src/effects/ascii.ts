@@ -43,8 +43,16 @@ export class AsciiHover implements HoverEffect {
   private glitchIntensity: number;
   private glitchSpeed: number;
 
-  private get cellW() { return this.size * 0.6; }  // monospace width ≈ 0.6×font size
-  private get cellH() { return this.size * 1.2; }  // leave a bit of leading
+  // Character metrics cache
+  private charMetrics = { width: 14, height: 16.8 }; // Default values for 14px size
+  
+  // Cell calculations using metrics
+  private get cellW() { return this.charMetrics.width; }
+  private get cellH() { return this.charMetrics.height; }
+
+  // Auto-size detection
+  private autoSize = false; // Disable by default to use UI values
+  private baseImageSize = 0;
 
   constructor(options: { 
     radius?: number; 
@@ -55,13 +63,15 @@ export class AsciiHover implements HoverEffect {
     chars?: string[];
   } = {}) {
     this.id = Math.random().toString(36).substring(2, 9);
-    this.radius = options.radius ?? 70;
-    this.size = options.size ?? 14;
+    this.radius = options.radius ?? 100; // Match UI default
+    this.size = options.size ?? 16;      // Match UI default
+    
+    // Use fixed scale that doesn't depend on size
+    this.scale = 0.15; // Consistent scale
     
     // Default to non-colored chars initially
     this.chars = this.nonColoredChars;
     
-    this.scale = 0.2;
     this.colored = options.colored ?? false;
     this.glitchIntensity = options.glitchIntensity ?? 3;
     this.glitchSpeed = options.glitchSpeed ?? 0.5;
@@ -133,6 +143,7 @@ export class AsciiHover implements HoverEffect {
   private onMouseEnter = (e: MouseEvent): void => {
     if (!this.element || !this.canvas) return;
     
+    console.log('Mouse entered ASCII effect');
     this.isHovering = true;
     
     // Get accurate cursor position relative to the image
@@ -150,6 +161,7 @@ export class AsciiHover implements HoverEffect {
   private onMouseLeave = (): void => {
     if (!this.canvas || !this.ctx) return;
     
+    console.log('Mouse left ASCII effect');
     this.isHovering = false;
     this.canvas.style.opacity = '0';
     
@@ -179,9 +191,10 @@ export class AsciiHover implements HoverEffect {
   private updateImageData(): void {
     if (!this.element || !this.tempCanvas || !this.tempCtx) return;
     
-    // Important: Use the actual display dimensions for proper synchronization
-    const sw = Math.floor(this.element.width * this.scale);
-    const sh = Math.floor(this.element.height * this.scale);
+    // Use display dimensions instead of intrinsic dimensions
+    const rect = this.element.getBoundingClientRect();
+    const sw = Math.floor(rect.width * this.scale);
+    const sh = Math.floor(rect.height * this.scale);
     
     this.tempCanvas.width = sw;
     this.tempCanvas.height = sh;
@@ -191,6 +204,24 @@ export class AsciiHover implements HoverEffect {
 
   private render = (timestamp = 0): void => {
     if (!this.element || !this.canvas || !this.ctx || !this.imageData || !this.isHovering) return;
+    
+    console.log('Rendering ASCII effect', {
+      canvasWidth: this.canvas.width,
+      canvasHeight: this.canvas.height,
+      mousePos: this.mousePos,
+      scale: this.scale,
+      size: this.size
+    });
+    
+    // Auto-adjust size if enabled
+    if (this.autoSize) {
+      const prevSize = this.size;
+      this.calculateAutoSize();
+      if (Math.abs(this.size - prevSize) > 1) {
+        this.measureChars();
+        this.updateImageData();
+      }
+    }
     
     // Check if enough time has passed since last render
     const elapsed = timestamp - this.lastRenderTime;
@@ -221,14 +252,18 @@ export class AsciiHover implements HoverEffect {
     
     const data = this.imageData.data;
     
+    let effectiveRadius = this.radius;
+    if (this.size <= 12) {
+      // Use a larger effective radius for smaller characters to smooth the effect
+      effectiveRadius = this.radius * 1.2;
+    }
+    const fullRadius = effectiveRadius * 3.0;
+    
     if (this.colored) {
-      // ----- crisp coloured ASCII loop with ultra-soft edges -------------
+      // Original grid calculations that are known to work
       const stepX = Math.round(this.cellW * this.scale);
       const stepY = Math.round(this.cellH * this.scale);
 
-      // Create an extremely soft mask
-      const fullRadius = this.radius * 3.0; // Very large radius for ultra-soft edges
-      
       // First pass: Draw blurred background for depth
       this.ctx.save();
       this.ctx.filter = 'blur(3px) brightness(0.6) contrast(1.2)';
@@ -388,41 +423,61 @@ export class AsciiHover implements HoverEffect {
     this.element = element;
     
     const setupEffect = () => {
-      // Create main canvas
+      // Create canvas without DPR scaling to avoid coordinate confusion
       const canvas = document.createElement('canvas');
-      canvas.width = this.element!.width;
-      canvas.height = this.element!.height;
+      const rect = element.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
       canvas.style.position = 'absolute';
       canvas.style.top = '0';
       canvas.style.left = '0';
       canvas.style.opacity = '0';
       canvas.style.transition = 'opacity 0.3s ease';
       canvas.style.pointerEvents = 'none';
-      canvas.style.backgroundColor = 'transparent'; // Ensure transparent background
+      canvas.style.backgroundColor = 'transparent';
       canvas.dataset.asciiId = this.id;
       this.canvas = canvas;
       
-      // Create context with alpha transparency enabled
+      // Get context without scaling
       this.ctx = canvas.getContext('2d', { 
         alpha: true,
         willReadFrequently: true
       });
       
       if (this.ctx) {
-        // Ensure proper configuration for transparency
         this.ctx.globalCompositeOperation = 'source-over';
-        // Disable canvas resampling
-        (this.ctx as CanvasRenderingContext2D).imageSmoothingEnabled = false;
+        this.ctx.imageSmoothingEnabled = false;
       }
       
-      // Create temp canvas with transparency
+      // Apply UI values
+      const sizeSlider = document.getElementById('ascii-size') as HTMLInputElement;
+      const radiusSlider = document.getElementById('ascii-radius') as HTMLInputElement;
+      const glitchIntensitySlider = document.getElementById('ascii-glitch-intensity') as HTMLInputElement;
+      const glitchSpeedSlider = document.getElementById('ascii-glitch-speed') as HTMLInputElement;
+      
+      this.autoSize = false;
+      this.size = sizeSlider ? parseFloat(sizeSlider.value) : 16;
+      this.radius = radiusSlider ? parseFloat(radiusSlider.value) : 100;
+      this.glitchIntensity = glitchIntensitySlider ? parseFloat(glitchIntensitySlider.value) : 3;
+      this.glitchSpeed = glitchSpeedSlider ? parseFloat(glitchSpeedSlider.value) / 10 : 0.5;
+      
+      // Use fixed scale based on size range
+      if (this.size <= 8) this.scale = 0.12;
+      else if (this.size <= 12) this.scale = 0.14;
+      else if (this.size <= 16) this.scale = 0.15;
+      else if (this.size <= 20) this.scale = 0.12;
+      else this.scale = 0.1;
+      
+      this.measureChars();
+      
+      // Create temp canvas
       this.tempCanvas = document.createElement('canvas');
       this.tempCtx = this.tempCanvas.getContext('2d', { alpha: true });
       
       // Update image data
       this.updateImageData();
       
-      // Create or find wrapper
+      // Create wrapper
       let wrapper = this.element!.parentElement;
       if (!wrapper || !wrapper.classList.contains('ascii-wrapper')) {
         wrapper = document.createElement('div');
@@ -433,13 +488,21 @@ export class AsciiHover implements HoverEffect {
         wrapper.appendChild(this.element!);
       }
       
-      // Append canvas to wrapper
       wrapper.appendChild(canvas);
       
       // Add event listeners
       this.element!.addEventListener('mouseenter', this.onMouseEnter);
       this.element!.addEventListener('mouseleave', this.onMouseLeave);
       this.element!.addEventListener('mousemove', this.onMouseMove);
+      
+      console.log('ASCII effect initialized', {
+        size: this.size,
+        radius: this.radius,
+        scale: this.scale,
+        chars: this.chars.length,
+        canvasWidth: canvas.width,
+        canvasHeight: canvas.height
+      });
     };
     
     if (element.complete) {
@@ -504,7 +567,22 @@ export class AsciiHover implements HoverEffect {
   }
   
   public setSize(size: number): void {
+    this.autoSize = false;
     this.size = size;
+    
+    // Fine-tune the scale for different size ranges
+    // Smaller sizes need relatively smaller scale to prevent distortion
+    if (size <= 8) this.scale = 0.12;      // Was 0.22 - too large for small characters
+    else if (size <= 12) this.scale = 0.14; // Was 0.18 - still too large
+    else if (size <= 16) this.scale = 0.15; // Keep this one as it works well
+    else if (size <= 20) this.scale = 0.12;
+    else this.scale = 0.1;
+    
+    this.measureChars();
+    if (this.element) {
+      this.updateImageData();
+      if (this.isHovering) this.render();
+    }
   }
   
   public setChars(chars: string[]): void {
@@ -512,5 +590,62 @@ export class AsciiHover implements HoverEffect {
       this.chars = chars;
     }
   }
+
+  // Add method to calculate auto-size based on image dimensions
+  private calculateAutoSize() {
+    if (!this.element) return;
+    
+    // Get displayed image dimensions
+    const rect = this.element.getBoundingClientRect();
+    this.baseImageSize = Math.sqrt(rect.width * rect.height);
+    
+    // Calculate size based on image area (empirically determined ratio)
+    const baseSize = Math.max(8, Math.min(24, this.baseImageSize / 150));
+    this.size = baseSize;
+    
+    // Use fixed scale based on size range
+    if (this.size <= 8) this.scale = 0.12;
+    else if (this.size <= 12) this.scale = 0.14;
+    else if (this.size <= 16) this.scale = 0.15;
+    else if (this.size <= 20) this.scale = 0.12;
+    else this.scale = 0.1;
+  }
+
+  // Add method to toggle auto-size
+  public setAutoSize(enabled: boolean): void {
+    this.autoSize = enabled;
+    if (enabled && this.element) {
+      this.calculateAutoSize();
+      this.measureChars();
+      this.updateImageData();
+      if (this.isHovering) this.render();
+    }
+  }
+
+  // Simplified character measurement for stability
+  private measureChars() {
+    const size = this.size;
+    
+    // Adjust metrics ratio based on size ranges
+    // Smaller characters need different width/height ratio
+    let widthRatio = 0.6;
+    let heightRatio = 1.2;
+    
+    if (size <= 8) {
+      widthRatio = 0.5;  // Narrower for smallest sizes
+      heightRatio = 1.0; // Less height for better density
+    } else if (size <= 12) {
+      widthRatio = 0.55; // Slightly wider
+      heightRatio = 1.1; // Slightly less height
+    }
+    
+    this.charMetrics = {
+      width: size * widthRatio,
+      height: size * heightRatio
+    };
+  }
 }
+
+// Add at the end of the file, after the class definition
+(window as any).AsciiHover = AsciiHover;
  
