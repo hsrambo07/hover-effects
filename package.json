@@ -1,6 +1,6 @@
 {
   "name": "hover-effects-ts",
-  "version": "2.2.0",
+  "version": "2.2.3",
   "description": "A collection of beautiful hover effects for images using canvas",
   "main": "dist/hover-effects.umd.js",
   "types": "dist/index.d.ts",

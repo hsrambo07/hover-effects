@@ -16,12 +16,12 @@ A collection of beautiful hover effects for images using canvas. Built with Type
 ### Interactive Playground
 
 Check out our live demo to see all the effects in action:
-[Vercel Demo]([https://x.com/harsh_logs/status/1921567721076183543](https://hover-effects-theta.vercel.app/))
 
-```html
-You can quickly figure out what values works best and directly plug those in your implementation :D.
-```
+[Vercel Demo](https://hover-effects-theta.vercel.app/)
 
+#### You can quickly figure out what values works best and directly plug those in your implementation :D.
+
+<br>
 
 ## ✨ Features
 
@@ -494,7 +494,7 @@ MIT License - feel free to use this in your projects!
 
 ## 📝 Changelog
 
-### Version 2.2.0
+### Version 2.2.2
 - Fixed Minecraft effect not respecting the provided blockSize parameter
 - Fixed Pixel effect initialization with custom blockSize values
 - Improved setBlockSize method implementation for both effects
