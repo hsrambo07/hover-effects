@@ -34,16 +34,6 @@ export class LegoHover implements HoverEffect {
     this.radius = options.radius ?? 140;
     this.softEdge = options.softEdge ?? 90;
     this.fadeExp = options.fadeExp ?? 1.4;
-    
-    console.log('LegoHover effect created with options:', {
-      blockSize: this.blockSize,
-      gap: this.gap,
-      studScale: this.studScale,
-      depth: this.depth,
-      radius: this.radius,
-      softEdge: this.softEdge,
-      fadeExp: this.fadeExp
-    });
   }
 
   // Helper function to shade colors
@@ -81,8 +71,6 @@ export class LegoHover implements HoverEffect {
         });
       }
     }
-    
-    console.log(`Sampled ${this.bricks.length} LEGO bricks`);
   }
 
   // Draw a single LEGO brick
@@ -278,8 +266,6 @@ export class LegoHover implements HoverEffect {
       window.addEventListener('resize', () => {
         this.sample();
       });
-      
-      console.log('LEGO effect setup complete');
     };
     
     if (element.complete) {

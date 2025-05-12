@@ -17,6 +17,7 @@ vitest.config.ts
 # Source files (already compiled)
 src/
 tests/
+examples/
 
 # Development and demo folders
 playground/

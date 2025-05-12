@@ -13,13 +13,12 @@ export class ZoomHover implements HoverEffect {
   private aspectRatio: number = 1;
 
   constructor(options: { radius?: number; scale?: number } = {}) {
-    this.radius = options.radius ?? 100;
-    this.scale = options.scale ?? 1.2;
-    console.log(`ZoomHover created with radius=${this.radius}, scale=${this.scale}`);
+    this.radius = options.radius ?? 70;
+    this.scale = options.scale ?? 1.1;
   }
 
-  private onMouseEnter = (): void => {
-    console.log("ZoomHover: mouse entered");
+  private onMouseEnter = (e: MouseEvent): void => {
+    if (!this.element || !this.canvas) return;
     this.isHovering = true;
     if (this.canvas) {
       this.canvas.style.opacity = '1';
@@ -28,7 +27,7 @@ export class ZoomHover implements HoverEffect {
   };
 
   private onMouseLeave = (): void => {
-    console.log("ZoomHover: mouse left");
+    if (!this.element || !this.canvas) return;
     this.isHovering = false;
     
     if (this.canvas) {
@@ -153,11 +152,9 @@ export class ZoomHover implements HoverEffect {
 
   public attach(element: HTMLElement): void {
     if (!(element instanceof HTMLImageElement)) {
-      console.error('ZoomHover effect can only be applied to img elements');
       return;
     }
 
-    console.log(`Attaching zoom effect to element: ${element.tagName}${element.id ? '#'+element.id : ''}`);
     this.element = element;
 
     const setupEffect = () => {
@@ -203,8 +200,6 @@ export class ZoomHover implements HoverEffect {
       wrapper.addEventListener('mouseenter', this.onMouseEnter);
       wrapper.addEventListener('mouseleave', this.onMouseLeave);
       wrapper.addEventListener('mousemove', this.onMouseMove);
-
-      console.log('Zoom effect setup complete');
     };
 
     if (element.complete) {

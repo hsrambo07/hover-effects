@@ -87,8 +87,6 @@ export class ParticleDust implements HoverEffect {
         this.particles.push({ homeX, homeY, dir, color, wobVec, wobAmp, wobSpeed, phase });
       }
     }
-
-    console.log(`Created ${this.particles.length} particles`);
   }
 
   private render = (time: number): void => {
@@ -131,9 +129,9 @@ export class ParticleDust implements HoverEffect {
           px += p.wobVec.dx * wobble;
           py += p.wobVec.dy * wobble;
 
-          this.ctx!.globalAlpha = 0.15 + 0.85 * eased;
-          this.ctx!.fillStyle = p.color;
-          this.ctx!.fillRect(px, py, this.spacing, this.spacing);
+          this.ctx.globalAlpha = 0.15 + 0.85 * eased;
+          this.ctx.fillStyle = p.color;
+          this.ctx.fillRect(px, py, this.spacing, this.spacing);
         }
       });
       
@@ -153,8 +151,6 @@ export class ParticleDust implements HoverEffect {
     this.cursor.x = (e.clientX - rect.left) * scaleX;
     this.cursor.y = (e.clientY - rect.top) * scaleY;
     this.cursor.active = true;
-    
-    console.log(`Cursor: ${this.cursor.x}, ${this.cursor.y}, Radius: ${this.radius}`);
   };
 
   private onMouseLeave = (): void => {
@@ -207,8 +203,6 @@ export class ParticleDust implements HoverEffect {
       // Add event listeners
       wrapper.addEventListener('mousemove', this.onMouseMove);
       wrapper.addEventListener('mouseleave', this.onMouseLeave);
-      
-      console.log(`Effect setup complete. Canvas size: ${canvas.width}x${canvas.height}`);
     };
 
     if (element.complete) {

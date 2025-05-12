@@ -143,7 +143,6 @@ export class AsciiHover implements HoverEffect {
   private onMouseEnter = (e: MouseEvent): void => {
     if (!this.element || !this.canvas) return;
     
-    console.log('Mouse entered ASCII effect');
     this.isHovering = true;
     
     // Get accurate cursor position relative to the image
@@ -161,7 +160,6 @@ export class AsciiHover implements HoverEffect {
   private onMouseLeave = (): void => {
     if (!this.canvas || !this.ctx) return;
     
-    console.log('Mouse left ASCII effect');
     this.isHovering = false;
     this.canvas.style.opacity = '0';
     
@@ -204,14 +202,6 @@ export class AsciiHover implements HoverEffect {
 
   private render = (timestamp = 0): void => {
     if (!this.element || !this.canvas || !this.ctx || !this.imageData || !this.isHovering) return;
-    
-    console.log('Rendering ASCII effect', {
-      canvasWidth: this.canvas.width,
-      canvasHeight: this.canvas.height,
-      mousePos: this.mousePos,
-      scale: this.scale,
-      size: this.size
-    });
     
     // Auto-adjust size if enabled
     if (this.autoSize) {
@@ -495,14 +485,6 @@ export class AsciiHover implements HoverEffect {
       this.element!.addEventListener('mouseleave', this.onMouseLeave);
       this.element!.addEventListener('mousemove', this.onMouseMove);
       
-      console.log('ASCII effect initialized', {
-        size: this.size,
-        radius: this.radius,
-        scale: this.scale,
-        chars: this.chars.length,
-        canvasWidth: canvas.width,
-        canvasHeight: canvas.height
-      });
     };
     
     if (element.complete) {

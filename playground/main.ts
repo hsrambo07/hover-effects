@@ -427,9 +427,9 @@ async function initializeEffects(): Promise<void> {
             console.log('No setBlockSize method available, recreating effect');
             effectInstances.minecraft.destroy();
             effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
-              effect: 'minecraft',
+          effect: 'minecraft',
               blockSize: blockSize,
-              radius: parseInt(radiusControl.value)
+          radius: parseInt(radiusControl.value)
             }) as HoverEffect;
           }
         }
@@ -457,9 +457,9 @@ async function initializeEffects(): Promise<void> {
         if (activeToggle.checked) {
           if (!effectInstances.minecraft) {
             effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
-              effect: 'minecraft',
-              blockSize: parseInt(sizeControl.value),
-              radius: parseInt(radiusControl.value)
+          effect: 'minecraft',
+          blockSize: parseInt(sizeControl.value),
+          radius: parseInt(radiusControl.value)
             }) as HoverEffect;
           }
         } else if (effectInstances.minecraft) {
