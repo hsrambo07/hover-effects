@@ -1,21 +1,39 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 
-export default defineConfig({
-  build: {
-    lib: {
-      entry: resolve(__dirname, "src/index.ts"),
-      name: "HoverEffects",
-      formats: ["es", "umd"],
-      fileName: (format) => `hover-effects.${format}.js`
-    },
-    outDir: "dist",
-    emptyOutDir: true,
-    sourcemap: true
-  },
-  resolve: {
-    alias: {
-      "@": resolve(__dirname, "src")
-    }
+export default defineConfig(({ command }) => {
+  const isPlayground = process.env.PLAYGROUND === 'true';
+  
+  if (isPlayground) {
+    return {
+      root: 'playground',
+      publicDir: 'playground/public',
+      build: {
+        outDir: '../dist-playground',
+        emptyOutDir: true
+      },
+      server: {
+        port: 3000
+      }
+    };
   }
+  
+  return {
+    build: {
+      lib: {
+        entry: resolve(__dirname, "src/index.ts"),
+        name: "HoverEffects",
+        formats: ["es", "umd"],
+        fileName: (format) => `hover-effects.${format}.js`
+      },
+      outDir: "dist",
+      emptyOutDir: true,
+      sourcemap: true
+    },
+    resolve: {
+      alias: {
+        "@": resolve(__dirname, "src")
+      }
+    }
+  };
 });

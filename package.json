@@ -5,12 +5,22 @@
   "main": "dist/hover-effects.umd.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist",
-    "README.md"
+    "dist/core",
+    "dist/effects",
+    "dist/hover-effects.es.js",
+    "dist/hover-effects.umd.js",
+    "dist/hover-effects.es.js.map",
+    "dist/hover-effects.umd.js.map",
+    "dist/index.d.ts",
+    "dist/types.d.ts",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
+    "build:playground": "PLAYGROUND=true vite build",
     "dev": "vite",
+    "dev:playground": "PLAYGROUND=true vite",
     "test": "vitest run",
     "lint": "eslint src/**/*.ts",
     "prepare": "pnpm run build",

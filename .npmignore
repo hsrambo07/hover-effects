@@ -22,6 +22,7 @@ tests/
 playground/
 simple-test/
 public/
+dist/images/
 
 # Package files
 pnpm-lock.yaml
