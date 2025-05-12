@@ -24,7 +24,8 @@
     "test": "vitest run",
     "lint": "eslint src/**/*.ts",
     "prepare": "pnpm run build",
-    "demo": "vite playground"
+    "demo": "vite playground",
+    "vercel-build": "npm run build:playground"
   },
   "keywords": [
     "hover",
