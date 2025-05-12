@@ -14,7 +14,14 @@ A collection of beautiful hover effects for images using canvas. Built with Type
 </div>
 
 ### Interactive Playground
-Visit our [Interactive Playground](https://hover-effects-demo.vercel.app/) to try out all effects with customizable parameters in real-time.
+
+Check out our live demo to see all the effects in action:
+[Vercel Demo]([https://x.com/harsh_logs/status/1921567721076183543](https://hover-effects-theta.vercel.app/))
+
+```html
+You can quickly figure out what values works best and directly plug those in your implementation :D.
+```
+
 
 ## ✨ Features
 
@@ -523,10 +530,5 @@ MIT License - feel free to use this in your projects!
 ### Version 1.0.0
 - Initial release with ASCII and Zoom effects
 - Basic hover interaction support
-
-## 🌟 Live Demo
-
-Check out our live demo to see all the effects in action:
-[Vercel Demo](https://x.com/harsh_logs/status/1921567721076183543)
 
 All effects are showcased with customizable parameters and work smoothly on all modern browsers.
