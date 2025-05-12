@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hover Effects TS - Usage Guide</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      color: #333;
+    }
+    
+    h1, h2, h3 {
+      color: #2563eb;
+    }
+    
+    .demo-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin: 30px 0;
+    }
+    
+    .image-container {
+      position: relative;
+      display: inline-block;
+    }
+    
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+    
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    
+    .control-group {
+      min-width: 200px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    input[type="range"] {
+      width: 100%;
+    }
+    
+    .value-display {
+      display: inline-block;
+      margin-left: 10px;
+      width: 40px;
+      text-align: right;
+    }
+    
+    button {
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    
+    button:hover {
+      background-color: #2563eb;
+    }
+    
+    code {
+      background-color: #f1f5f9;
+      padding: 2px 4px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    
+    pre {
+      background-color: #f1f5f9;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+    
+    .debug-output {
+      background-color: #f1f5f9;
+      padding: 10px;
+      border-radius: 8px;
+      font-family: monospace;
+      margin-top: 15px;
+      white-space: pre-wrap;
+      height: 150px;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Hover Effects TS - Usage Guide</h1>
+  <p>This example demonstrates best practices for using the hover-effects-ts library, with focus on the Minecraft and Pixel effects.</p>
+  
+  <h2>Minecraft Effect Example</h2>
+  <div class="demo-container">
+    <div class="image-container">
+      <img id="minecraft-demo" src="https://source.unsplash.com/random/600x400/?nature" alt="Minecraft Effect Demo">
+    </div>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label for="minecraft-block-size">
+          Block Size: <span id="minecraft-block-size-value" class="value-display">28</span>
+        </label>
+        <input type="range" id="minecraft-block-size" min="4" max="32" value="28">
+      </div>
+      
+      <div class="control-group">
+        <label for="minecraft-radius">
+          Effect Radius: <span id="minecraft-radius-value" class="value-display">130</span>
+        </label>
+        <input type="range" id="minecraft-radius" min="50" max="200" value="130">
+      </div>
+      
+      <button id="minecraft-debug">Show Debug Info</button>
+    </div>
+    
+    <div id="minecraft-debug-output" class="debug-output">Debug information will appear here...</div>
+  </div>
+  
+  <h2>Pixel Effect Example</h2>
+  <div class="demo-container">
+    <div class="image-container">
+      <img id="pixel-demo" src="https://source.unsplash.com/random/600x400/?city" alt="Pixel Effect Demo">
+    </div>
+    
+    <div class="controls">
+      <div class="control-group">
+        <label for="pixel-block-size">
+          Block Size: <span id="pixel-block-size-value" class="value-display">16</span>
+        </label>
+        <input type="range" id="pixel-block-size" min="4" max="32" value="16">
+      </div>
+      
+      <div class="control-group">
+        <label for="pixel-radius">
+          Effect Radius: <span id="pixel-radius-value" class="value-display">130</span>
+        </label>
+        <input type="range" id="pixel-radius" min="50" max="200" value="130">
+      </div>
+      
+      <button id="pixel-debug">Show Debug Info</button>
+    </div>
+    
+    <div id="pixel-debug-output" class="debug-output">Debug information will appear here...</div>
+  </div>
+  
+  <h2>Implementation Code</h2>
+  <p>Here's how the effects above are implemented:</p>
+  
+  <pre><code>// Wait for images to load first
+document.addEventListener('DOMContentLoaded', () => {
+  const minecraftDemo = document.getElementById('minecraft-demo');
+  const pixelDemo = document.getElementById('pixel-demo');
+  
+  // Store effect instances
+  let minecraftEffect = null;
+  let pixelEffect = null;
+  
+  // Initialize effects when images are loaded
+  const initializeEffects = () => {
+    // Get current slider values
+    const minecraftBlockSize = parseInt(document.getElementById('minecraft-block-size').value);
+    const minecraftRadius = parseInt(document.getElementById('minecraft-radius').value);
+    
+    const pixelBlockSize = parseInt(document.getElementById('pixel-block-size').value);
+    const pixelRadius = parseInt(document.getElementById('pixel-radius').value);
+    
+    // Apply Minecraft effect with values from sliders
+    minecraftEffect = applyHoverEffect(minecraftDemo, {
+      effect: 'minecraft',
+      blockSize: minecraftBlockSize,
+      radius: minecraftRadius
+    });
+    
+    // Apply Pixel effect with values from sliders
+    pixelEffect = applyHoverEffect(pixelDemo, {
+      effect: 'pixel',
+      blockSize: pixelBlockSize,
+      radius: pixelRadius
+    });
+    
+    // Set up controls
+    setupControls();
+  };
+  
+  // Wait for images to load
+  let imagesLoaded = 0;
+  const onImageLoad = () => {
+    imagesLoaded++;
+    if (imagesLoaded === 2) {
+      initializeEffects();
+    }
+  };
+  
+  if (minecraftDemo.complete) {
+    onImageLoad();
+  } else {
+    minecraftDemo.onload = onImageLoad;
+  }
+  
+  if (pixelDemo.complete) {
+    onImageLoad();
+  } else {
+    pixelDemo.onload = onImageLoad;
+  }
+  
+  // Setup control handlers
+  const setupControls = () => {
+    // Minecraft controls
+    const minecraftBlockSizeSlider = document.getElementById('minecraft-block-size');
+    const minecraftRadiusSlider = document.getElementById('minecraft-radius');
+    const minecraftBlockSizeValue = document.getElementById('minecraft-block-size-value');
+    const minecraftRadiusValue = document.getElementById('minecraft-radius-value');
+    const minecraftDebugBtn = document.getElementById('minecraft-debug');
+    const minecraftDebugOutput = document.getElementById('minecraft-debug-output');
+    
+    // Update block size using setter method
+    minecraftBlockSizeSlider.addEventListener('input', (e) => {
+      const size = parseInt(e.target.value);
+      minecraftBlockSizeValue.textContent = size;
+      minecraftEffect.setBlockSize(size);
+    });
+    
+    // Update radius using setter method
+    minecraftRadiusSlider.addEventListener('input', (e) => {
+      const radius = parseInt(e.target.value);
+      minecraftRadiusValue.textContent = radius;
+      minecraftEffect.setRadius(radius);
+    });
+    
+    // Debug button
+    minecraftDebugBtn.addEventListener('click', () => {
+      const debugInfo = minecraftEffect.getDebugInfo();
+      minecraftDebugOutput.textContent = JSON.stringify(debugInfo, null, 2);
+    });
+    
+    // Pixel controls (similar pattern)
+    const pixelBlockSizeSlider = document.getElementById('pixel-block-size');
+    const pixelRadiusSlider = document.getElementById('pixel-radius');
+    const pixelBlockSizeValue = document.getElementById('pixel-block-size-value');
+    const pixelRadiusValue = document.getElementById('pixel-radius-value');
+    const pixelDebugBtn = document.getElementById('pixel-debug');
+    const pixelDebugOutput = document.getElementById('pixel-debug-output');
+    
+    pixelBlockSizeSlider.addEventListener('input', (e) => {
+      const size = parseInt(e.target.value);
+      pixelBlockSizeValue.textContent = size;
+      pixelEffect.setBlockSize(size);
+    });
+    
+    pixelRadiusSlider.addEventListener('input', (e) => {
+      const radius = parseInt(e.target.value);
+      pixelRadiusValue.textContent = radius;
+      pixelEffect.setRadius(radius);
+    });
+    
+    pixelDebugBtn.addEventListener('click', () => {
+      const debugInfo = pixelEffect.getDebugInfo();
+      pixelDebugOutput.textContent = JSON.stringify(debugInfo, null, 2);
+    });
+  };
+});</code></pre>
+
+  <h2>Key Best Practices</h2>
+  <ol>
+    <li><strong>Wait for images to load</strong> before applying effects</li>
+    <li><strong>Use slider values</strong> during initialization rather than defaulting</li>
+    <li><strong>Use setter methods</strong> for real-time updates instead of destroying/recreating</li>
+    <li><strong>Add debug tools</strong> to inspect the internal state of effects</li>
+    <li><strong>Use the correct default values</strong>: Minecraft effect uses 28px blocks, Pixel effect uses 16px blocks</li>
+  </ol>
+  
+  <!-- Import the hover-effects-ts library -->
+  <script src="../dist/hover-effects.umd.js"></script>
+  <script src="usage-guide.js"></script>
+</body>
+</html> 
