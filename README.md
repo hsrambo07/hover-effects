@@ -4,13 +4,13 @@ A collection of beautiful hover effects for images using canvas. Built with Type
 
 ## 📺 Live Demos
 
-### Twitter Demo
+### Video Demo
 <div align="center">
-  <a href="https://x.com/harsh_logs/status/1921567721076183543" target="_blank">
+  <a href="https://youtu.be/PjxFH-Q53zM" target="_blank">
     <img src="https://pbs.twimg.com/media/GJhXQZ3WYAAYQxX?format=jpg&name=large" alt="Hover Effects Demo" width="600"/>
   </a>
   <br/>
-  <em>Click the image to view the demo video on Twitter</em>
+  <em>Click the image to view the demo video on YouTube</em>
 </div>
 
 ### Interactive Playground
@@ -36,10 +36,6 @@ Check out our live demo to see all the effects in action:
 - 🔧 **Customizable**: Configure effect parameters in real-time
 - 🚀 **Lightweight**: Minimal dependencies, focused on performance
 - 📦 **Tree-shakable**: Only import the effects you need
-
-<blockquote class="twitter-tweet" data-dnt="true" data-theme="dark">
-  <a href="https://x.com/harsh_logs/status/1921567721076183543"></a>
-</blockquote>
 
 ## 📥 Installation
 
@@ -187,7 +183,7 @@ document.getElementById('radius-slider').addEventListener('input', (e) => {
 
 Transforms your image into dynamic ASCII characters when hovering.
 
-> **📺 Demo**: See the ASCII effect in action on [Twitter](https://x.com/harsh_logs/status/1921567721076183543)
+> **📺 Demo**: See the ASCII effect in action on [YouTube](https://youtu.be/PjxFH-Q53zM)
 
 ```javascript
 applyHoverEffect('#my-image', {
@@ -211,7 +207,7 @@ applyHoverEffect('#my-image', {
 
 Creates a magnifying glass effect when hovering.
 
-> **📺 Demo**: See the zoom effect in action on [Twitter](https://x.com/harsh_logs/status/1921567721076183543)
+> **📺 Demo**: See the zoom effect in action on [YouTube](https://youtu.be/PjxFH-Q53zM)
 
 ```javascript
 applyHoverEffect('#my-image', {
@@ -229,7 +225,7 @@ applyHoverEffect('#my-image', {
 
 Breaks the image into pixel particles that scatter when hovering.
 
-> **📺 Demo**: See the particle effect in action on [Twitter](https://x.com/harsh_logs/status/1921567721076183543)
+> **📺 Demo**: See the particle effect in action on [YouTube](https://youtu.be/PjxFH-Q53zM)
 
 ```javascript
 applyHoverEffect('#my-image', {
@@ -249,7 +245,7 @@ applyHoverEffect('#my-image', {
 
 Creates a pixelated effect when hovering.
 
-> **📺 Demo**: See the pixel effect in action on [Twitter](https://x.com/harsh_logs/status/1921567721076183543)
+> **📺 Demo**: See the pixel effect in action on [YouTube](https://youtu.be/PjxFH-Q53zM)
 
 ```javascript
 applyHoverEffect('#my-image', {
@@ -267,7 +263,7 @@ applyHoverEffect('#my-image', {
 
 Creates a 3D voxel-like effect similar to Minecraft blocks.
 
-> **📺 Demo**: See the Minecraft effect in action on [Twitter](https://x.com/harsh_logs/status/1921567721076183543)
+> **📺 Demo**: See the Minecraft effect in action on [YouTube](https://youtu.be/PjxFH-Q53zM)
 
 ```javascript
 applyHoverEffect('#my-image', {
@@ -285,7 +281,7 @@ applyHoverEffect('#my-image', {
 
 Transforms the image into LEGO-like blocks when hovering.
 
-> **📺 Demo**: See the LEGO effect in action on [Twitter](https://x.com/harsh_logs/status/1921567721076183543)
+> **📺 Demo**: See the LEGO effect in action on [YouTube](https://youtu.be/PjxFH-Q53zM)
 
 ```javascript
 applyHoverEffect('#my-image', {
