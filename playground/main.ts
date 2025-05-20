@@ -4,7 +4,7 @@ import { applyHoverEffect, HoverEffect } from '../src';
 interface EffectInstances {
   ascii: HoverEffect | null;
   zoom: HoverEffect | null;
-  particleDust: HoverEffect | null;
+  particle: HoverEffect | null;
   pixel: HoverEffect | null;
   minecraft: HoverEffect | null;
   lego: HoverEffect | null;
@@ -13,7 +13,7 @@ interface EffectInstances {
 const effectInstances: EffectInstances = {
   ascii: null,
   zoom: null,
-  particleDust: null,
+  particle: null,
   pixel: null,
   minecraft: null,
   lego: null
@@ -245,33 +245,51 @@ async function initializeEffects(): Promise<void> {
   const particleDemo = document.getElementById('particle-demo') as HTMLImageElement;
   if (particleDemo) {
     await ensureImageLoaded(particleDemo);
-    effectInstances.particleDust = applyHoverEffect(particleDemo, {
+    
+    // Get initial values from the controls
+    const spacingInput = document.getElementById('particle-spacing') as HTMLInputElement;
+    const driftInput = document.getElementById('particle-drift') as HTMLInputElement;
+    const radiusInput = document.getElementById('particle-radius') as HTMLInputElement;
+    
+    const initialSpacing = spacingInput ? parseInt(spacingInput.value) : 2;
+    const initialDrift = driftInput ? parseInt(driftInput.value) : 28;
+    const initialRadius = radiusInput ? parseInt(radiusInput.value) : 110;
+    
+    effectInstances.particle = applyHoverEffect(particleDemo, {
       effect: 'particle-dust',
-      spacing: 4,
-      maxDrift: 28,
-      radius: 110
+      spacing: initialSpacing,
+      maxDrift: initialDrift,
+      radius: initialRadius
     }) as HoverEffect;
+
+    // Add debug check for the instance
+    console.log('ParticleDust instance created:', {
+      instance: effectInstances.particle,
+      hasSetMaxDrift: !!(effectInstances.particle && 'setMaxDrift' in effectInstances.particle),
+      initialMaxDrift: initialDrift
+    });
 
     // Set up controls
     const spacingControl = document.getElementById('particle-spacing') as HTMLInputElement;
     const driftControl = document.getElementById('particle-drift') as HTMLInputElement;
+    const radiusControl = document.getElementById('particle-radius') as HTMLInputElement;
     const activeToggle = document.getElementById('particle-active') as HTMLInputElement;
 
-    if (spacingControl && driftControl) {
+    if (spacingControl && driftControl && radiusControl) {
       spacingControl.addEventListener('input', () => {
         const spacing = parseInt(spacingControl.value);
         updateValue('particle-spacing', spacing);
         
-        if (effectInstances.particleDust) {
-          if (effectInstances.particleDust.setSpacing) {
-            effectInstances.particleDust.setSpacing(spacing);
+        if (effectInstances.particle) {
+          if (effectInstances.particle.setSpacing) {
+            effectInstances.particle.setSpacing(spacing);
           } else {
-            effectInstances.particleDust.destroy();
-            effectInstances.particleDust = applyHoverEffect(particleDemo, {
+            effectInstances.particle.destroy();
+            effectInstances.particle = applyHoverEffect(particleDemo, {
           effect: 'particle-dust',
               spacing: spacing,
           maxDrift: parseInt(driftControl.value),
-          radius: 110
+          radius: parseInt(radiusControl.value)
             }) as HoverEffect;
           }
         }
@@ -280,17 +298,40 @@ async function initializeEffects(): Promise<void> {
       driftControl.addEventListener('input', () => {
         const drift = parseInt(driftControl.value);
         updateValue('particle-drift', drift);
+        console.log('Setting particle dust drift to:', drift);
         
-        if (effectInstances.particleDust) {
-          if (effectInstances.particleDust.setMaxDrift) {
-            effectInstances.particleDust.setMaxDrift(drift);
+        // Always recreate the effect to ensure drift updates correctly
+        if (effectInstances.particle) {
+          if (effectInstances.particle.setMaxDrift) {
+            console.log('Using setMaxDrift method');
+            effectInstances.particle.setMaxDrift(drift);
           } else {
-            effectInstances.particleDust.destroy();
-            effectInstances.particleDust = applyHoverEffect(particleDemo, {
+            console.log('No setMaxDrift method, recreating effect');
+            effectInstances.particle.destroy();
+            effectInstances.particle = applyHoverEffect(particleDemo, {
               effect: 'particle-dust',
               spacing: parseInt(spacingControl.value),
               maxDrift: drift,
-              radius: 110
+              radius: parseInt(radiusControl.value)
+            }) as HoverEffect;
+          }
+        }
+      });
+      
+      radiusControl.addEventListener('input', () => {
+        const radius = parseInt(radiusControl.value);
+        updateValue('particle-radius', radius);
+        
+        if (effectInstances.particle) {
+          if (effectInstances.particle.setRadius) {
+            effectInstances.particle.setRadius(radius);
+          } else {
+            effectInstances.particle.destroy();
+            effectInstances.particle = applyHoverEffect(particleDemo, {
+              effect: 'particle-dust',
+              spacing: parseInt(spacingControl.value),
+              maxDrift: parseInt(driftControl.value),
+              radius: radius
             }) as HoverEffect;
           }
         }
@@ -298,17 +339,17 @@ async function initializeEffects(): Promise<void> {
       
       activeToggle.addEventListener('change', () => {
         if (activeToggle.checked) {
-          if (!effectInstances.particleDust) {
-            effectInstances.particleDust = applyHoverEffect(particleDemo, {
+          if (!effectInstances.particle) {
+            effectInstances.particle = applyHoverEffect(particleDemo, {
           effect: 'particle-dust',
           spacing: parseInt(spacingControl.value),
           maxDrift: parseInt(driftControl.value),
-          radius: 110
+          radius: parseInt(radiusControl.value)
             }) as HoverEffect;
           }
-        } else if (effectInstances.particleDust) {
-          effectInstances.particleDust.destroy();
-          effectInstances.particleDust = null;
+        } else if (effectInstances.particle) {
+          effectInstances.particle.destroy();
+          effectInstances.particle = null;
         }
       });
     }
@@ -486,7 +527,7 @@ async function initializeEffects(): Promise<void> {
     const activeToggle = document.getElementById('lego-active') as HTMLInputElement;
     
     // Get initial values
-    let blockSize = parseInt(blockSizeControl?.value || '16');
+    let blockSize = parseInt(blockSizeControl?.value || '28');
     let gap = parseInt(gapControl?.value || '2');
     let studScale = parseInt(studScaleControl?.value || '33') / 100; // Convert to 0-1 range
     let depth = parseInt(depthControl?.value || '25') / 100; // Convert to 0-1 range

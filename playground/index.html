@@ -619,9 +619,9 @@
           <div class="control-group">
             <div class="control-header">
               <label for="particle-spacing">Spacing</label>
-              <span class="value" id="particle-spacing-value">4px</span>
+              <span class="value" id="particle-spacing-value">2px</span>
     </div>
-          <input type="range" min="2" max="8" value="4" id="particle-spacing">
+          <input type="range" min="2" max="8" value="2" id="particle-spacing">
           </div>
           <div class="control-group">
             <div class="control-header">
@@ -629,6 +629,13 @@
               <span class="value" id="particle-drift-value">28px</span>
             </div>
           <input type="range" min="10" max="50" value="28" id="particle-drift">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="particle-radius">Radius</label>
+              <span class="value" id="particle-radius-value">110px</span>
+            </div>
+          <input type="range" min="50" max="200" value="110" id="particle-radius">
           </div>
         </div>
       </div>
@@ -715,9 +722,9 @@
           <div class="control-group">
             <div class="control-header">
               <label for="lego-block-size">Block Size</label>
-              <span class="value" id="lego-block-size-value">16px</span>
+              <span class="value" id="lego-block-size-value">28px</span>
             </div>
-            <input type="range" min="8" max="40" value="16" id="lego-block-size">
+            <input type="range" min="8" max="40" value="28" id="lego-block-size">
           </div>
           <div class="control-group">
             <div class="control-header">
@@ -778,6 +785,48 @@
       minecraft: null,
       lego: null
     };
+
+    // EMERGENCY FIX FOR DRIFT SLIDER
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const driftSlider = document.getElementById('particle-drift');
+        const particleDemo = document.getElementById('particle-demo');
+        
+        if (driftSlider && particleDemo) {
+          console.log('EMERGENCY DRIFT FIX: Adding direct event listener to drift slider');
+          
+          driftSlider.addEventListener('input', () => {
+            const driftValue = parseInt(driftSlider.value);
+            console.log('EMERGENCY: Drift slider changed to', driftValue);
+            
+            // Update value display
+            const valueDisplay = document.getElementById('particle-drift-value');
+            if (valueDisplay) {
+              valueDisplay.textContent = `${driftValue}px`;
+            }
+            
+            // ALWAYS recreate the effect
+            if (effectInstances.particle) {
+              effectInstances.particle.destroy();
+            }
+            
+            // Get other values
+            const spacingValue = parseInt(document.getElementById('particle-spacing')?.value || '2');
+            const radiusValue = parseInt(document.getElementById('particle-radius')?.value || '110');
+            
+            // Create new instance with updated drift
+            effectInstances.particle = applyHoverEffect(particleDemo, {
+              effect: 'particle-dust',
+              spacing: spacingValue,
+              maxDrift: driftValue,
+              radius: radiusValue
+            });
+            
+            console.log('EMERGENCY: Recreated particle effect with drift =', driftValue);
+          });
+        }
+      }, 1000); // Wait for everything to initialize
+    });
 
     // Tab switching logic
     document.querySelectorAll('.nav-item').forEach(tab => {
@@ -878,9 +927,9 @@
         },
         {
           id: 'particle',
-          options: { effect: 'particle-dust', spacing: 4, maxDrift: 28, radius: 110 },
+          options: { effect: 'particle-dust', spacing: 2, maxDrift: 28, radius: 110 },
           controls: {
-            spacing: { min: 2, max: 10, default: 4 },
+            spacing: { min: 2, max: 10, default: 2 },
             maxDrift: { min: 10, max: 50, default: 28 },
             radius: { min: 50, max: 200, default: 110 }
           }
@@ -897,7 +946,7 @@
           id: 'lego',
           options: { 
             effect: 'lego', 
-            blockSize: 16, 
+            blockSize: 28,
             radius: 140,
             gap: 2,
             studScale: 0.33,
@@ -906,7 +955,7 @@
             fadeExp: 1.4
           },
           controls: {
-            blockSize: { min: 8, max: 40, default: 16 },
+            blockSize: { min: 8, max: 40, default: 28 },
             gap: { min: 1, max: 5, default: 2 },
             studScale: { min: 20, max: 70, default: 33, transform: v => v / 100 },
             depth: { min: 10, max: 40, default: 25, transform: v => v / 100 },
