@@ -364,36 +364,36 @@ export class AsciiHover implements HoverEffect {
       }
     } else {
       // Original non-colored approach with natural animation
-    for (let y = 0; y < sh; y++) {
-      for (let x = 0; x < sw; x++) {
-        const dx = (x / this.scale);
-        const dy = (y / this.scale);
-        
-        const dist = Math.hypot(dx - this.mousePos.x, dy - this.mousePos.y);
-        
-        if (dist < this.radius) {
-          const index = (y * sw + x) * 4;
-          const brightness = (data[index] + data[index + 1] + data[index + 2]) / 3;
+      for (let y = 0; y < sh; y++) {
+        for (let x = 0; x < sw; x++) {
+          const dx = (x / this.scale);
+          const dy = (y / this.scale);
           
+          const dist = Math.hypot(dx - this.mousePos.x, dy - this.mousePos.y);
+          
+          if (dist < this.radius) {
+            const index = (y * sw + x) * 4;
+            const brightness = (data[index] + data[index + 1] + data[index + 2]) / 3;
+            
             const time = Date.now() / (300 / this.glitchSpeed);
             const glitch = Math.sin(time + (x * y) / 1000) * this.glitchIntensity;
-          const avg = 255 - brightness + glitch;
-          
-          const charIndex = Math.min(
-            Math.max(
-              Math.floor((avg / 255) * (this.chars.length - 1)), 
-              0
-            ), 
-            this.chars.length - 1
-          );
-          
-          const alpha = 1 - dist / this.radius;
-          
-          this.ctx.fillStyle = `rgba(0,0,0,${alpha * 0.8})`;
-          this.ctx.fillRect(dx - this.size/2, dy - this.size/2, this.size, this.size);
-          
-          this.ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-          this.ctx.fillText(this.chars[charIndex], dx, dy);
+            const avg = 255 - brightness + glitch;
+            
+            const charIndex = Math.min(
+              Math.max(
+                Math.floor((avg / 255) * (this.chars.length - 1)), 
+                0
+              ), 
+              this.chars.length - 1
+            );
+            
+            const alpha = 1 - dist / this.radius;
+            
+            this.ctx.fillStyle = `rgba(0,0,0,${alpha * 0.8})`;
+            this.ctx.fillRect(dx - this.size/2, dy - this.size/2, this.size, this.size);
+            
+            this.ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+            this.ctx.fillText(this.chars[charIndex], dx, dy);
           }
         }
       }
