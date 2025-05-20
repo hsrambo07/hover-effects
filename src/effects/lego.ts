@@ -92,8 +92,12 @@ export class LegoHover implements HoverEffect {
     this.ctx.globalAlpha = alpha;
     
     // Calculate corner radius based on softEdge parameter (normalized to brick size)
-    // This makes softEdge control the visual roundedness of the bricks
-    const cornerRadius = Math.min(s/3, this.softEdge / 15);
+    // Using a non-linear scale to prevent extreme rounding
+    // softEdge values: 30-150 -> cornerRadius values: 0-s/4
+    const normalizedSoftEdge = (this.softEdge - 30) / (150 - 30); // 0 to 1
+    const maxCornerRadius = s/4;
+    // Use a square root curve for more natural progression
+    const cornerRadius = Math.sqrt(normalizedSoftEdge) * maxCornerRadius;
     
     // Brick top face with rounded corners
     this.ctx.fillStyle = topClr;
@@ -146,7 +150,7 @@ export class LegoHover implements HoverEffect {
     this.ctx.fillRect(x, y, cornerRadius, s);     // left seam
     this.ctx.fillRect(x, y, s, cornerRadius);     // top seam
     
-    // Draw enhanced stud
+    // Draw enhanced stud - ALWAYS in the exact center regardless of corner radius
     const midX = x + s / 2;
     const midY = y + s / 2;
     
@@ -178,9 +182,15 @@ export class LegoHover implements HoverEffect {
     this.ctx.fillStyle = this.shade(rgb, this.depth * 0.5);
     this.ctx.fill();
     
-    // Stud highlight dot for 3D appearance
+    // Stud highlight dot for 3D appearance - adjusted position for better consistency
+    const highlightOffsetRatio = 0.2; // Consistent ratio regardless of stud size
     this.ctx.beginPath();
-    this.ctx.arc(midX - studR * 0.2, midY - studR * 0.2, studR * 0.25, 0, Math.PI * 2);
+    this.ctx.arc(
+      midX - studR * highlightOffsetRatio, 
+      midY - studR * highlightOffsetRatio, 
+      studR * 0.25, 
+      0, Math.PI * 2
+    );
     this.ctx.closePath();
     this.ctx.fillStyle = this.shade(rgb, this.depth * 2.0);
     this.ctx.fill();
