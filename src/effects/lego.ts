@@ -91,22 +91,60 @@ export class LegoHover implements HoverEffect {
     this.ctx.save();
     this.ctx.globalAlpha = alpha;
     
-    // Brick top face
+    // Calculate corner radius based on softEdge parameter (normalized to brick size)
+    // This makes softEdge control the visual roundedness of the bricks
+    const cornerRadius = Math.min(s/3, this.softEdge / 15);
+    
+    // Brick top face with rounded corners
     this.ctx.fillStyle = topClr;
-    this.ctx.fillRect(x + gx, y + gx, s - 2 * gx, s - 2 * gx);
+    this.ctx.beginPath();
     
-    // Right bevel
+    // Draw rounded rectangle using arc commands
+    // Top-left corner
+    this.ctx.moveTo(x + gx + cornerRadius, y + gx);
+    // Top edge
+    this.ctx.lineTo(x + s - gx - cornerRadius, y + gx);
+    // Top-right corner
+    this.ctx.arcTo(x + s - gx, y + gx, x + s - gx, y + gx + cornerRadius, cornerRadius);
+    // Right edge
+    this.ctx.lineTo(x + s - gx, y + s - gx - cornerRadius);
+    // Bottom-right corner
+    this.ctx.arcTo(x + s - gx, y + s - gx, x + s - gx - cornerRadius, y + s - gx, cornerRadius);
+    // Bottom edge
+    this.ctx.lineTo(x + gx + cornerRadius, y + s - gx);
+    // Bottom-left corner
+    this.ctx.arcTo(x + gx, y + s - gx, x + gx, y + s - gx - cornerRadius, cornerRadius);
+    // Left edge
+    this.ctx.lineTo(x + gx, y + gx + cornerRadius);
+    // Top-left corner
+    this.ctx.arcTo(x + gx, y + gx, x + gx + cornerRadius, y + gx, cornerRadius);
+    this.ctx.closePath();
+    this.ctx.fill();
+    
+    // Right bevel - simplified with transparency gradient
     this.ctx.fillStyle = rightClr;
-    this.ctx.fillRect(x + s - gx, y + gx, gx, s - 2 * gx);
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + s - gx, y + gx + cornerRadius);
+    this.ctx.lineTo(x + s, y + gx + cornerRadius);
+    this.ctx.lineTo(x + s, y + s - gx);
+    this.ctx.lineTo(x + s - gx, y + s - gx - cornerRadius);
+    this.ctx.closePath();
+    this.ctx.fill();
     
-    // Bottom bevel
+    // Bottom bevel - simplified with transparency gradient
     this.ctx.fillStyle = bottomClr;
-    this.ctx.fillRect(x + gx, y + s - gx, s - 2 * gx, gx);
+    this.ctx.beginPath();
+    this.ctx.moveTo(x + gx + cornerRadius, y + s - gx);
+    this.ctx.lineTo(x + s - gx - cornerRadius, y + s - gx);
+    this.ctx.lineTo(x + s - gx, y + s);
+    this.ctx.lineTo(x + gx, y + s);
+    this.ctx.closePath();
+    this.ctx.fill();
     
-    // Mortar gap
+    // Mortar gap - simplified
     this.ctx.fillStyle = 'rgb(35,35,35)';
-    this.ctx.fillRect(x, y, s, gx);     // top seam
-    this.ctx.fillRect(x, y, gx, s);     // left seam
+    this.ctx.fillRect(x, y, cornerRadius, s);     // left seam
+    this.ctx.fillRect(x, y, s, cornerRadius);     // top seam
     
     // Draw enhanced stud
     const midX = x + s / 2;

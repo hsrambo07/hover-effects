@@ -13,10 +13,20 @@ export class ParticleDust implements HoverEffect {
     wobAmp: number;
     wobSpeed: number;
     phase: number;
+    // New properties for enhanced movement
+    spin: number;
+    spinSpeed: number;
+    orbitRadius: number;
+    orbitSpeed: number;
+    orbitPhase: number;
   }> = [];
   private cursor = { x: 0, y: 0, active: false };
   private animationFrame: number | null = null;
   private isSetup = false;
+  // Track the last cursor position for continuous movement
+  private lastCursorPos = { x: 0, y: 0 };
+  private cursorMoving = false;
+  private cursorMoveTime = 0;
 
   // Configuration
   private spacing: number;
@@ -40,10 +50,10 @@ export class ParticleDust implements HoverEffect {
     this.homeJitter = this.spacing / 2;
     this.softEdge = Math.min(20, this.radius / 2);
     this.fadeExp = 1.5;
-    this.wobbleAmpMin = 1;
-    this.wobbleAmpMax = 2;
-    this.wobbleSpeedMin = 0.4;
-    this.wobbleSpeedMax = 0.8;
+    this.wobbleAmpMin = 1.5; // Increased for more movement
+    this.wobbleAmpMax = 3.0; // Increased for more movement
+    this.wobbleSpeedMin = 0.5; // Slightly faster
+    this.wobbleSpeedMax = 1.2; // Slightly faster
   }
 
   private createParticles(): void {
@@ -84,7 +94,17 @@ export class ParticleDust implements HoverEffect {
         const wobSpeed = this.wobbleSpeedMin + Math.random() * (this.wobbleSpeedMax - this.wobbleSpeedMin);
         const phase = Math.random() * Math.PI * 2;
 
-        this.particles.push({ homeX, homeY, dir, color, wobVec, wobAmp, wobSpeed, phase });
+        // New parameters for enhanced movement
+        const spin = Math.random() < 0.5 ? -1 : 1; // Direction of spin (clockwise or counter)
+        const spinSpeed = 0.5 + Math.random() * 1.5; // How fast it spins
+        const orbitRadius = this.spacing * (0.5 + Math.random() * 1.0); // Orbit radius
+        const orbitSpeed = 0.3 + Math.random() * 0.7; // Orbit speed
+        const orbitPhase = Math.random() * Math.PI * 2; // Starting position in orbit
+
+        this.particles.push({ 
+          homeX, homeY, dir, color, wobVec, wobAmp, wobSpeed, phase,
+          spin, spinSpeed, orbitRadius, orbitSpeed, orbitPhase
+        });
       }
     }
   }
@@ -93,6 +113,23 @@ export class ParticleDust implements HoverEffect {
     if (!this.canvas || !this.ctx || !this.isSetup || !this.element) return;
 
     const t = time * 0.001; // ms->sec
+    
+    // Update cursor motion detection
+    if (this.cursor.active) {
+      const dx = this.cursor.x - this.lastCursorPos.x;
+      const dy = this.cursor.y - this.lastCursorPos.y;
+      const cursorSpeed = Math.hypot(dx, dy);
+      
+      if (cursorSpeed > 0.5) {
+        this.cursorMoving = true;
+        this.cursorMoveTime = t + 0.5; // Keep "moving" state for 0.5 sec after motion stops
+      } else if (t > this.cursorMoveTime) {
+        this.cursorMoving = false;
+      }
+      
+      this.lastCursorPos.x = this.cursor.x;
+      this.lastCursorPos.y = this.cursor.y;
+    }
     
     // Clear the canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -124,15 +161,48 @@ export class ParticleDust implements HoverEffect {
           let px = p.homeX + p.dir.dx * drift;
           let py = p.homeY + p.dir.dy * drift;
 
-          // Add wobble
+          // Add basic wobble
           const wobble = Math.sin(t * p.wobSpeed + p.phase) * p.wobAmp * eased;
           px += p.wobVec.dx * wobble;
           py += p.wobVec.dy * wobble;
 
+          // Add orbital motion - particles now orbit around their base position
+          const orbitPhase = t * p.orbitSpeed + p.orbitPhase;
+          px += Math.cos(orbitPhase) * p.orbitRadius * eased;
+          py += Math.sin(orbitPhase) * p.orbitRadius * eased;
+          
+          // Add more dynamic movement when cursor is moving
+          if (this.cursorMoving) {
+            const agitationFactor = 1.5;
+            // Additional directional movement based on cursor motion
+            const dx = this.cursor.x - this.lastCursorPos.x;
+            const dy = this.cursor.y - this.lastCursorPos.y;
+            // Apply some of the cursor's movement to the particles
+            px += dx * 0.2 * agitationFactor * eased;
+            py += dy * 0.2 * agitationFactor * eased;
+            
+            // Add some extra jitter when moving
+            px += (Math.random() * 2 - 1) * agitationFactor * eased;
+            py += (Math.random() * 2 - 1) * agitationFactor * eased;
+          }
+
+          // Draw particle with possible rotation
           if (this.ctx) {
+            this.ctx.save();
             this.ctx.globalAlpha = 0.15 + 0.85 * eased;
-            this.ctx.fillStyle = p.color;
-            this.ctx.fillRect(px, py, this.spacing, this.spacing);
+            
+            // Optionally rotate the particle
+            if (eased > 0.3) { // Only apply rotation to particles with significant effect
+              this.ctx.translate(px + this.spacing/2, py + this.spacing/2);
+              this.ctx.rotate(t * p.spinSpeed * p.spin * eased);
+              this.ctx.fillStyle = p.color;
+              this.ctx.fillRect(-this.spacing/2, -this.spacing/2, this.spacing, this.spacing);
+              this.ctx.restore();
+            } else {
+              // No rotation for distant particles
+              this.ctx.fillStyle = p.color;
+              this.ctx.fillRect(px, py, this.spacing, this.spacing);
+            }
           }
         }
       });
