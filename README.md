@@ -175,11 +175,6 @@ document.getElementById('size-slider').addEventListener('input', (e) => {
 document.getElementById('radius-slider').addEventListener('input', (e) => {
   effect.setRadius(parseInt(e.target.value));
 });
-
-// Connect to a toggle button
-document.getElementById('color-toggle').addEventListener('change', (e) => {
-  effect.setColored(e.target.checked);
-});
 ```
 
 ## 🎨 Available Effects
@@ -427,3 +422,51 @@ function App() {
   );
 }
 ```
+
+## 📄 License
+
+MIT License - feel free to use this in your projects!
+
+## 📝 Changelog
+
+### Version 2.3.0
+- Removed colored ASCII feature to improve performance
+- Fixed TypeScript errors and improved type safety
+- Added better null checks in particle dust effect
+
+### Version 2.2.5
+- Fixed Minecraft effect not respecting the provided blockSize parameter
+- Fixed Pixel effect initialization with custom blockSize values
+- Improved setBlockSize method implementation for both effects
+- Added better error handling and safety checks for array bounds
+- Enhanced debugging support to monitor effect states
+- Ensured consistent behavior between Pixel and Minecraft effects
+
+### Version 2.1.0
+- Added real-time control ranges for all effects
+- Improved performance with optimized rendering
+- Fixed canvas scaling issues on high-DPI displays
+- Added TypeScript strict mode support
+- Improved error handling and type safety
+
+### Version 2.0.0
+- **BREAKING CHANGE**: Unified API for `applyHoverEffect`
+- Added real-time parameter update support via setter methods
+- Improved ASCII effect with better coloring and transparency
+- Added LEGO effect with customizable studs and 3D appearance
+- Fixed transparency issues in all effects
+- Improved performance and rendering quality
+
+### Version 1.2.0
+- Added Particle Dust effect
+- Fixed CORS issues with external images
+- Improved error handling for different image types
+
+### Version 1.1.0
+- Added Minecraft and Pixel effects
+- Fixed performance issues when using multiple effects
+- Improved reusability with better cleanup methods
+
+### Version 1.0.0
+- Initial release with ASCII and Zoom effects
+- Basic hover interaction support
