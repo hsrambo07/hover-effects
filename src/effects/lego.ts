@@ -80,9 +80,12 @@ export class LegoHover implements HoverEffect {
     const s = this.blockSize;
     const { x, y, rgb } = brick;
     const studR = this.studScale * s * 0.5;
-    const topClr = this.shade(rgb, this.depth);        // lighten
-    const rightClr = this.shade(rgb, -this.depth);     // darken
-    const bottomClr = this.shade(rgb, -this.depth * 1.2); // darker
+    
+    // Enhanced depth effects - more dramatic shading
+    const depthEffect = this.depth * 1.5; // Amplify depth effect by 50%
+    const topClr = this.shade(rgb, depthEffect);        // stronger lighten
+    const rightClr = this.shade(rgb, -depthEffect);     // stronger darken
+    const bottomClr = this.shade(rgb, -depthEffect * 1.5); // even darker
     
     const gx = this.gap;
     this.ctx.save();
@@ -157,9 +160,17 @@ export class LegoHover implements HoverEffect {
       this.bricks.forEach(brick => {
         const distance = Math.hypot(brick.x - this.mousePos.x, brick.y - this.mousePos.y);
         if (distance < this.radius + this.softEdge) {
-          const base = distance < this.radius 
-            ? 1 
-            : 1 - (distance - this.radius) / this.softEdge;
+          // Enhanced edge calculation for more dramatic softness effect
+          let base;
+          if (distance < this.radius) {
+            base = 1; 
+          } else {
+            // Enhanced soft edge calculation - more dramatic transition
+            const edgePct = (distance - this.radius) / this.softEdge;
+            base = 1 - Math.pow(edgePct, 0.8); // More visible edge transition
+          }
+          
+          // Enhanced fade exponent effect
           const alpha = Math.pow(base, this.fadeExp);
           this.drawBrick(brick, alpha);
         }
