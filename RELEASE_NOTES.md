@@ -1,3 +1,17 @@
+# Release Notes - v2.4.3
+
+## Documentation Improvements
+
+1. **Updated Demo Links**
+   - Replaced Twitter demo links with YouTube video link
+   - Updated all demo references throughout the documentation
+   - Added YouTube video thumbnail for better visual representation
+   - Removed Twitter embed code
+
+## Migration Guide
+
+No breaking changes were introduced. This is a documentation update only.
+
 # Release Notes - v2.4.2
 
 ## Bug Fixes

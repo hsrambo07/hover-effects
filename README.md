@@ -429,6 +429,12 @@ MIT License - feel free to use this in your projects!
 
 ## 📝 Changelog
 
+### Version 2.4.3
+- Updated demo links to use YouTube instead of Twitter
+- Added YouTube video thumbnail
+- Improved documentation with consistent demo references
+- Removed Twitter embed code
+
 ### Version 2.4.2
 - Fixed ASCII effect radius parameter not working correctly
 - Improved mouse position tracking and coordinate system handling
