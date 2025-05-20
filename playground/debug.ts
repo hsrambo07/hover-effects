@@ -1,6 +1,6 @@
 // Types
 export type HoverEffectOptions =
-  | ({ effect: "ascii"; size?: number; chars?: string[]; radius?: number })
+  | ({ effect: "ascii"; size?: number; chars?: string[]; radius?: number; glitchIntensity?: number; glitchSpeed?: number })
   | ({ effect: "zoom"; scale?: number; radius?: number })
   | ({ effect: "particle-dust"; spacing?: number; maxDrift?: number; radius?: number })
   | ({ effect: "pixel"; blockSize?: number; radius?: number })
@@ -235,13 +235,17 @@ class AsciiHover implements HoverEffect {
   private size: number;
   private chars: string[];
   private scale: number;
+  private glitchIntensity: number;
+  private glitchSpeed: number;
 
-  constructor(options: { radius?: number; size?: number; chars?: string[] } = {}) {
+  constructor(options: { radius?: number; size?: number; chars?: string[]; glitchIntensity?: number; glitchSpeed?: number } = {}) {
     this.id = Math.random().toString(36).substring(2, 9);
     this.radius = options.radius ?? 70;
     this.size = options.size ?? 12;
     this.chars = options.chars ?? ['█', '@', '%', '#', '*', '+', '=', '-', ':', '.', ' '];
     this.scale = 0.2;
+    this.glitchIntensity = options.glitchIntensity ?? 3;
+    this.glitchSpeed = options.glitchSpeed ?? 0.5;
   }
 
   private onMouseEnter = (e: MouseEvent): void => {
@@ -1140,7 +1144,9 @@ export function createHoverEffect(options: HoverEffectOptions): HoverEffect {
       return new AsciiHover({
         radius: options.radius,
         size: options.size,
-        chars: options.chars
+        chars: options.chars,
+        glitchIntensity: options.glitchIntensity,
+        glitchSpeed: options.glitchSpeed
       });
     case 'zoom':
       return new ZoomHover({

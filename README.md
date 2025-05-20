@@ -69,8 +69,7 @@ Add the effect to your image with just a few lines of code:
   applyHoverEffect(image, {
     effect: 'ascii',
     size: 16,
-    radius: 100,
-    colored: true
+    radius: 100
   });
 </script>
 ```
@@ -146,8 +145,7 @@ import { AsciiHover } from 'hover-effects-ts';
 // Create the effect directly
 const effect = new AsciiHover({ 
   size: 16,
-  radius: 100,
-  colored: true
+  radius: 100
 });
 
 // Attach it to your image
@@ -197,7 +195,6 @@ applyHoverEffect('#my-image', {
   effect: 'ascii',
   size: 16,              // Character size in pixels (range: 6-30, default: 16)
   radius: 100,           // Effect radius in pixels (range: 30-800, default: 100)
-  colored: true,         // Whether to use color or monochrome (default: true)
   glitchIntensity: 3,    // Intensity of the glitch effect (range: 0-20, default: 3)
   glitchSpeed: 0.5,      // Speed of the glitch effect (range: 0.1-20, default: 5)
   chars: ['█', '@', '%', '#', '*', '+', '=', '-', ':', '.', ' '] // Optional custom characters
@@ -207,7 +204,6 @@ applyHoverEffect('#my-image', {
 **Available controls:**
 - `setSize(size)` - Changes the character size (6-30px)
 - `setRadius(radius)` - Changes the effect radius (30-800px)
-- `setColored(colored)` - Toggles colored mode
 - `setGlitchIntensity(intensity)` - Adjusts glitch intensity (0-20)
 - `setGlitchSpeed(speed)` - Adjusts glitch animation speed (0.1-20)
 - `setChars(chars)` - Sets custom character set
@@ -425,109 +421,9 @@ function App() {
       effect={{ 
         effect: 'ascii', 
         size: 16, 
-        radius: 100, 
-        colored: true 
+        radius: 100 
       }} 
     />
   );
 }
 ```
-
-### Using with Vue
-
-```vue
-<template>
-  <img ref="imageEl" :src="src" :alt="alt">
-</template>
-
-<script>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { applyHoverEffect } from 'hover-effects-ts';
-
-export default {
-  props: {
-    src: String,
-    alt: String,
-    effect: Object
-  },
-  setup(props) {
-    const imageEl = ref(null);
-    let effectInstance = null;
-    
-    onMounted(() => {
-      if (imageEl.value) {
-        effectInstance = applyHoverEffect(imageEl.value, props.effect);
-      }
-    });
-    
-    onBeforeUnmount(() => {
-      if (effectInstance) {
-        effectInstance.destroy();
-      }
-    });
-    
-    return { imageEl };
-  }
-}
-</script>
-```
-
-## 🛠️ Development
-
-To run the development server:
-
-```bash
-npm install
-npm run dev
-```
-
-To view the demo playground:
-
-```bash
-npm run demo
-```
-
-## 📄 License
-
-MIT License - feel free to use this in your projects!
-
-## 📝 Changelog
-
-### Version 2.2.5
-- Fixed Minecraft effect not respecting the provided blockSize parameter
-- Fixed Pixel effect initialization with custom blockSize values
-- Improved setBlockSize method implementation for both effects
-- Added better error handling and safety checks for array bounds
-- Enhanced debugging support to monitor effect states
-- Ensured consistent behavior between Pixel and Minecraft effects
-
-### Version 2.1.0
-- Added real-time control ranges for all effects
-- Improved performance with optimized rendering
-- Fixed canvas scaling issues on high-DPI displays
-- Added TypeScript strict mode support
-- Improved error handling and type safety
-
-### Version 2.0.0
-- **BREAKING CHANGE**: Unified API for `applyHoverEffect`
-- Added real-time parameter update support via setter methods
-- Improved ASCII effect with better coloring and transparency
-- Added LEGO effect with customizable studs and 3D appearance
-- Fixed transparency issues in all effects
-- Improved performance and rendering quality
-
-### Version 1.2.0
-- Added Particle Dust effect
-- Fixed CORS issues with external images
-- Improved error handling for different image types
-
-### Version 1.1.0
-- Added Minecraft and Pixel effects
-- Fixed performance issues when using multiple effects
-- Improved reusability with better cleanup methods
-
-### Version 1.0.0
-- Initial release with ASCII and Zoom effects
-- Basic hover interaction support
-
-All effects are showcased with customizable parameters and work smoothly on all modern browsers.
