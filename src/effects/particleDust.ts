@@ -16,6 +16,7 @@ export class ParticleDust implements HoverEffect {
     orbitRadius: number;
     orbitSpeed: number;
     orbitPhase: number;
+    noiseOffset: number; // For perlin-like noise effect at the boundary
   }> = [];
   private cursor = { x: 0, y: 0, active: false };
   private animationFrame: number | null = null;
@@ -23,6 +24,8 @@ export class ParticleDust implements HoverEffect {
   private lastCursorPos = { x: 0, y: 0 };
   private cursorMoving = false;
   private cursorMoveTime = 0;
+  // For creating irregular boundary
+  private noiseValues: number[] = [];
 
   // Configuration
   private spacing: number;
@@ -44,12 +47,37 @@ export class ParticleDust implements HoverEffect {
     
     // Fixed configuration
     this.homeJitter = this.spacing / 2;
-    this.softEdge = Math.min(20, this.radius / 2);
+    this.softEdge = Math.min(30, this.radius / 2); // Slightly wider edge for more organic fade
     this.fadeExp = 1.5;
-    this.wobbleAmpMin = 1.0; // Moderate movement
-    this.wobbleAmpMax = 2.0; // Moderate movement
+    this.wobbleAmpMin = 1.0;
+    this.wobbleAmpMax = 2.0;
     this.wobbleSpeedMin = 0.3;
     this.wobbleSpeedMax = 0.7;
+    
+    // Generate noise values for irregular boundary 
+    this.generateNoiseValues(24); // 24 segments around the circle
+  }
+  
+  // Simple noise generator for irregular boundary
+  private generateNoiseValues(count: number): void {
+    this.noiseValues = [];
+    for (let i = 0; i < count; i++) {
+      // Random values between 0.8 and 1.2 for radius variation (±20%)
+      this.noiseValues.push(0.8 + Math.random() * 0.4);
+    }
+  }
+  
+  // Get noise value based on angle
+  private getNoise(angle: number): number {
+    const count = this.noiseValues.length;
+    // Convert angle to index
+    const idx = ((angle / (Math.PI * 2)) * count) % count;
+    const idx1 = Math.floor(idx) % count;
+    const idx2 = (idx1 + 1) % count;
+    
+    // Linear interpolation between two noise values
+    const frac = idx - idx1;
+    return this.noiseValues[idx1] * (1 - frac) + this.noiseValues[idx2] * frac;
   }
 
   private createParticles(): void {
@@ -94,10 +122,13 @@ export class ParticleDust implements HoverEffect {
         const orbitRadius = this.spacing * 0.7 * Math.random(); // Smaller orbit
         const orbitSpeed = 0.2 + Math.random() * 0.4; // Slower speed
         const orbitPhase = Math.random() * Math.PI * 2;
+        
+        // For noise-based boundary
+        const noiseOffset = Math.random() * Math.PI * 2;
 
         this.particles.push({ 
           homeX, homeY, dir, color, wobVec, wobAmp, wobSpeed, phase,
-          orbitRadius, orbitSpeed, orbitPhase
+          orbitRadius, orbitSpeed, orbitPhase, noiseOffset
         });
       }
     }
@@ -107,6 +138,15 @@ export class ParticleDust implements HoverEffect {
     if (!this.canvas || !this.ctx || !this.isSetup || !this.element) return;
 
     const t = time * 0.001; // ms->sec
+    
+    // Slowly evolve the noise values for a subtle moving edge
+    if (t % 0.5 < 0.05) { // Update every ~0.5 seconds
+      for (let i = 0; i < this.noiseValues.length; i++) {
+        // Gradually shift noise values, keeping them within 0.8-1.2 range
+        this.noiseValues[i] += (Math.random() * 0.1 - 0.05);
+        this.noiseValues[i] = Math.max(0.8, Math.min(1.2, this.noiseValues[i]));
+      }
+    }
     
     // Update cursor motion detection
     if (this.cursor.active) {
@@ -132,22 +172,41 @@ export class ParticleDust implements HoverEffect {
     this.ctx.drawImage(this.element, 0, 0);
 
     if (this.cursor.active) {
-      // Create a clipping region for the particle effect
+      // No need for explicit clipping region with the perfect circle
+      // as we'll apply the effect with individual particle visibility
+      
+      // Clear an area for particles
       this.ctx.save();
       this.ctx.beginPath();
-      this.ctx.arc(this.cursor.x, this.cursor.y, this.radius + this.softEdge, 0, Math.PI * 2);
-      this.ctx.clip();
       
-      // Clear the area where particles will be drawn
+      // Create slightly irregular clearing area that's larger than the effect area
+      this.ctx.arc(this.cursor.x, this.cursor.y, this.radius * 1.3, 0, Math.PI * 2);
+      this.ctx.clip();
       this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       
       this.particles.forEach(p => {
-        const dist = Math.hypot(p.homeX - this.cursor.x, p.homeY - this.cursor.y);
-        const effectRadius = this.radius;
+        const dx = p.homeX - this.cursor.x;
+        const dy = p.homeY - this.cursor.y;
+        const dist = Math.hypot(dx, dy);
+        const angle = Math.atan2(dy, dx);
         
-        if (dist < effectRadius + this.softEdge) {
-          // Eased 0..1 within influence
-          const base = dist < effectRadius ? 1 : 1 - (dist - effectRadius) / this.softEdge;
+        // Apply noise to effective radius based on angle
+        const noiseVal = this.getNoise(angle + p.noiseOffset + t * 0.1);
+        const effectRadius = this.radius * noiseVal;
+        const softEdgeBoundary = this.softEdge * (0.8 + Math.random() * 0.4); // Varying soft edge
+        
+        if (dist < effectRadius + softEdgeBoundary) {
+          // Eased 0..1 within influence, with noise-based boundary
+          let base;
+          if (dist < effectRadius) {
+            base = 1; 
+          } else {
+            // Natural soft edge with noise
+            const edgePct = (dist - effectRadius) / softEdgeBoundary;
+            // Add randomness to the fade function
+            base = 1 - Math.pow(edgePct, 0.7 + Math.random() * 0.6);
+          }
+          
           const eased = Math.pow(base, this.fadeExp);
           const drift = eased * this.maxDrift;
 
@@ -167,7 +226,7 @@ export class ParticleDust implements HoverEffect {
           
           // Add subtle movement when cursor is moving - reduced intensity
           if (this.cursorMoving) {
-            const agitationFactor = 0.8; // Reduced from 1.5
+            const agitationFactor = 0.8;
             // Get cursor movement direction
             const dx = this.cursor.x - this.lastCursorPos.x;
             const dy = this.cursor.y - this.lastCursorPos.y;
@@ -182,7 +241,9 @@ export class ParticleDust implements HoverEffect {
 
           // Draw simple square particle - no rotation for better performance
           if (this.ctx) {
-            this.ctx.globalAlpha = 0.15 + 0.85 * eased;
+            // Add randomness to alpha for more organic look at edges
+            const alphaVariation = 1 - (0.1 * Math.random() * (1 - eased)); // More variation at edges
+            this.ctx.globalAlpha = (0.15 + 0.85 * eased) * alphaVariation; 
             this.ctx.fillStyle = p.color;
             this.ctx.fillRect(px, py, this.spacing, this.spacing);
           }
@@ -318,6 +379,6 @@ export class ParticleDust implements HoverEffect {
   
   public setRadius(radius: number): void {
     this.radius = radius;
-    this.softEdge = Math.min(20, this.radius / 2); // Update dependent parameter
+    this.softEdge = Math.min(30, this.radius / 2); // Update dependent parameter
   }
 } 
