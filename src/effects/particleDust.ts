@@ -129,9 +129,11 @@ export class ParticleDust implements HoverEffect {
           px += p.wobVec.dx * wobble;
           py += p.wobVec.dy * wobble;
 
-          this.ctx.globalAlpha = 0.15 + 0.85 * eased;
-          this.ctx.fillStyle = p.color;
-          this.ctx.fillRect(px, py, this.spacing, this.spacing);
+          if (this.ctx) {
+            this.ctx.globalAlpha = 0.15 + 0.85 * eased;
+            this.ctx.fillStyle = p.color;
+            this.ctx.fillRect(px, py, this.spacing, this.spacing);
+          }
         }
       });
       

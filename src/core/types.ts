@@ -6,7 +6,6 @@ export interface HoverEffectOptions {
   // ASCII effect options
   size?: number;
   chars?: string[];
-  colored?: boolean;
   glitchIntensity?: number;
   glitchSpeed?: number;
   
@@ -38,7 +37,6 @@ export interface HoverEffect {
   
   // ASCII effect setters
   setSize?(size: number): void;
-  setColored?(colored: boolean): void;
   setGlitchIntensity?(intensity: number): void;
   setGlitchSpeed?(speed: number): void;
   setChars?(chars: string[]): void;

@@ -14,7 +14,6 @@ export function createHoverEffect(options: HoverEffectOptions): HoverEffect {
         radius: options.radius,
         size: options.size,
         chars: options.chars,
-        colored: options.colored,
         glitchIntensity: options.glitchIntensity,
         glitchSpeed: options.glitchSpeed
       });
