@@ -1,3 +1,18 @@
+# Release Notes - v2.4.1
+
+## Bug Fixes
+
+1. **ParticleDust Effect Improvements**
+   - Fixed drift slider functionality to properly update the effect
+   - Added robust event handling for consistent slider behavior
+   - Fixed variable naming conflicts to ensure controls work properly
+   - Improved logging for easier debugging
+   - Maintained natural appearance while ensuring slider functionality
+
+## Migration Guide
+
+No breaking changes were introduced. This is a pure bugfix release.
+
 # Release Notes - v2.2.5
 
 ## Bug Fixes
