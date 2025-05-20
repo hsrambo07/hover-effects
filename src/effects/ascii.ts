@@ -154,28 +154,45 @@ export class AsciiHover implements HoverEffect {
   };
 
   private onMouseMove = (e: MouseEvent): void => {
-    if (!this.element) return;
+    if (!this.element || !this.canvas) return;
     
-    // Get accurate cursor position relative to the image
-    const rect = this.element.getBoundingClientRect();
+    // Get accurate cursor position relative to the canvas, not the image
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+    
     this.mousePos = {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
     };
+    
+    // For debugging
+    console.log(`MousePos: (${this.mousePos.x}, ${this.mousePos.y}), Radius: ${this.radius}`);
   };
 
   private updateImageData(): void {
     if (!this.element || !this.tempCanvas || !this.tempCtx) return;
     
-    // Use display dimensions instead of intrinsic dimensions
-    const rect = this.element.getBoundingClientRect();
-    const sw = Math.floor(rect.width * this.scale);
-    const sh = Math.floor(rect.height * this.scale);
-    
-    this.tempCanvas.width = sw;
-    this.tempCanvas.height = sh;
-    this.tempCtx.drawImage(this.element, 0, 0, sw, sh);
-    this.imageData = this.tempCtx.getImageData(0, 0, sw, sh);
+    // Use actual canvas dimensions for consistency with the render method
+    if (this.canvas) {
+      const width = this.canvas.width;
+      const height = this.canvas.height;
+      const sw = Math.floor(width * this.scale);
+      const sh = Math.floor(height * this.scale);
+      
+      // Make sure temp canvas matches the main canvas scale
+      this.tempCanvas.width = sw;
+      this.tempCanvas.height = sh;
+      
+      // Draw the image to the temporary canvas
+      this.tempCtx.drawImage(this.element, 0, 0, sw, sh);
+      
+      // Get image data for processing
+      this.imageData = this.tempCtx.getImageData(0, 0, sw, sh);
+      
+      // For debugging
+      console.log(`Canvas size: ${width}x${height}, Scale: ${this.scale}, Sampled size: ${sw}x${sh}`);
+    }
   }
 
   private render = (timestamp = 0): void => {
@@ -220,12 +237,14 @@ export class AsciiHover implements HoverEffect {
     
     const data = this.imageData.data;
     
-    let effectiveRadius = this.radius;
-    if (this.size <= 12) {
-      // Use a larger effective radius for smaller characters to smooth the effect
-      effectiveRadius = this.radius * 1.2;
-    }
-    const fullRadius = effectiveRadius * 3.0;
+    // Use the actual radius value directly
+    const effectiveRadius = this.radius;
+    
+    // Draw debug circle to visualize the effect radius (uncomment for debugging)
+    // this.ctx.beginPath();
+    // this.ctx.arc(this.mousePos.x, this.mousePos.y, effectiveRadius, 0, Math.PI * 2);
+    // this.ctx.strokeStyle = 'rgba(255,0,0,0.5)';
+    // this.ctx.stroke();
     
     // Original non-colored approach with natural animation
     for (let y = 0; y < sh; y++) {
@@ -235,7 +254,7 @@ export class AsciiHover implements HoverEffect {
         
         const dist = Math.hypot(dx - this.mousePos.x, dy - this.mousePos.y);
         
-        if (dist < this.radius) {
+        if (dist < effectiveRadius) {
           const index = (y * sw + x) * 4;
           const brightness = (data[index] + data[index + 1] + data[index + 2]) / 3;
           
@@ -251,7 +270,7 @@ export class AsciiHover implements HoverEffect {
             this.chars.length - 1
           );
           
-          const alpha = 1 - dist / this.radius;
+          const alpha = 1 - dist / effectiveRadius;
           
           this.ctx.fillStyle = `rgba(0,0,0,${alpha * 0.8})`;
           this.ctx.fillRect(dx - this.size/2, dy - this.size/2, this.size, this.size);
@@ -278,12 +297,20 @@ export class AsciiHover implements HoverEffect {
     const setupEffect = () => {
       // Create canvas without DPR scaling to avoid coordinate confusion
       const canvas = document.createElement('canvas');
+      
+      // Get the displayed dimensions of the image
       const rect = element.getBoundingClientRect();
+      
+      // Set canvas size to match the displayed image size exactly
       canvas.width = rect.width;
       canvas.height = rect.height;
+      
+      // Position canvas directly over the image
       canvas.style.position = 'absolute';
       canvas.style.top = '0';
       canvas.style.left = '0';
+      canvas.style.width = '100%';  // Ensure it covers the image completely
+      canvas.style.height = '100%'; // Ensure it covers the image completely
       canvas.style.opacity = '0';
       canvas.style.transition = 'opacity 0.3s ease';
       canvas.style.pointerEvents = 'none';
@@ -302,17 +329,17 @@ export class AsciiHover implements HoverEffect {
         this.ctx.imageSmoothingEnabled = false;
       }
       
-      // Apply UI values
+      // Apply UI values if available
       const sizeSlider = document.getElementById('ascii-size') as HTMLInputElement;
       const radiusSlider = document.getElementById('ascii-radius') as HTMLInputElement;
       const glitchIntensitySlider = document.getElementById('ascii-glitch-intensity') as HTMLInputElement;
       const glitchSpeedSlider = document.getElementById('ascii-glitch-speed') as HTMLInputElement;
       
       this.autoSize = false;
-      this.size = sizeSlider ? parseFloat(sizeSlider.value) : 16;
-      this.radius = radiusSlider ? parseFloat(radiusSlider.value) : 100;
-      this.glitchIntensity = glitchIntensitySlider ? parseFloat(glitchIntensitySlider.value) : 3;
-      this.glitchSpeed = glitchSpeedSlider ? parseFloat(glitchSpeedSlider.value) / 10 : 0.5;
+      if (sizeSlider) this.size = parseFloat(sizeSlider.value);
+      if (radiusSlider) this.radius = parseFloat(radiusSlider.value);
+      if (glitchIntensitySlider) this.glitchIntensity = parseFloat(glitchIntensitySlider.value);
+      if (glitchSpeedSlider) this.glitchSpeed = parseFloat(glitchSpeedSlider.value) / 10;
       
       // Use fixed scale based on size range
       if (this.size <= 8) this.scale = 0.12;
@@ -344,10 +371,12 @@ export class AsciiHover implements HoverEffect {
       wrapper.appendChild(canvas);
       
       // Add event listeners
-      this.element!.addEventListener('mouseenter', this.onMouseEnter);
-      this.element!.addEventListener('mouseleave', this.onMouseLeave);
-      this.element!.addEventListener('mousemove', this.onMouseMove);
+      wrapper.addEventListener('mouseenter', this.onMouseEnter);
+      wrapper.addEventListener('mouseleave', this.onMouseLeave);
+      wrapper.addEventListener('mousemove', this.onMouseMove);
       
+      // Log setup info for debugging
+      console.log(`ASCII effect setup with radius: ${this.radius}, size: ${this.size}`);
     };
     
     if (element.complete) {
@@ -373,7 +402,28 @@ export class AsciiHover implements HoverEffect {
   }
 
   public destroy(): void {
-    this.detach();
+    // Remove canvas from DOM if it exists
+    if (this.canvas) {
+      this.canvas.remove();
+    }
+    
+    // Cancel any pending animation frame
+    if (this.animationFrame) {
+      cancelAnimationFrame(this.animationFrame);
+      this.animationFrame = null;
+    }
+    
+    // Remove event listeners - they are now on the wrapper
+    if (this.element) {
+      const wrapper = this.element.parentElement;
+      if (wrapper && wrapper.classList.contains('ascii-wrapper')) {
+        wrapper.removeEventListener('mouseenter', this.onMouseEnter);
+        wrapper.removeEventListener('mouseleave', this.onMouseLeave);
+        wrapper.removeEventListener('mousemove', this.onMouseMove);
+      }
+    }
+    
+    // Clear references
     this.element = null;
     this.canvas = null;
     this.ctx = null;
@@ -393,6 +443,11 @@ export class AsciiHover implements HoverEffect {
   
   public setRadius(radius: number): void {
     this.radius = radius;
+    // Force a re-render with the new radius if currently hovering
+    if (this.isHovering && this.canvas && this.ctx) {
+      this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+      this.render();
+    }
   }
   
   public setSize(size: number): void {

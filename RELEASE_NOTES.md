@@ -1,3 +1,18 @@
+# Release Notes - v2.4.2
+
+## Bug Fixes
+
+1. **ASCII Effect Radius Fix**
+   - Fixed issue where the ASCII effect radius parameter wasn't working correctly
+   - Improved mouse position tracking to properly respect the canvas coordinate system
+   - Updated event listeners to attach to the wrapper element for better consistency
+   - Enhanced canvas positioning and scaling to ensure the effect works across all screen sizes
+   - Added debug information to help diagnose any future radius issues
+
+## Migration Guide
+
+No breaking changes were introduced. This is a pure bugfix release.
+
 # Release Notes - v2.4.1
 
 ## Bug Fixes

@@ -17,7 +17,11 @@ A collection of beautiful hover effects for images using canvas. Built with Type
 
 Check out our live demo to see all the effects in action:
 
-[Vercel Demo](https://hover-effects-theta.vercel.app/)
+[Vercel Demo](https://img-hover.vercel.app/)
+
+<div align="center">
+  <img src="./demo_screenshot.png" alt="Interactive Hover Effects Demo" width="100%" />
+</div>
 
 #### You can quickly figure out what values works best and directly plug those in your implementation :D.
 
@@ -428,6 +432,12 @@ function App() {
 MIT License - feel free to use this in your projects!
 
 ## 📝 Changelog
+
+### Version 2.4.2
+- Fixed ASCII effect radius parameter not working correctly
+- Improved mouse position tracking and coordinate system handling
+- Enhanced canvas positioning and scaling for consistent effect behavior
+- Added debug information for troubleshooting
 
 ### Version 2.3.0
 - Removed colored ASCII feature to improve performance
