@@ -1,3 +1,18 @@
+# Release Notes - v2.4.4
+
+## Package Improvements
+
+1. **Enhanced Package Structure**
+   - Added proper `exports` field to package.json for better ESM/CJS compatibility
+   - Made ES modules the primary format and properly marked package as ESM
+   - Included source TypeScript files in the package for source diving
+   - Added declaration maps (`.d.ts.map`) for better IDE integration
+   - Added `sideEffects: false` flag for better tree-shaking
+
+## Migration Guide
+
+These changes improve the package structure without breaking any existing functionality. If you're using bundlers like webpack, Rollup, or Vite, they should now better handle the package.
+
 # Release Notes - v2.4.3
 
 ## Documentation Improvements

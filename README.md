@@ -429,6 +429,13 @@ MIT License - feel free to use this in your projects!
 
 ## 📝 Changelog
 
+### Version 2.4.4
+- Added proper `exports` field in package.json for better ESM/CJS compatibility
+- Included source TypeScript files in the package for source diving
+- Added declaration maps for better IDE integration
+- Made ES modules the primary format
+- Improved package structure for better developer experience
+
 ### Version 2.4.3
 - Updated demo links to use YouTube instead of Twitter
 - Added YouTube video thumbnail

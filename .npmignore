@@ -10,14 +10,14 @@
 .gitignore
 .husky
 .prettierrc
-tsconfig.json
 vite.config.ts
 vitest.config.ts
 
-# Source files (already compiled)
-src/
+# Keep source files for source diving
+# src/ - we're now including source files
+
+# Test files
 tests/
-examples/
 
 # Development and demo folders
 playground/
@@ -33,5 +33,5 @@ yarn.lock
 # Node modules
 node_modules/
 
-# Keep examples directory
+# Keep examples directory and tsconfig for reference
 # examples/ - removed from npmignore 

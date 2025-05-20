@@ -28,7 +28,13 @@ export default defineConfig(({ command }) => {
       },
       outDir: "dist",
       emptyOutDir: true,
-      sourcemap: true
+      sourcemap: true,
+      rollupOptions: {
+        output: {
+          // Ensure ES module is the primary format
+          preserveModules: false
+        }
+      }
     },
     resolve: {
       alias: {

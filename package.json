@@ -1,24 +1,27 @@
 {
   "name": "hover-effects-ts",
-  "version": "2.4.3",
+  "version": "2.4.4",
   "description": "A collection of beautiful hover effects for images using canvas",
-  "main": "dist/hover-effects.umd.js",
+  "type": "module",
+  "main": "dist/hover-effects.es.js",
+  "module": "dist/hover-effects.es.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/hover-effects.es.js",
+      "require": "./dist/hover-effects.umd.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
   "files": [
-    "dist/core",
-    "dist/effects",
-    "dist/hover-effects.es.js",
-    "dist/hover-effects.umd.js",
-    "dist/hover-effects.es.js.map",
-    "dist/hover-effects.umd.js.map",
-    "dist/index.d.ts",
-    "dist/types.d.ts",
+    "dist/",
+    "src/",
     "README.md",
     "LICENSE",
     "examples"
   ],
   "scripts": {
-    "build": "vite build && tsc --emitDeclarationOnly",
+    "build": "vite build && tsc --emitDeclarationOnly --declarationMap",
     "build:playground": "PLAYGROUND=true vite build",
     "dev": "vite",
     "dev:playground": "PLAYGROUND=true vite",
@@ -66,5 +69,5 @@
   "directories": {
     "test": "tests"
   },
-  "module": "dist/hover-effects.es.js"
+  "sideEffects": false
 }
