@@ -7,7 +7,7 @@ A collection of beautiful hover effects for images using canvas. Built with Type
 ### Video Demo
 <div align="center">
   <a href="https://youtu.be/PjxFH-Q53zM" target="_blank">
-    <img src="https://pbs.twimg.com/media/GJhXQZ3WYAAYQxX?format=jpg&name=large" alt="Hover Effects Demo" width="600"/>
+    <img src="./youtube.png" alt="Hover Effects Demo" width="600"/>
   </a>
   <br/>
   <em>Click the image to view the demo video on YouTube</em>
