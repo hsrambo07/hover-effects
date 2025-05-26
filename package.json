@@ -1,6 +1,6 @@
 {
   "name": "hover-effects-ts",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "A collection of beautiful hover effects for images using canvas",
   "type": "module",
   "main": "dist/hover-effects.es.js",

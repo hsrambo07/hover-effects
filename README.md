@@ -471,6 +471,12 @@ MIT License - feel free to use this in your projects!
 
 ## 📝 Changelog
 
+### Version 2.5.1
+- **IMPROVEMENT**: Updated LED Matrix default values for better visual density
+- **CHANGE**: Default LED size reduced from 8px to 4px
+- **CHANGE**: Default LED spacing reduced from 8px to 5px
+- **UPDATE**: Updated playground controls and documentation to reflect new defaults
+
 ### Version 2.5.0
 - **NEW**: Added LED Matrix effect with authentic LED display simulation
 - **NEW**: LED Matrix supports both monochrome (cyan) and RGB color modes
