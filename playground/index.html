@@ -516,6 +516,7 @@
       <div class="nav-item" data-tab="pixel">Pixel</div>
       <div class="nav-item" data-tab="minecraft">Minecraft</div>
       <div class="nav-item" data-tab="lego">LEGO</div>
+      <div class="nav-item" data-tab="dotmatrix">LED Matrix</div>
     </div>
     
     <div class="main-content">
@@ -770,6 +771,104 @@
           </div>
         </div>
       </div>
+
+      <div id="dotmatrix" class="tab-content">
+        <div class="effect-preview">
+          <div class="image-container">
+            <img src="images/dot-image.jpg" alt="LED Matrix Demo" id="dotmatrix-demo" style="width: 100%; height: 100%; object-fit: cover;">
+          </div>
+        </div>
+        <button class="toggle-controls" title="Toggle Controls">≡</button>
+        <div class="effect-controls">
+          <div class="switch-wrapper">
+            <span>Effect Active</span>
+            <label class="switch">
+              <input type="checkbox" checked id="dotmatrix-active">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="dotmatrix-radius">Effect Radius</label>
+              <span class="value" id="dotmatrix-radius-value">120px</span>
+            </div>
+            <input type="range" min="50" max="300" value="120" id="dotmatrix-radius">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="dotmatrix-led-size">LED Size</label>
+              <span class="value" id="dotmatrix-led-size-value">6px</span>
+            </div>
+            <input type="range" min="2" max="15" value="6" id="dotmatrix-led-size">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="dotmatrix-led-spacing">LED Spacing</label>
+              <span class="value" id="dotmatrix-led-spacing-value">8px</span>
+            </div>
+            <input type="range" min="4" max="25" value="8" id="dotmatrix-led-spacing">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="dotmatrix-soft-edge">Soft Edge</label>
+              <span class="value" id="dotmatrix-soft-edge-value">20px</span>
+            </div>
+            <input type="range" min="0" max="50" value="20" id="dotmatrix-soft-edge">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="dotmatrix-fade-exp">Fade Power</label>
+              <span class="value" id="dotmatrix-fade-exp-value">2.0</span>
+            </div>
+            <input type="range" min="5" max="50" value="20" id="dotmatrix-fade-exp">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="dotmatrix-color-mode">Color Mode</label>
+              <span class="value" id="dotmatrix-color-mode-value">Mono</span>
+            </div>
+            <select id="dotmatrix-color-mode" style="width: 100%; padding: 5px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+              <option value="mono">Mono (Cyan)</option>
+              <option value="rgb">RGB (Original Colors)</option>
+            </select>
+          </div>
+          <div class="switch-wrapper">
+            <span>Glow Effect</span>
+            <label class="switch">
+              <input type="checkbox" checked id="dotmatrix-glow">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="dotmatrix-animation-type">Animation Type</label>
+              <span class="value" id="dotmatrix-animation-type-value">Wave</span>
+            </div>
+            <select id="dotmatrix-animation-type" style="width: 100%; padding: 5px; background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px;">
+              <option value="none">None</option>
+              <option value="wave" selected>Wave</option>
+              <option value="pulse">Pulse</option>
+              <option value="drift">Drift</option>
+              <option value="ripple">Ripple</option>
+              <option value="rotation">Rotation</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="dotmatrix-animation-speed">Animation Speed</label>
+              <span class="value" id="dotmatrix-animation-speed-value">1.0</span>
+            </div>
+            <input type="range" min="1" max="50" value="10" id="dotmatrix-animation-speed">
+          </div>
+          <div class="control-group">
+            <div class="control-header">
+              <label for="dotmatrix-animation-intensity">Animation Intensity</label>
+              <span class="value" id="dotmatrix-animation-intensity-value">3.0</span>
+            </div>
+            <input type="range" min="1" max="100" value="30" id="dotmatrix-animation-intensity">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -783,7 +882,8 @@
       particle: null,
       pixel: null,
       minecraft: null,
-      lego: null
+      lego: null,
+      dotmatrix: null
     };
 
     // EMERGENCY FIX FOR DRIFT SLIDER
@@ -971,6 +1071,31 @@
             blockSize: { min: 8, max: 64, default: 28 },
             radius: { min: 50, max: 200, default: 130 }
           }
+        },
+        {
+          id: 'dotmatrix',
+          options: { 
+            effect: 'dot-matrix', 
+            radius: 120,
+            ledSize: 6,
+            ledSpacing: 8,
+            softEdge: 20,
+            fadeExp: 2.0,
+            glow: true,
+            colorMode: 'mono',
+            animationType: 'wave',
+            animationSpeed: 1.0,
+            animationIntensity: 3.0
+          },
+          controls: {
+            radius: { min: 50, max: 300, default: 120 },
+            ledSize: { min: 2, max: 15, default: 6 },
+            ledSpacing: { min: 4, max: 25, default: 8 },
+            softEdge: { min: 0, max: 50, default: 20 },
+            fadeExp: { min: 5, max: 50, default: 20, transform: v => v / 10 },
+            animationSpeed: { min: 1, max: 50, default: 10, transform: v => v / 10 },
+            animationIntensity: { min: 1, max: 100, default: 30, transform: v => v / 10 }
+          }
         }
       ];
 
@@ -1032,6 +1157,73 @@
             }
           });
 
+          // Special handling for DotMatrix effect
+          if (effect.id === 'dotmatrix') {
+            // Handle color mode select
+            const colorModeSelect = document.getElementById('dotmatrix-color-mode');
+            const colorModeValue = document.getElementById('dotmatrix-color-mode-value');
+            
+            colorModeSelect?.addEventListener('change', () => {
+              const colorMode = colorModeSelect.value;
+              if (colorModeValue) {
+                colorModeValue.textContent = colorMode === 'mono' ? 'Mono' : 'RGB';
+              }
+              if (effectInstances.dotmatrix?.setColorMode) {
+                effectInstances.dotmatrix.setColorMode(colorMode);
+              }
+            });
+            
+            // Handle glow toggle
+            const glowToggle = document.getElementById('dotmatrix-glow');
+            glowToggle?.addEventListener('change', () => {
+              if (effectInstances.dotmatrix?.setGlow) {
+                effectInstances.dotmatrix.setGlow(glowToggle.checked);
+              }
+            });
+            
+            // Handle animation type select
+            const animationTypeSelect = document.getElementById('dotmatrix-animation-type');
+            const animationTypeValue = document.getElementById('dotmatrix-animation-type-value');
+            
+            animationTypeSelect?.addEventListener('change', () => {
+              const animationType = animationTypeSelect.value;
+              if (animationTypeValue) {
+                animationTypeValue.textContent = animationType.charAt(0).toUpperCase() + animationType.slice(1);
+              }
+              if (effectInstances.dotmatrix?.setAnimationType) {
+                effectInstances.dotmatrix.setAnimationType(animationType);
+              }
+            });
+            
+            // Handle animation speed slider
+            const animationSpeedSlider = document.getElementById('dotmatrix-animation-speed');
+            const animationSpeedValue = document.getElementById('dotmatrix-animation-speed-value');
+            
+            animationSpeedSlider?.addEventListener('input', () => {
+              const speed = parseInt(animationSpeedSlider.value) / 10;
+              if (animationSpeedValue) {
+                animationSpeedValue.textContent = speed.toFixed(1);
+              }
+              if (effectInstances.dotmatrix?.setAnimationSpeed) {
+                effectInstances.dotmatrix.setAnimationSpeed(speed);
+              }
+            });
+            
+            // Handle animation intensity slider
+            const animationIntensitySlider = document.getElementById('dotmatrix-animation-intensity');
+            const animationIntensityValue = document.getElementById('dotmatrix-animation-intensity-value');
+            
+            animationIntensitySlider?.addEventListener('input', () => {
+              const intensity = parseInt(animationIntensitySlider.value) / 10;
+              if (animationIntensityValue) {
+                animationIntensityValue.textContent = intensity.toFixed(1);
+              }
+              if (effectInstances.dotmatrix?.setAnimationIntensity) {
+                effectInstances.dotmatrix.setAnimationIntensity(intensity);
+              }
+            });
+          }
+
           // Set up sliders
           if (effect.controls) {
             for (const [param, config] of Object.entries(effect.controls)) {
@@ -1040,7 +1232,14 @@
               
               if (control && valueDisplay) {
                 // Set initial value display
-                valueDisplay.textContent = `${config.default}px`;
+                if (param === 'scale') {
+                  valueDisplay.textContent = (config.default / 10).toFixed(1) + 'x';
+                } else if (['studScale', 'depth', 'fadeExp'].includes(param)) {
+                  const displayValue = config.transform ? config.transform(config.default) : config.default;
+                  valueDisplay.textContent = displayValue.toFixed(2);
+                } else {
+                  valueDisplay.textContent = `${config.default}px`;
+                }
                 
                 control.addEventListener('input', () => {
                   const rawValue = parseInt(control.value);
@@ -1069,14 +1268,8 @@
                     }
                     effectInstances[effect.id][setter](value);
                   } else {
-                    console.log(`No ${setter} method found for ${effect.id} effect`);
-                    // If setter doesn't exist, recreate the effect
-                    if (effectInstances[effect.id]) {
-                      effectInstances[effect.id].destroy();
-                      const newOptions = { ...effect.options };
-                      newOptions[param] = value;
-                      effectInstances[effect.id] = applyHoverEffect(demo, newOptions);
-                    }
+                    console.log(`Calling ${setter} with value:`, value);
+                    effectInstances[effect.id][setter](value);
                   }
                 });
               }
@@ -1086,309 +1279,8 @@
       }
     }
 
-    // Add special handling for the Minecraft effect specifically
-    // This creates a direct handler to ensure the block size control works properly
-    function initializeMinecraftEffect() {
-      const minecraftDemo = document.getElementById('minecraft-demo');
-      if (!minecraftDemo) return;
-      
-      console.log('Setting up dedicated Minecraft effect handler...');
-      
-      // Get controls
-      const sizeControl = document.getElementById('minecraft-size');
-      const radiusControl = document.getElementById('minecraft-radius');
-      const activeToggle = document.getElementById('minecraft-active');
-      
-      if (!sizeControl || !radiusControl) return;
-      
-      // Ensure sliders are set to their HTML values
-      sizeControl.value = "28"; // Force default to match the HTML
-      radiusControl.value = "130"; // Force default to match the HTML
-      
-      // Update value displays
-      const sizeDisplay = document.getElementById('minecraft-size-value');
-      const radiusDisplay = document.getElementById('minecraft-radius-value');
-      
-      // Get initial values from the forced sliders
-      const initialBlockSize = parseInt(sizeControl.value);
-      const initialRadius = parseInt(radiusControl.value);
-      
-      if (sizeDisplay) sizeDisplay.textContent = `${initialBlockSize}px`;
-      if (radiusDisplay) radiusDisplay.textContent = `${initialRadius}px`;
-      
-      console.log('Reinitializing Minecraft effect to fix the block size issue...');
-      
-      // Force a clean slate - destroy any existing effect and create a new one
-      if (effectInstances.minecraft) {
-        effectInstances.minecraft.destroy();
-      }
-      
-      effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
-        effect: 'minecraft',
-        blockSize: initialBlockSize,
-        radius: initialRadius
-      });
-      
-      console.log(`Minecraft effect recreated with blockSize=${initialBlockSize}, radius=${initialRadius}`);
-      
-      // Enhanced direct handlers for more reliability
-      sizeControl.addEventListener('input', () => {
-        const blockSize = parseInt(sizeControl.value);
-        if (sizeDisplay) sizeDisplay.textContent = `${blockSize}px`;
-        
-        console.log('Direct handler: Setting Minecraft block size to:', blockSize);
-        
-        if (effectInstances.minecraft?.setBlockSize) {
-          effectInstances.minecraft.setBlockSize(blockSize);
-        } else {
-          console.error('ERROR: setBlockSize method not available!');
-          
-          // Fall back to recreating the effect if the method is missing
-          if (effectInstances.minecraft) {
-            effectInstances.minecraft.destroy();
-            effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
-              effect: 'minecraft',
-              blockSize: blockSize,
-              radius: parseInt(radiusControl.value)
-            });
-          }
-        }
-      });
-      
-      radiusControl.addEventListener('input', () => {
-        const radius = parseInt(radiusControl.value);
-        if (radiusDisplay) radiusDisplay.textContent = `${radius}px`;
-        
-        console.log('Setting radius to:', radius);
-        
-        if (effectInstances.minecraft?.setRadius) {
-          effectInstances.minecraft.setRadius(radius);
-        } else {
-          console.error('ERROR: setRadius method not available!');
-          
-          // Fall back to recreating the effect if the method is missing
-          if (effectInstances.minecraft) {
-            effectInstances.minecraft.destroy();
-            effectInstances.minecraft = applyHoverEffect(minecraftDemo, {
-              effect: 'minecraft',
-              blockSize: parseInt(sizeControl.value),
-              radius: radius
-            });
-          }
-        }
-      });
-      
-      // Test the controls immediately to verify they work
-      setTimeout(() => {
-        console.log('Testing Minecraft controls...');
-        const testValues = [16, 32, 44, 28]; // Test with different values, ending back at default
-        let index = 0;
-        
-        function testNextValue() {
-          if (index >= testValues.length) return;
-          
-          const value = testValues[index++];
-          console.log(`Testing with block size = ${value}`);
-          
-          // Trigger the input event with the test value
-          sizeControl.value = value.toString();
-          sizeControl.dispatchEvent(new Event('input'));
-          
-          // Schedule next test
-          if (index < testValues.length) {
-            setTimeout(testNextValue, 1500);
-          }
-        }
-        
-        // Start the test sequence
-        testNextValue();
-      }, 1000);
-    }
-    
-    // Add special handling for the Pixel effect specifically
-    // This creates a direct handler to ensure the block size control works properly
-    function initializePixelEffect() {
-      const pixelDemo = document.getElementById('pixel-demo');
-      if (!pixelDemo) return;
-      
-      console.log('Setting up dedicated Pixel effect handler...');
-      
-      // Get controls
-      const sizeControl = document.getElementById('pixel-size');
-      const radiusControl = document.getElementById('pixel-radius');
-      const activeToggle = document.getElementById('pixel-active');
-      
-      if (!sizeControl || !radiusControl) return;
-      
-      // Ensure sliders are set to their HTML values
-      sizeControl.value = "16"; // Force default to match the HTML
-      radiusControl.value = "130"; // Force default to match the HTML
-      
-      // Update value displays
-      const sizeDisplay = document.getElementById('pixel-size-value');
-      const radiusDisplay = document.getElementById('pixel-radius-value');
-      
-      // Get initial values from the forced sliders
-      const initialBlockSize = parseInt(sizeControl.value);
-      const initialRadius = parseInt(radiusControl.value);
-      
-      if (sizeDisplay) sizeDisplay.textContent = `${initialBlockSize}px`;
-      if (radiusDisplay) radiusDisplay.textContent = `${initialRadius}px`;
-      
-      console.log('Reinitializing Pixel effect to fix the block size issue...');
-      
-      // Force a clean slate - destroy any existing effect and create a new one
-      if (effectInstances.pixel) {
-        effectInstances.pixel.destroy();
-      }
-      
-      effectInstances.pixel = applyHoverEffect(pixelDemo, {
-        effect: 'pixel',
-        blockSize: initialBlockSize,
-        radius: initialRadius
-      });
-      
-      console.log(`Pixel effect recreated with blockSize=${initialBlockSize}, radius=${initialRadius}`);
-      
-      // Enhanced direct handlers for more reliability
-      sizeControl.addEventListener('input', () => {
-        const blockSize = parseInt(sizeControl.value);
-        if (sizeDisplay) sizeDisplay.textContent = `${blockSize}px`;
-        
-        console.log('Direct handler: Setting Pixel block size to:', blockSize);
-        
-        if (effectInstances.pixel?.setBlockSize) {
-          effectInstances.pixel.setBlockSize(blockSize);
-        } else {
-          console.error('ERROR: setBlockSize method not available for pixel effect!');
-          
-          // Fall back to recreating the effect if the method is missing
-          if (effectInstances.pixel) {
-            effectInstances.pixel.destroy();
-            effectInstances.pixel = applyHoverEffect(pixelDemo, {
-              effect: 'pixel',
-              blockSize: blockSize,
-              radius: parseInt(radiusControl.value)
-            });
-          }
-        }
-      });
-      
-      radiusControl.addEventListener('input', () => {
-        const radius = parseInt(radiusControl.value);
-        if (radiusDisplay) radiusDisplay.textContent = `${radius}px`;
-        
-        console.log('Setting Pixel radius to:', radius);
-        
-        if (effectInstances.pixel?.setRadius) {
-          effectInstances.pixel.setRadius(radius);
-        } else {
-          console.error('ERROR: setRadius method not available for pixel effect!');
-        }
-      });
-    }
-
     // Initialize effects when the page loads
-    initializeEffects().then(() => {
-      // Set up special handling for Minecraft
-      initializeMinecraftEffect();
-      
-      // Set up special handling for Pixel
-      initializePixelEffect();
-      
-      // Add debug key handler for the Minecraft effect
-      document.addEventListener('keydown', e => {
-        if (e.key === 'd') {
-          const canvas = document.querySelector('#minecraft .minecraft-wrapper canvas');
-          if (canvas) {
-            if (canvas.style.opacity === '1') {
-              canvas.style.opacity = '0.5';
-              console.log('Canvas debug: 50% opacity');
-            } else if (canvas.style.opacity === '0.5') {
-              canvas.style.opacity = '0';
-              console.log('Canvas debug: hidden');
-            } else {
-              canvas.style.opacity = '1';
-              console.log('Canvas debug: 100% opacity');
-            }
-          }
-        }
-      });
-      
-      // Add a debug button to the Minecraft tab
-      const minecraftControls = document.querySelector('#minecraft .effect-controls');
-      if (minecraftControls) {
-        const debugDiv = document.createElement('div');
-        debugDiv.className = 'control-group';
-        debugDiv.innerHTML = `
-          <button id="minecraft-debug" style="background: #f1f1f1; border: 1px solid #ddd; padding: 8px 12px; margin-top: 15px; border-radius: 4px; cursor: pointer;">Toggle Debug Info</button>
-          <div id="minecraft-debug-info" style="display: none; margin-top: 10px; font-family: monospace; background: #f5f5f5; padding: 10px;"></div>
-        `;
-        
-        minecraftControls.appendChild(debugDiv);
-        
-        document.getElementById('minecraft-debug')?.addEventListener('click', () => {
-          const debugInfo = document.getElementById('minecraft-debug-info');
-          if (debugInfo) {
-            if (debugInfo.style.display === 'none') {
-              debugInfo.style.display = 'block';
-              updateMinecraftDebugInfo();
-            } else {
-              debugInfo.style.display = 'none';
-            }
-          }
-        });
-        
-        function updateMinecraftDebugInfo() {
-          const debugInfo = document.getElementById('minecraft-debug-info');
-          if (debugInfo && debugInfo.style.display !== 'none' && effectInstances.minecraft) {
-            const canvas = document.querySelector('#minecraft .minecraft-wrapper canvas');
-            const effect = effectInstances.minecraft;
-            const sizeControl = document.getElementById('minecraft-size');
-            
-            // Show complete diagnostic information
-            let info = '';
-            try {
-              // Get the effect's internal state (might fail due to private properties)
-              const blockSize = effect.blockSize || 'N/A';
-              const radius = effect.radius || 'N/A';
-              const samples = effect.samples?.length || 'N/A';
-              const isSetup = effect.isSetup || 'N/A';
-              const canvasWidth = canvas?.width || 'N/A';
-              const canvasHeight = canvas?.height || 'N/A';
-              
-              // Also show the HTML control values for comparison
-              const sliderValue = sizeControl ? parseInt(sizeControl.value) : 'N/A';
-              const sliderTextValue = document.getElementById('minecraft-size-value')?.textContent || 'N/A';
-              
-              info = `
-                <div style="font-weight: bold; margin-bottom: 5px;">Effect State:</div>
-                <div>Block Size: <strong>${blockSize}</strong></div>
-                <div>Radius: ${radius}</div>
-                <div>Canvas Size: ${canvasWidth} x ${canvasHeight}</div>
-                <div>Samples: ${samples}</div>
-                <div>Is Setup: ${isSetup}</div>
-                
-                <div style="font-weight: bold; margin-top: 10px; margin-bottom: 5px;">HTML Controls:</div>
-                <div>Slider Value: <strong>${sliderValue}</strong></div>
-                <div>Display Text: ${sliderTextValue}</div>
-                
-                <div style="margin-top: 10px; font-size: 11px; color: #666;">
-                  Last updated: ${new Date().toLocaleTimeString()}
-                </div>
-              `;
-            } catch (e) {
-              info = `<div>Error accessing effect properties: ${e.message}</div>`;
-            }
-            
-            debugInfo.innerHTML = info;
-            
-            // Update more frequently for better debugging
-            setTimeout(updateMinecraftDebugInfo, 250);
-          }
-        }
-      }
-    });
+    initializeEffects();
   </script>
 </body>
-</html> 
+</html>

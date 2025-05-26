@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LED Matrix Display Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #0a0a0a;
+            color: white;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .demo-image {
+            max-width: 500px;
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .controls {
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .control {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+        }
+        .control label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .control input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .control .value {
+            color: #00ffff;
+            font-weight: bold;
+        }
+        .control select {
+            width: 100%;
+            padding: 5px;
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            border-radius: 4px;
+        }
+        .control input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        .presets {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .preset-btn {
+            background: #00ffff;
+            color: #0a0a0a;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .preset-btn:hover {
+            background: #00cccc;
+        }
+        .info {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔵 LED Matrix Display Effect</h1>
+        <p>Hover over the image to see it transform into an LED matrix display!</p>
+        
+        <div class="info">
+            <strong>How it works:</strong> This effect replaces the image with a grid of LED-like dots. Each dot's brightness corresponds to the pixel intensity at that location. The effect appears within a circular radius around your mouse cursor.
+        </div>
+        
+        <div class="presets">
+            <button class="preset-btn" onclick="applyPreset('fine')">Fine Grid</button>
+            <button class="preset-btn" onclick="applyPreset('medium')">Medium Grid</button>
+            <button class="preset-btn" onclick="applyPreset('large')">Large LEDs</button>
+            <button class="preset-btn" onclick="applyPreset('rgb')">RGB Color</button>
+            <button class="preset-btn" onclick="applyPreset('retro')">Retro Mono</button>
+        </div>
+        
+        <img src="https://picsum.photos/500/400?random=2" 
+             alt="Demo Image" 
+             class="demo-image" 
+             id="demo-image"
+             crossorigin="anonymous">
+        
+        <div class="controls">
+            <div class="control">
+                <label for="radius">Effect Radius:</label>
+                <input type="range" id="radius" min="30" max="300" value="120">
+                <span class="value" id="radius-value">120</span>
+            </div>
+            <div class="control">
+                <label for="ledSize">LED Size:</label>
+                <input type="range" id="ledSize" min="2" max="15" value="6">
+                <span class="value" id="ledSize-value">6</span>
+            </div>
+            <div class="control">
+                <label for="ledSpacing">LED Spacing:</label>
+                <input type="range" id="ledSpacing" min="4" max="25" value="8">
+                <span class="value" id="ledSpacing-value">8</span>
+            </div>
+            <div class="control">
+                <label for="softEdge">Soft Edge:</label>
+                <input type="range" id="softEdge" min="0" max="50" value="20">
+                <span class="value" id="softEdge-value">20</span>
+            </div>
+            <div class="control">
+                <label for="colorMode">Color Mode:</label>
+                <select id="colorMode">
+                    <option value="mono">Mono (Cyan)</option>
+                    <option value="rgb">RGB (Original Colors)</option>
+                </select>
+            </div>
+            <div class="control">
+                <label for="glow">Glow Effect:</label>
+                <input type="checkbox" id="glow" checked>
+                <span class="value" id="glow-value">On</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // LED Matrix effect implementation
+        class LEDMatrixDisplay {
+            constructor(options = {}) {
+                this.radius = options.radius || 120;
+                this.ledSize = options.ledSize || 6;
+                this.ledSpacing = options.ledSpacing || 8;
+                this.softEdge = options.softEdge || 20;
+                this.glow = options.glow !== false;
+                this.colorMode = options.colorMode || 'mono';
+                this.fadeExp = 2;
+                
+                this.element = null;
+                this.canvas = null;
+                this.ctx = null;
+                this.tempCanvas = null;
+                this.tempCtx = null;
+                this.isHovering = false;
+                this.mousePos = { x: 0, y: 0 };
+                this.imageData = null;
+                this.ledPath = null;
+                
+                this.buildLedPath();
+            }
+            
+            buildLedPath() {
+                this.ledPath = new Path2D();
+                this.ledPath.arc(0, 0, this.ledSize / 2, 0, Math.PI * 2);
+            }
+            
+            attach(element) {
+                this.element = element;
+                this.setupCanvas();
+                this.setupEvents();
+                this.updateImageData();
+            }
+            
+            setupCanvas() {
+                const rect = this.element.getBoundingClientRect();
+                
+                this.canvas = document.createElement('canvas');
+                this.canvas.width = rect.width;
+                this.canvas.height = rect.height;
+                this.canvas.style.position = 'absolute';
+                this.canvas.style.top = '0';
+                this.canvas.style.left = '0';
+                this.canvas.style.width = '100%';
+                this.canvas.style.height = '100%';
+                this.canvas.style.opacity = '0';
+                this.canvas.style.transition = 'opacity 0.3s ease';
+                this.canvas.style.pointerEvents = 'none';
+                
+                this.ctx = this.canvas.getContext('2d');
+                this.ctx.imageSmoothingEnabled = false;
+                
+                this.tempCanvas = document.createElement('canvas');
+                this.tempCtx = this.tempCanvas.getContext('2d');
+                
+                let wrapper = this.element.parentElement;
+                if (!wrapper || !wrapper.classList.contains('led-matrix-wrapper')) {
+                    wrapper = document.createElement('div');
+                    wrapper.className = 'led-matrix-wrapper';
+                    wrapper.style.position = 'relative';
+                    wrapper.style.display = 'inline-block';
+                    this.element.replaceWith(wrapper);
+                    wrapper.appendChild(this.element);
+                }
+                wrapper.appendChild(this.canvas);
+            }
+            
+            setupEvents() {
+                const wrapper = this.element.parentElement;
+                wrapper.addEventListener('mouseenter', (e) => {
+                    this.isHovering = true;
+                    const rect = this.element.getBoundingClientRect();
+                    this.mousePos = {
+                        x: e.clientX - rect.left,
+                        y: e.clientY - rect.top
+                    };
+                    this.canvas.style.opacity = '1';
+                    this.render();
+                });
+                
+                wrapper.addEventListener('mouseleave', () => {
+                    this.isHovering = false;
+                    this.canvas.style.opacity = '0';
+                    setTimeout(() => {
+                        if (!this.isHovering && this.ctx) {
+                            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                        }
+                    }, 300);
+                });
+                
+                wrapper.addEventListener('mousemove', (e) => {
+                    const rect = this.canvas.getBoundingClientRect();
+                    const scaleX = this.canvas.width / rect.width;
+                    const scaleY = this.canvas.height / rect.height;
+                    this.mousePos = {
+                        x: (e.clientX - rect.left) * scaleX,
+                        y: (e.clientY - rect.top) * scaleY
+                    };
+                });
+            }
+            
+            updateImageData() {
+                if (!this.element || !this.tempCanvas || !this.tempCtx || !this.canvas) return;
+                
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                
+                // Calculate grid dimensions based on LED spacing
+                const gridWidth = Math.floor(width / this.ledSpacing);
+                const gridHeight = Math.floor(height / this.ledSpacing);
+                
+                this.tempCanvas.width = gridWidth;
+                this.tempCanvas.height = gridHeight;
+                this.tempCtx.drawImage(this.element, 0, 0, gridWidth, gridHeight);
+                this.imageData = this.tempCtx.getImageData(0, 0, gridWidth, gridHeight);
+            }
+            
+            render() {
+                if (!this.isHovering || !this.imageData || !this.ctx || !this.ledPath) return;
+                
+                const width = this.canvas.width;
+                const height = this.canvas.height;
+                const gridWidth = Math.floor(width / this.ledSpacing);
+                const gridHeight = Math.floor(height / this.ledSpacing);
+                
+                // Clear canvas with black background (LED matrix background)
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(0, 0, width, height);
+                
+                const data = this.imageData.data;
+                
+                // Iterate through the LED grid
+                for (let gridY = 0; gridY < gridHeight; gridY++) {
+                    for (let gridX = 0; gridX < gridWidth; gridX++) {
+                        // Calculate LED position on canvas
+                        const ledX = (gridX + 0.5) * this.ledSpacing;
+                        const ledY = (gridY + 0.5) * this.ledSpacing;
+                        
+                        // Calculate distance from mouse
+                        const dist = Math.hypot(ledX - this.mousePos.x, ledY - this.mousePos.y);
+                        
+                        // Only render LEDs within the hover radius
+                        if (dist < this.radius) {
+                            const index = (gridY * gridWidth + gridX) * 4;
+                            const r = data[index];
+                            const g = data[index + 1];
+                            const b = data[index + 2];
+                            
+                            // Calculate brightness (0-1)
+                            const brightness = (r + g + b) / (3 * 255);
+                            
+                            // Calculate radial falloff with soft edge
+                            let radialFalloff = 1;
+                            if (dist > this.radius - this.softEdge) {
+                                const edgeDistance = dist - (this.radius - this.softEdge);
+                                radialFalloff = 1 - Math.pow(edgeDistance / this.softEdge, this.fadeExp);
+                                radialFalloff = Math.max(0, radialFalloff);
+                            }
+                            
+                            // Calculate final alpha
+                            const alpha = brightness * radialFalloff;
+                            
+                            // Skip if alpha is too low
+                            if (alpha < 0.05) continue;
+                            
+                            // Determine LED color based on color mode
+                            let fillColor;
+                            if (this.colorMode === 'rgb') {
+                                fillColor = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                            } else {
+                                // Mono mode - cyan
+                                fillColor = `rgba(0, 255, 255, ${alpha})`;
+                            }
+                            
+                            // Configure glow effect if enabled
+                            if (this.glow) {
+                                this.ctx.shadowBlur = 4;
+                                this.ctx.shadowColor = fillColor;
+                            } else {
+                                this.ctx.shadowBlur = 0;
+                            }
+                            
+                            // Set fill color and draw LED
+                            this.ctx.fillStyle = fillColor;
+                            this.ctx.save();
+                            this.ctx.translate(ledX, ledY);
+                            this.ctx.fill(this.ledPath);
+                            this.ctx.restore();
+                        }
+                    }
+                }
+                
+                // Reset shadow settings
+                this.ctx.shadowBlur = 0;
+                
+                if (this.isHovering) {
+                    requestAnimationFrame(() => this.render());
+                }
+            }
+            
+            // Setters
+            setRadius(radius) { this.radius = radius; }
+            setLedSize(ledSize) { 
+                this.ledSize = ledSize; 
+                this.buildLedPath();
+            }
+            setLedSpacing(ledSpacing) { 
+                this.ledSpacing = ledSpacing; 
+                this.updateImageData();
+            }
+            setSoftEdge(softEdge) { this.softEdge = softEdge; }
+            setGlow(glow) { this.glow = glow; }
+            setColorMode(colorMode) { this.colorMode = colorMode; }
+            
+            destroy() {
+                if (this.canvas) {
+                    this.canvas.remove();
+                }
+            }
+        }
+        
+        // Initialize effect
+        let ledEffect = null;
+        
+        function initEffect() {
+            const image = document.getElementById('demo-image');
+            if (ledEffect) ledEffect.destroy();
+            
+            ledEffect = new LEDMatrixDisplay({
+                radius: parseInt(document.getElementById('radius').value),
+                ledSize: parseInt(document.getElementById('ledSize').value),
+                ledSpacing: parseInt(document.getElementById('ledSpacing').value),
+                softEdge: parseInt(document.getElementById('softEdge').value),
+                glow: document.getElementById('glow').checked,
+                colorMode: document.getElementById('colorMode').value
+            });
+            
+            ledEffect.attach(image);
+        }
+        
+        function updateEffect() {
+            if (!ledEffect) return;
+            ledEffect.setRadius(parseInt(document.getElementById('radius').value));
+            ledEffect.setLedSize(parseInt(document.getElementById('ledSize').value));
+            ledEffect.setLedSpacing(parseInt(document.getElementById('ledSpacing').value));
+            ledEffect.setSoftEdge(parseInt(document.getElementById('softEdge').value));
+            ledEffect.setGlow(document.getElementById('glow').checked);
+            ledEffect.setColorMode(document.getElementById('colorMode').value);
+        }
+        
+        function applyPreset(preset) {
+            const presets = {
+                fine: { radius: 100, ledSize: 3, ledSpacing: 5, softEdge: 15, glow: true, colorMode: 'mono' },
+                medium: { radius: 120, ledSize: 6, ledSpacing: 8, softEdge: 20, glow: true, colorMode: 'mono' },
+                large: { radius: 150, ledSize: 10, ledSpacing: 14, softEdge: 25, glow: true, colorMode: 'mono' },
+                rgb: { radius: 120, ledSize: 6, ledSpacing: 8, softEdge: 20, glow: true, colorMode: 'rgb' },
+                retro: { radius: 100, ledSize: 4, ledSpacing: 6, softEdge: 10, glow: false, colorMode: 'mono' }
+            };
+            
+            const config = presets[preset];
+            if (config) {
+                document.getElementById('radius').value = config.radius;
+                document.getElementById('ledSize').value = config.ledSize;
+                document.getElementById('ledSpacing').value = config.ledSpacing;
+                document.getElementById('softEdge').value = config.softEdge;
+                document.getElementById('glow').checked = config.glow;
+                document.getElementById('colorMode').value = config.colorMode;
+                updateValues();
+                updateEffect();
+            }
+        }
+        
+        function updateValues() {
+            document.getElementById('radius-value').textContent = document.getElementById('radius').value;
+            document.getElementById('ledSize-value').textContent = document.getElementById('ledSize').value;
+            document.getElementById('ledSpacing-value').textContent = document.getElementById('ledSpacing').value;
+            document.getElementById('softEdge-value').textContent = document.getElementById('softEdge').value;
+            document.getElementById('glow-value').textContent = document.getElementById('glow').checked ? 'On' : 'Off';
+        }
+        
+        // Event listeners
+        ['radius', 'ledSize', 'ledSpacing', 'softEdge'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                updateValues();
+                updateEffect();
+            });
+        });
+        
+        document.getElementById('glow').addEventListener('change', () => {
+            updateValues();
+            updateEffect();
+        });
+        
+        document.getElementById('colorMode').addEventListener('change', () => {
+            updateEffect();
+        });
+        
+        // Initialize when image loads
+        document.getElementById('demo-image').addEventListener('load', initEffect);
+        if (document.getElementById('demo-image').complete) {
+            initEffect();
+        }
+        
+        updateValues();
+    </script>
+</body>
+</html> 

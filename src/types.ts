@@ -41,6 +41,20 @@ export type HoverEffectOptions =
       gap?: number; 
       softEdge?: number; 
       fadeExp?: number 
+    })
+  | ({ 
+      effect: "dot-matrix"; 
+      radius?: number; 
+      softEdge?: number; 
+      ledSize?: number; 
+      ledSpacing?: number;
+      scale?: number; 
+      glow?: boolean; 
+      fadeExp?: number;
+      colorMode?: 'mono' | 'rgb';
+      animationType?: 'none' | 'wave' | 'pulse' | 'drift' | 'ripple' | 'rotation';
+      animationSpeed?: number;
+      animationIntensity?: number;
     });
 
 /**
@@ -92,9 +106,18 @@ export interface HoverEffect {
   setDepth?(depth: number): void;
   setSoftEdge?(edge: number): void;
   setFadeExp?(exp: number): void;
+  
+  // Dot Matrix effect setters
+  setLedSize?(ledSize: number): void;
+  setLedSpacing?(ledSpacing: number): void;
+  setGlow?(glow: boolean): void;
+  setColorMode?(colorMode: 'mono' | 'rgb'): void;
+  setAnimationType?(animationType: 'none' | 'wave' | 'pulse' | 'drift' | 'ripple' | 'rotation'): void;
+  setAnimationSpeed?(animationSpeed: number): void;
+  setAnimationIntensity?(animationIntensity: number): void;
 }
 
 /**
  * Valid effect types that can be applied
  */
-export type EffectType = 'ascii' | 'zoom' | 'particle-dust' | 'pixel' | 'minecraft' | 'lego'; 
+export type EffectType = 'ascii' | 'zoom' | 'particle-dust' | 'pixel' | 'minecraft' | 'lego' | 'dot-matrix'; 

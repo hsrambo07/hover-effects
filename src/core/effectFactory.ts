@@ -1,4 +1,4 @@
-import { HoverEffect, HoverEffectOptions } from './types';
+import { HoverEffect, HoverEffectOptions } from '../types';
 import { getTargets } from './utils';
 import { AsciiHover } from '../effects/ascii';
 import { ZoomHover } from '../effects/zoom';
@@ -6,6 +6,7 @@ import { ParticleDust } from '../effects/particleDust';
 import { PixelHover } from '../effects/pixel';
 import { MinecraftHover } from '../effects/minecraft';
 import { LegoHover } from '../effects/lego';
+import DotMatrixHover from '../effects/DotMatrixHover';
 
 export function createHoverEffect(options: HoverEffectOptions): HoverEffect {
   switch (options.effect) {
@@ -47,6 +48,20 @@ export function createHoverEffect(options: HoverEffectOptions): HoverEffect {
         depth: options.depth,
         softEdge: options.softEdge,
         fadeExp: options.fadeExp
+      });
+    case 'dot-matrix':
+      return new DotMatrixHover({
+        radius: options.radius,
+        softEdge: options.softEdge,
+        ledSize: options.ledSize,
+        ledSpacing: options.ledSpacing,
+        scale: options.scale,
+        glow: options.glow,
+        fadeExp: options.fadeExp,
+        colorMode: options.colorMode,
+        animationType: options.animationType,
+        animationSpeed: options.animationSpeed,
+        animationIntensity: options.animationIntensity
       });
     default:
       throw new Error(`Unsupported effect: ${(options as any).effect}`);

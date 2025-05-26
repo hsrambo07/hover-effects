@@ -1,6 +1,6 @@
 {
   "name": "hover-effects-ts",
-  "version": "2.4.5",
+  "version": "2.5.0",
   "description": "A collection of beautiful hover effects for images using canvas",
   "type": "module",
   "main": "dist/hover-effects.es.js",
@@ -53,7 +53,11 @@
     "particle",
     "pixel",
     "minecraft",
-    "lego"
+    "lego",
+    "led",
+    "matrix",
+    "dot-matrix",
+    "led-display"
   ],
   "author": "Harsh Singhal",
   "license": "MIT",

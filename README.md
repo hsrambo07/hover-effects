@@ -29,7 +29,7 @@ Check out our live demo to see all the effects in action:
 
 ## ✨ Features
 
-- 🖼️ **Multiple Effects**: Choose from ASCII art, zoom, particle dust, pixel art, Minecraft-style, and Lego effects
+- 🖼️ **Multiple Effects**: Choose from ASCII art, zoom, particle dust, pixel art, Minecraft-style, Lego, and LED Matrix effects
 - 🎨 **Canvas-based**: Smooth, performant animations using the Canvas API
 - 📱 **Responsive**: Works with any image size
 - 🎮 **Interactive**: Dynamic effects that respond to mouse movement
@@ -305,6 +305,48 @@ applyHoverEffect('#my-image', {
 - `setSoftEdge(edge)` - Controls the edge softness (30-150px)
 - `setFadeExp(exp)` - Adjusts the fade exponent for transitions (1.0-3.0)
 
+### LED Matrix Effect
+
+Creates an authentic LED matrix display that replaces the image with animated LED dots when hovering.
+
+> **📺 Demo**: See the LED Matrix effect in action on [YouTube](https://youtu.be/PjxFH-Q53zM)
+
+```javascript
+applyHoverEffect('#my-image', {
+  effect: 'dot-matrix',
+  radius: 120,              // Effect radius in pixels (range: 50-300, default: 120)
+  ledSize: 6,               // LED dot size in pixels (range: 2-15, default: 6)
+  ledSpacing: 8,            // Spacing between LEDs (range: 4-25, default: 8)
+  softEdge: 20,             // Soft edge transition (range: 0-50, default: 20)
+  fadeExp: 2.0,             // Fade exponent for smooth transitions (range: 0.5-5.0, default: 2.0)
+  glow: true,               // Enable LED glow effect (default: true)
+  colorMode: 'mono',        // Color mode: 'mono' (cyan) or 'rgb' (original colors)
+  animationType: 'wave',    // Animation type: 'none', 'wave', 'pulse', 'drift', 'ripple', 'rotation'
+  animationSpeed: 1.0,      // Animation speed multiplier (range: 0.1-5.0, default: 1.0)
+  animationIntensity: 3.0   // Animation intensity (range: 0.1-10.0, default: 3.0)
+});
+```
+
+**Available controls:**
+- `setRadius(radius)` - Changes the effect radius (50-300px)
+- `setLedSize(ledSize)` - Changes the LED dot size (2-15px)
+- `setLedSpacing(ledSpacing)` - Adjusts spacing between LEDs (4-25px)
+- `setSoftEdge(softEdge)` - Controls the edge softness (0-50px)
+- `setFadeExp(fadeExp)` - Adjusts the fade exponent (0.5-5.0)
+- `setGlow(glow)` - Toggles the LED glow effect (boolean)
+- `setColorMode(colorMode)` - Switches between 'mono' and 'rgb' color modes
+- `setAnimationType(animationType)` - Changes animation type ('none', 'wave', 'pulse', 'drift', 'ripple', 'rotation')
+- `setAnimationSpeed(animationSpeed)` - Adjusts animation speed (0.1-5.0)
+- `setAnimationIntensity(animationIntensity)` - Controls animation intensity (0.1-10.0)
+
+**Animation Types:**
+- **Wave**: LEDs move in smooth sine wave patterns
+- **Pulse**: LEDs pulse in size and brightness with varying phases
+- **Drift**: LEDs drift randomly like particles in space
+- **Ripple**: Ripple effects emanate from the mouse position
+- **Rotation**: LEDs rotate around their positions with varying speeds
+- **None**: Static LED display without animation
+
 ## 🚀 Performance Tips
 
 To keep your hover effects running smoothly:
@@ -429,63 +471,15 @@ MIT License - feel free to use this in your projects!
 
 ## 📝 Changelog
 
+### Version 2.5.0
+- **NEW**: Added LED Matrix effect with authentic LED display simulation
+- **NEW**: LED Matrix supports both monochrome (cyan) and RGB color modes
+- **NEW**: Added 6 animation types for LED Matrix: Wave, Pulse, Drift, Ripple, Rotation, and None
+- **NEW**: Configurable LED size, spacing, glow effects, and animation parameters
+- **NEW**: Real-time animation controls with speed and intensity adjustments
+- **ENHANCEMENT**: Improved canvas dimension validation to prevent IndexSizeError
+- **ENHANCEMENT**: Added fallback handling for image loading edge cases
+- **ENHANCEMENT**: Enhanced type definitions for better TypeScript support
+
 ### Version 2.4.4
-- Added proper `exports` field in package.json for better ESM/CJS compatibility
-- Included source TypeScript files in the package for source diving
-- Added declaration maps for better IDE integration
-- Made ES modules the primary format
-- Improved package structure for better developer experience
-
-### Version 2.4.3
-- Updated demo links to use YouTube instead of Twitter
-- Added YouTube video thumbnail
-- Improved documentation with consistent demo references
-- Removed Twitter embed code
-
-### Version 2.4.2
-- Fixed ASCII effect radius parameter not working correctly
-- Improved mouse position tracking and coordinate system handling
-- Enhanced canvas positioning and scaling for consistent effect behavior
-- Added debug information for troubleshooting
-
-### Version 2.3.0
-- Removed colored ASCII feature to improve performance
-- Fixed TypeScript errors and improved type safety
-- Added better null checks in particle dust effect
-
-### Version 2.2.5
-- Fixed Minecraft effect not respecting the provided blockSize parameter
-- Fixed Pixel effect initialization with custom blockSize values
-- Improved setBlockSize method implementation for both effects
-- Added better error handling and safety checks for array bounds
-- Enhanced debugging support to monitor effect states
-- Ensured consistent behavior between Pixel and Minecraft effects
-
-### Version 2.1.0
-- Added real-time control ranges for all effects
-- Improved performance with optimized rendering
-- Fixed canvas scaling issues on high-DPI displays
-- Added TypeScript strict mode support
-- Improved error handling and type safety
-
-### Version 2.0.0
-- **BREAKING CHANGE**: Unified API for `applyHoverEffect`
-- Added real-time parameter update support via setter methods
-- Improved ASCII effect with better coloring and transparency
-- Added LEGO effect with customizable studs and 3D appearance
-- Fixed transparency issues in all effects
-- Improved performance and rendering quality
-
-### Version 1.2.0
-- Added Particle Dust effect
-- Fixed CORS issues with external images
-- Improved error handling for different image types
-
-### Version 1.1.0
-- Added Minecraft and Pixel effects
-- Fixed performance issues when using multiple effects
-- Improved reusability with better cleanup methods
-
-### Version 1.0.0
-- Initial release with ASCII and Zoom effects
-- Basic hover interaction support
+- Added proper `
