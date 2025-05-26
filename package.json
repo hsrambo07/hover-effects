@@ -1,6 +1,6 @@
 {
   "name": "hover-effects-ts",
-  "version": "2.4.4",
+  "version": "2.4.5",
   "description": "A collection of beautiful hover effects for images using canvas",
   "type": "module",
   "main": "dist/hover-effects.es.js",
@@ -14,14 +14,23 @@
     }
   },
   "files": [
-    "dist/",
+    "dist/hover-effects.es.js",
+    "dist/hover-effects.umd.js",
+    "dist/hover-effects.es.js.map",
+    "dist/hover-effects.umd.js.map",
+    "dist/index.d.ts",
+    "dist/index.d.ts.map",
+    "dist/types.d.ts",
+    "dist/types.d.ts.map",
+    "dist/core",
+    "dist/effects",
     "src/",
     "README.md",
     "LICENSE",
     "examples"
   ],
   "scripts": {
-    "build": "vite build && tsc --emitDeclarationOnly --declarationMap",
+    "build": "vite build && tsc --emitDeclarationOnly --declarationMap && rm -rf dist/images",
     "build:playground": "PLAYGROUND=true vite build",
     "dev": "vite",
     "dev:playground": "PLAYGROUND=true vite",
@@ -29,7 +38,8 @@
     "lint": "eslint src/**/*.ts",
     "prepare": "pnpm run build",
     "demo": "vite playground",
-    "vercel-build": "npm run build:playground"
+    "vercel-build": "npm run build:playground",
+    "size-check": "npm pack && du -h *.tgz && rm *.tgz"
   },
   "keywords": [
     "hover",

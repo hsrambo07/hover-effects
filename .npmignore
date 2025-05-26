@@ -24,6 +24,16 @@ playground/
 simple-test/
 public/
 dist/images/
+dist/**/*.jpg
+dist/**/*.jpeg
+dist/**/*.png
+dist/**/*.gif
+dist/**/*.svg
+
+# Large files
+*.png
+youtube.png
+demo_screenshot.png
 
 # Package files
 pnpm-lock.yaml

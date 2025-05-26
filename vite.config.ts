@@ -33,7 +33,9 @@ export default defineConfig(({ command }) => {
         output: {
           // Ensure ES module is the primary format
           preserveModules: false
-        }
+        },
+        // Exclude image assets from the build
+        external: (id) => /\.(jpg|jpeg|png|gif|svg)$/.test(id)
       }
     },
     resolve: {
