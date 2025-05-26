@@ -402,11 +402,11 @@
         
         function applyPreset(preset) {
             const presets = {
-                fine: { radius: 100, ledSize: 3, ledSpacing: 5, softEdge: 15, glow: true, colorMode: 'mono' },
-                medium: { radius: 120, ledSize: 6, ledSpacing: 8, softEdge: 20, glow: true, colorMode: 'mono' },
-                large: { radius: 150, ledSize: 10, ledSpacing: 14, softEdge: 25, glow: true, colorMode: 'mono' },
-                rgb: { radius: 120, ledSize: 6, ledSpacing: 8, softEdge: 20, glow: true, colorMode: 'rgb' },
-                retro: { radius: 100, ledSize: 4, ledSpacing: 6, softEdge: 10, glow: false, colorMode: 'mono' }
+                small: { radius: 80, ledSize: 3, ledSpacing: 4, softEdge: 15, glow: true, colorMode: 'mono' },
+                medium: { radius: 120, ledSize: 4, ledSpacing: 5, softEdge: 20, glow: true, colorMode: 'mono' },
+                large: { radius: 160, ledSize: 6, ledSpacing: 7, softEdge: 25, glow: true, colorMode: 'mono' },
+                rgb: { radius: 120, ledSize: 4, ledSpacing: 5, softEdge: 20, glow: true, colorMode: 'rgb' },
+                noGlow: { radius: 120, ledSize: 4, ledSpacing: 5, softEdge: 20, glow: false, colorMode: 'mono' }
             };
             
             const config = presets[preset];

@@ -51,8 +51,8 @@ export default class DotMatrixHover implements HoverEffect {
     this.id = Math.random().toString(36).substring(2, 9);
     this.radius = options.radius ?? 120;
     this.softEdge = options.softEdge ?? 20;
-    this.ledSize = options.ledSize ?? 8;
-    this.ledSpacing = options.ledSpacing ?? (this.ledSize + 1);
+    this.ledSize = options.ledSize ?? 4;
+    this.ledSpacing = options.ledSpacing ?? 5;
     this.scale = options.scale ?? 0.12;
     this.glow = options.glow ?? true;
     this.fadeExp = options.fadeExp ?? 2;

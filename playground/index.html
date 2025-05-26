@@ -797,16 +797,16 @@
           <div class="control-group">
             <div class="control-header">
               <label for="dotmatrix-led-size">LED Size</label>
-              <span class="value" id="dotmatrix-led-size-value">6px</span>
+              <span class="value" id="dotmatrix-led-size-value">4px</span>
             </div>
-            <input type="range" min="2" max="15" value="6" id="dotmatrix-led-size">
+            <input type="range" min="2" max="15" value="4" id="dotmatrix-led-size">
           </div>
           <div class="control-group">
             <div class="control-header">
               <label for="dotmatrix-led-spacing">LED Spacing</label>
-              <span class="value" id="dotmatrix-led-spacing-value">8px</span>
+              <span class="value" id="dotmatrix-led-spacing-value">5px</span>
             </div>
-            <input type="range" min="4" max="25" value="8" id="dotmatrix-led-spacing">
+            <input type="range" min="4" max="25" value="5" id="dotmatrix-led-spacing">
           </div>
           <div class="control-group">
             <div class="control-header">
@@ -1077,8 +1077,8 @@
           options: { 
             effect: 'dot-matrix', 
             radius: 120,
-            ledSize: 6,
-            ledSpacing: 8,
+            ledSize: 4,
+            ledSpacing: 5,
             softEdge: 20,
             fadeExp: 2.0,
             glow: true,
@@ -1089,8 +1089,8 @@
           },
           controls: {
             radius: { min: 50, max: 300, default: 120 },
-            ledSize: { min: 2, max: 15, default: 6 },
-            ledSpacing: { min: 4, max: 25, default: 8 },
+            ledSize: { min: 2, max: 15, default: 4 },
+            ledSpacing: { min: 4, max: 25, default: 5 },
             softEdge: { min: 0, max: 50, default: 20 },
             fadeExp: { min: 5, max: 50, default: 20, transform: v => v / 10 },
             animationSpeed: { min: 1, max: 50, default: 10, transform: v => v / 10 },

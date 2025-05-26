@@ -315,8 +315,8 @@ Creates an authentic LED matrix display that replaces the image with animated LE
 applyHoverEffect('#my-image', {
   effect: 'dot-matrix',
   radius: 120,              // Effect radius in pixels (range: 50-300, default: 120)
-  ledSize: 6,               // LED dot size in pixels (range: 2-15, default: 6)
-  ledSpacing: 8,            // Spacing between LEDs (range: 4-25, default: 8)
+  ledSize: 4,               // LED dot size in pixels (range: 2-15, default: 4)
+  ledSpacing: 5,            // Spacing between LEDs (range: 4-25, default: 5)
   softEdge: 20,             // Soft edge transition (range: 0-50, default: 20)
   fadeExp: 2.0,             // Fade exponent for smooth transitions (range: 0.5-5.0, default: 2.0)
   glow: true,               // Enable LED glow effect (default: true)
