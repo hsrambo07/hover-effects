@@ -74,7 +74,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hsrambo07/hover-effects"
+    "url": "git+https://github.com/hsrambo07/hover-effects.git"
   },
   "bugs": {
     "url": "https://github.com/hsrambo07/hover-effects/issues"
