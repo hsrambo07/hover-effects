@@ -77,9 +77,13 @@ export class PixelHover implements HoverEffect {
           this.ctx!.fillRect(s.x, s.y, this.blockSize, this.blockSize);
         }
       });
+      
+      // Only continue animation if cursor is active
+      this.animationFrame = requestAnimationFrame(this.render);
+    } else {
+      // Stop animation when cursor is not active
+      this.animationFrame = null;
     }
-
-    this.animationFrame = requestAnimationFrame(this.render);
   };
 
   private onMouseMove = (e: MouseEvent): void => {
@@ -93,8 +97,13 @@ export class PixelHover implements HoverEffect {
     this.cursor.y = (e.clientY - rect.top) * scaleY;
     this.cursor.active = true;
 
-    if (!this.canvas.style.opacity) {
+    if (!this.canvas.style.opacity || this.canvas.style.opacity === '0') {
       this.canvas.style.opacity = '1';
+    }
+    
+    // Start animation if not already running
+    if (!this.animationFrame) {
+      this.animationFrame = requestAnimationFrame(this.render);
     }
   };
 
@@ -102,13 +111,21 @@ export class PixelHover implements HoverEffect {
     if (this.canvas) {
       this.canvas.style.opacity = '1';
     }
+    this.cursor.active = true;
+    
+    // Start animation
+    if (!this.animationFrame) {
+      this.animationFrame = requestAnimationFrame(this.render);
+    }
   };
 
   private onMouseLeave = (): void => {
     if (this.canvas) {
       this.canvas.style.opacity = '0';
-      this.cursor.active = false;
     }
+    this.cursor.active = false;
+    
+    // Animation will stop automatically in render loop when cursor.active is false
   };
 
   public attach(element: HTMLElement): void {
@@ -119,10 +136,23 @@ export class PixelHover implements HoverEffect {
     this.element = element;
 
     const setupEffect = () => {
-      // Create canvas at the same size as the image
+      // Create canvas using displayed dimensions instead of natural dimensions
       const canvas = document.createElement('canvas');
-      canvas.width = element.naturalWidth;
-      canvas.height = element.naturalHeight;
+      
+      // Get the displayed dimensions of the image
+      const rect = element.getBoundingClientRect();
+      let width = rect.width;
+      let height = rect.height;
+      
+      // Fallback to natural dimensions if displayed dimensions are 0
+      if (width <= 0 || height <= 0) {
+        width = element.naturalWidth || 300; // Default fallback
+        height = element.naturalHeight || 200; // Default fallback
+        console.warn('Using fallback dimensions for pixel canvas:', width, height);
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
       canvas.style.position = 'absolute';
       canvas.style.top = '0';
       canvas.style.left = '0';
@@ -152,13 +182,12 @@ export class PixelHover implements HoverEffect {
       this.sampleImage();
       this.isSetup = true;
 
-      // Start animation
-      this.animationFrame = requestAnimationFrame(this.render);
-
       // Add event listeners
       wrapper.addEventListener('mousemove', this.onMouseMove);
       wrapper.addEventListener('mouseenter', this.onMouseEnter);
       wrapper.addEventListener('mouseleave', this.onMouseLeave);
+      
+      console.log(`Pixel effect setup complete. Canvas size: ${canvas.width}x${canvas.height}, Samples: ${this.samples.length}`);
     };
 
     if (element.complete) {

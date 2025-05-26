@@ -1135,6 +1135,63 @@
         }
       }
 
+      // Initialize Pixel effect separately with more control
+      const pixelEffect = effects.find(e => e.id === 'pixel');
+      if (pixelEffect) {
+        const pixelDemo = document.getElementById('pixel-demo');
+        if (pixelDemo) {
+          await ensureImageLoaded(pixelDemo);
+          
+          // Get the actual value from the slider
+          const sizeControl = document.getElementById('pixel-size');
+          const radiusControl = document.getElementById('pixel-radius');
+          
+          const actualBlockSize = sizeControl ? parseInt(sizeControl.value) : 16;
+          const actualRadius = radiusControl ? parseInt(radiusControl.value) : 130;
+          
+          // Force the correct values instead of using the defaults
+          const pixelOptions = {
+            effect: 'pixel',
+            blockSize: actualBlockSize,
+            radius: actualRadius
+          };
+          
+          console.log('Initializing Pixel effect with explicit values:', pixelOptions);
+          effectInstances.pixel = applyHoverEffect(pixelDemo, pixelOptions);
+          
+          // Set up controls for pixel effect
+          const activeToggle = document.getElementById('pixel-active');
+          activeToggle?.addEventListener('change', () => {
+            if (activeToggle.checked) {
+              if (!effectInstances.pixel) {
+                effectInstances.pixel = applyHoverEffect(pixelDemo, pixelOptions);
+              }
+            } else if (effectInstances.pixel) {
+              effectInstances.pixel.destroy();
+              effectInstances.pixel = null;
+            }
+          });
+
+          // Set up pixel size control
+          sizeControl?.addEventListener('input', () => {
+            const blockSize = parseInt(sizeControl.value);
+            document.getElementById('pixel-size-value').textContent = `${blockSize}px`;
+            if (effectInstances.pixel?.setBlockSize) {
+              effectInstances.pixel.setBlockSize(blockSize);
+            }
+          });
+
+          // Set up pixel radius control
+          radiusControl?.addEventListener('input', () => {
+            const radius = parseInt(radiusControl.value);
+            document.getElementById('pixel-radius-value').textContent = `${radius}px`;
+            if (effectInstances.pixel?.setRadius) {
+              effectInstances.pixel.setRadius(radius);
+            }
+          });
+        }
+      }
+
       for (const effect of effects) {
         // Skip Minecraft and Pixel effects as we'll handle them separately
         if (effect.id === 'minecraft' || effect.id === 'pixel') continue;
